@@ -10,7 +10,11 @@ import ui
 import winGDI
 import screenBitmap
 import wx
+import queueHandler
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
+
+def queue_ui_message(message):
+	queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
 
 class RecogUiEnhance:
 	def __init__(self):
@@ -69,7 +73,7 @@ class RecogUiEnhance:
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
-			ui.message(_("Already in a content recognition result"))
+			queue_ui_message(_("Already in a content recognition result"))
 			return
 		if recogUi._activeRecog:
 			recogUi._activeRecog.cancel()
@@ -77,7 +81,7 @@ class RecogUiEnhance:
 		self.bmp_list = []
 		self.results = []
 		self.on_finish = onFinish
-		ui.message(_("Recognizing"))
+		queue_ui_message(_("Recognizing"))
 		for f in filePathList:
 			bmp =  wx.Bitmap(str(os.path.join(pdfToImagePath, f)))
 			self.bmp_list.append(bmp)
@@ -105,8 +109,7 @@ class RecogUiEnhance:
 		if isinstance(result, Exception):
 			# Translators: Reported when recognition (e.g. OCR) fails.
 			log.error("Recognition failed: %s" % result)
-			queueHandler.queueFunction(queueHandler.eventQueue,
-				ui.message, _("Recognition failed"))
+			queue_ui_message(_("Recognition failed"))
 			self.bmp_list = []
 			self.results = []
 			if self.on_finish:

@@ -16,6 +16,7 @@ import nvwave
 import speech
 from comtypes.client import CreateObject as COMCreate
 from .OCREnhance import recogUiEnhance, beepThread
+from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 
 # Global variables
@@ -120,7 +121,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			for f in os.listdir(pdfToImagePath):
 				os.remove(os.path.join(pdfToImagePath, f))
 		except FileNotFoundError:
-			ui.message(_("Error, file not found"))
+			queue_ui_message(_("Error, file not found"))
 			pass
 		command = "{} \"{}\" \"{}\"".format(pdfToPngToolPath, filePath, pdfToImageFileNamePath)
 		
@@ -131,7 +132,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if p.returncode == 0:
 			self.recogUiEnhance.recognizePdfFileObject(os.listdir(pdfToImagePath), pdfToImagePath, self._pdfToPngFinish)
 		else:
-			ui.message(_("Error, the file could not be processed."))
+			queue_ui_message(_("Error, the file could not be processed."))
 			self.beeper.stop()
 
 	def _pdfToPngFinish(self):
