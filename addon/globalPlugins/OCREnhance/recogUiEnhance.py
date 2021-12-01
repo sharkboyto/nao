@@ -12,6 +12,7 @@ import screenBitmap
 import wx
 import queueHandler
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
+from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject
 
 def queue_ui_message(message):
 	queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
@@ -20,6 +21,7 @@ class RecogUiEnhance:
 	def __init__(self):
 		self.bmp_list = []
 		self.results = []
+		self.pages_offset = []
 		self.on_finish = None
 
 	def recognizeImageFileObject(self, filePath):
@@ -80,6 +82,7 @@ class RecogUiEnhance:
 			recogUi._activeRecog = None
 		self.bmp_list = []
 		self.results = []
+		self.pages_offset = []
 		self.on_finish = onFinish
 		queue_ui_message(_("Recognizing"))
 		for f in filePathList:
@@ -112,10 +115,16 @@ class RecogUiEnhance:
 			queue_ui_message(_("Recognition failed"))
 			self.bmp_list = []
 			self.results = []
+			self.pages_offset = []
 			if self.on_finish:
 				self.on_finish()
 				self.on_finish = None
 			return
+		
+		if len(self.pages_offset) == 0:
+			self.pages_offset.append(RecogUiEnhanceResultPageOffset(0, result.textLen))
+		else:
+			self.pages_offset.append(RecogUiEnhanceResultPageOffset(self.pages_offset[len(self.pages_offset) - 1].end, result.textLen))
 		
 		# Result is a LinesWordsResult, we store all pages data objects that we will merge later in a single LinesWordsResult
 		for line in result.data:
@@ -124,7 +133,8 @@ class RecogUiEnhance:
 		if not self._recognize_next_pdf_page():
 			# No more pages
 			result = LinesWordsResult(self.results, result.imageInfo)
+			resObj = RecogUiEnhanceResultNVDAObject(result=result,pages_offset=self.pages_offset)
 			self.results = []
-			resObj = recogUi.RecogResultNVDAObject(result=result)
+			self.pages_offset = []
 			# This method queues an event to the main thread.
 			resObj.setFocus()
