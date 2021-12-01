@@ -10,9 +10,6 @@ from scriptHandler import willSayAllResume
 import speech
 import controlTypes
 import textInfos
-import addonHandler
-
-addonHandler.initTranslation()
 
 class RecogUiEnhanceResultPageOffset():
 	def __init__(self, start, length):
