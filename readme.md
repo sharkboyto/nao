@@ -1,4 +1,4 @@
-#Nao - NVDA Advanced OCR#
+#Nao - NVDA Advanced OCR
 Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 While NVDA standard command uses Windows OCR to recognize the screen, NAO is able to make the OCR on files saved on your hard drive or USB devices. 
 Use NVDA-Shift-R to recognize any sorts of images and pdf! 
