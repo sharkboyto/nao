@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the nao package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: nao 2021.1\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
+"POT-Creation-Date: 2021-12-01 07:59+0100\n"
+"PO-Revision-Date: 2021-12-01 10:24+0100\n"
+"Last-Translator: Simone Dal Maso <simone.dalmaso@gmail.com>\n"
+"Language-Team: NVDA community <simone.dalmaso@gmail.com>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#. Translators: Reported when Windows OCR is not available.
+#: addon/globalPlugins/nao.py:40 addon/globalPlugins/nao.py:54
+msgid "Windows OCR not available"
+msgstr "OCR di Windows non disponibile"
+
+#. Translators: Reported when screen curtain is enabled.
+#: addon/globalPlugins/nao.py:47
+msgid "Please disable screen curtain before using Windows OCR."
+msgstr ""
+"Si prega di disabilitare la tenda schermo per utilizzare l'OCR di Windows."
+
+#: addon/globalPlugins/nao.py:74
+msgid "You must be in a Windows File Explorer window"
+msgstr "Devi essere in una finestra Esplora file di Windows"
+
+#: addon/globalPlugins/nao.py:95
+msgid "Process started"
+msgstr "Processo avviato"
+
+#: addon/globalPlugins/nao.py:106
+msgid "File not supported"
+msgstr "File non supportato"
+
+#: addon/globalPlugins/nao.py:123
+msgid "Error, file not found"
+msgstr "Errore, file non trovato"
+
+#: addon/globalPlugins/nao.py:134
+msgid "Error, the file could not be processed."
+msgstr "Errore, non è stato possibile elaborare il file."
+
+#. Translators: Reported when content recognition (e.g. OCR) is attempted,
+#. but the user is already reading a content recognition result.
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:25
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:49
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:72
+msgid "Already in a content recognition result"
+msgstr "Ci si trova già in una finestra di riconoscimento"
+
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:34
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:57
+msgid "Internal conversion error"
+msgstr "Errore di conversione interno"
+
+#. Translators: Reporting when content recognition (e.g. OCR) begins.
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:39
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:62
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:80
+msgid "Recognizing"
+msgstr "Riconoscimento"
+
+#: addon/globalPlugins/OCREnhance/recogUiEnhance.py:109
+msgid "Recognition failed"
+msgstr "Riconoscimento fallito"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on
+#. to be shown on installation and add-on information found in Add-ons Manager.
+#: buildVars.py:23
+msgid "Nao"
+msgstr "Nao"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:26
+msgid ""
+"Nao (NVDA Advanced OCR) is an addon that improves the standard OCR "
+"capabilities that NVDA provides on modern Windows versions."
+msgstr ""
+"Nao (NVDA Advanced OCR) è un addon che migliora le capacità di OCR standard "
+"fornite da NVDA nelle versioni moderne di Windows."
