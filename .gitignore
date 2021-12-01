@@ -1,0 +1,12 @@
+bugandnewfeatures.txt
+addon/doc/*.css
+addon/doc/en/
+addon/doc/it/
+*_docHandler.py
+*.html
+*.ini
+*.mo
+*.pot
+*.py[co]
+*.nvda-addon
+.sconsign.dblite
