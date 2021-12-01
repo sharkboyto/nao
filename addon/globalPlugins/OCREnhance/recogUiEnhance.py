@@ -13,9 +13,12 @@ import wx
 import queueHandler
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
 from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject
+import addonHandler
 
 def queue_ui_message(message):
 	queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
+
+addonHandler.initTranslation()
 
 class RecogUiEnhance:
 	def __init__(self):

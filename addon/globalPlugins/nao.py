@@ -14,10 +14,13 @@ import threading
 import subprocess
 import nvwave
 import speech
+import addonHandler
 from comtypes.client import CreateObject as COMCreate
 from .OCREnhance import recogUiEnhance, beepThread
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
+
+addonHandler.initTranslation()
 
 # Global variables
 filePath = ""
