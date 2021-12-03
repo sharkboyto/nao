@@ -19,6 +19,7 @@ from comtypes.client import CreateObject as COMCreate
 from .OCREnhance import recogUiEnhance, beepThread
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
+from contentRecog import recogUi
 
 addonHandler.initTranslation()
 
@@ -63,6 +64,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			if fileExtension == 'pdf':
 				self.convertPdfToPng()
 			else:
+				ui.message(_("Process started"))
 				self.recogUiEnhance.recognizeImageFileObject(filePath)
 		else:
 			pass
@@ -96,8 +98,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			filePath = str(focusedItem.path)
 			fileName = str(focusedItem.name)
 		
-		ui.message(_("Process started"))
-		
 		# Getting the extension to check if is a supported file type.
 		fileExtension = filePath[-5:].lower() # Returns .jpeg or x.pdf
 		if fileExtension.startswith("."): # Case of a  .jpeg file
@@ -111,7 +111,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return False # It is a file format not supported so end the process.
 
 	def convertPdfToPng(self):
-		self.beeper.start()
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Reported when content recognition (e.g. OCR) is attempted,
+			# but the user is already reading a content recognition result.
+			ui.message(_("Already in a content recognition result"))
+			return
+		
 		self._thread = threading.Thread(target = self._pdfToPngThread)
 		self._thread.setDaemon(True)
 		self._thread.start()
@@ -128,7 +133,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			pass
 		command = "{} \"{}\" \"{}\"".format(pdfToPngToolPath, filePath, pdfToImageFileNamePath)
 		
-		
+		queue_ui_message(_("Process started"))
+		self.beeper.start()
 		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=si)
 		stdout, stderr = p.communicate()
 		
