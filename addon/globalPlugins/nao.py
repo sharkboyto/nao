@@ -16,7 +16,7 @@ import nvwave
 import speech
 import addonHandler
 from comtypes.client import CreateObject as COMCreate
-from .OCREnhance import recogUiEnhance, beepThread
+from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 from contentRecog import recogUi
@@ -74,11 +74,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		global fileExtension
 		global fileName
 		
+		# We check if we are in the Total Commander
+		tcmd = totalCommanderHelper.TotalCommanderHelper()
+		if tcmd.is_valid():
+			filePath = tcmd.currentFileWithPath()
+			if not filePath:
+				return False
+		else:
+			# We check if we are in the Windows Explorer.
 		fg = api.getForegroundObject()
-		# We check if we are in the Windows Explorer.
-		if fg.role != api.controlTypes.Role.PANE and fg.appModule.appName != "explorer":
+			if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
 			ui.message(_("You must be in a Windows File Explorer window"))
-			return
+				return False
 		
 		self.shell = COMCreate("shell.application")
 		desktop = False
