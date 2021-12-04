@@ -82,28 +82,28 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				return False
 		else:
 			# We check if we are in the Windows Explorer.
-		fg = api.getForegroundObject()
+			fg = api.getForegroundObject()
 			if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
-			ui.message(_("You must be in a Windows File Explorer window"))
+				ui.message(_("You must be in a Windows File Explorer window"))
 				return False
-		
-		self.shell = COMCreate("shell.application")
-		desktop = False
-		# We go through the list of open Windows Explorers to find the one that has the focus.
-		for window in self.shell.Windows():
-			if window.hwnd == fg.windowHandle:
-				focusedItem=window.Document.FocusedItem
-				break
-		else: # loop exhausted
-			desktop = True
-		# Now that we have the current folder, we can explore the SelectedItems collection.
-		if desktop:
-			desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-			fileName = api.getDesktopObject().objectWithFocus().name
-			filePath = desktopPath + '\\' + fileName
-		else:
-			filePath = str(focusedItem.path)
-			fileName = str(focusedItem.name)
+			
+			self.shell = COMCreate("shell.application")
+			desktop = False
+			# We go through the list of open Windows Explorers to find the one that has the focus.
+			for window in self.shell.Windows():
+				if window.hwnd == fg.windowHandle:
+					focusedItem=window.Document.FocusedItem
+					break
+			else: # loop exhausted
+				desktop = True
+			# Now that we have the current folder, we can explore the SelectedItems collection.
+			if desktop:
+				desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+				fileName = api.getDesktopObject().objectWithFocus().name
+				filePath = desktopPath + '\\' + fileName
+			else:
+				filePath = str(focusedItem.path)
+				fileName = str(focusedItem.name)
 		
 		# Getting the extension to check if is a supported file type.
 		fileExtension = filePath[-5:].lower() # Returns .jpeg or x.pdf
