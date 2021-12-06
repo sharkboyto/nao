@@ -8,7 +8,7 @@ Nao is able to handle also multipage pdf, so if you have a not accessible docume
 ## System Requirements
 The addon works on Windows 10 and Windows 11 systems, since they have OCR capabilities builtin. 
 Nao is compatible from NVDA version 2021.2, so don't use older versions of the screen reader.
-Note that Nao works only within Windows Explorer or on desktop, so don't use other filemanager like Total Commander or similar, since at the moment  they are not supported.
+Note that Nao works  with Windows Explorer, on desktop,  or with Total Commander filemanager; don't use other software like 7zip or Winrar , since they are not supported.
 ## Features and commands
 * NVDA + Shift + R: recognize any sorts of images and pdf from file system;
   * PgUp / PgDown: move the cursor between real pages of a multipages document.
