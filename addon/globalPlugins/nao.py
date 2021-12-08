@@ -1,6 +1,7 @@
-#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
+﻿#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
+# 2021-12-08, added script decorator and category for two main keys.
 #Last update 2021-11-30
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
@@ -20,6 +21,7 @@ from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 from contentRecog import recogUi
+from scriptHandler import script
 
 addonHandler.initTranslation()
 
@@ -32,13 +34,25 @@ addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
 pdfToImagePath = "" + os.path.join (addonPath, "images") + ""
 pdfToImageFileNamePath = pdfToImagePath + "\\img"
+ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	try:
+		scriptCategory = unicode(ADDON_SUMMARY)
+	except NameError:
+		scriptCategory = str(ADDON_SUMMARY)
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.recogUiEnhance = recogUiEnhance.RecogUiEnhance()
 		self.beeper = beepThread.BeepThread()
 
+
+	@script(
+		# Translators: Message presented in input help mode.
+		description=_("NAO: take a full screen shot and recognize it."),
+		gesture="kb:NVDA+shift+control+R"
+	)
 	def script_doRecognizeScreenshotObject(self, gesture):
 		if not winVersion.isUwpOcrAvailable():
 			# Translators: Reported when Windows OCR is not available.
@@ -53,6 +67,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		self.recogUiEnhance.recognizeScreenshotObject()
 
+	@script(
+		# Translators: Message presented in input help mode.
+		description=_("NAO: recognize any sorts of images and pdf from file system."),
+		gesture="kb:NVDA+shift+r"
+	)
 	def script_doRecognizeFileObject(self, gesture):
 		if not winVersion.isUwpOcrAvailable():
 			# Translators: Reported when Windows OCR is not available.
@@ -159,8 +178,3 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				os.remove(os.path.join(pdfToImagePath, f))
 		except FileNotFoundError:
 			pass
-
-	__gestures={
-		"kb:NVDA+shift+control+R": "doRecognizeScreenshotObject",
-		"kb:NVDA+shift+R": "doRecognizeFileObject"
-	}
