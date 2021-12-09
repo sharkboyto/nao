@@ -34,14 +34,11 @@ addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
 pdfToImagePath = "" + os.path.join (addonPath, "images") + ""
 pdfToImageFileNamePath = pdfToImagePath + "\\img"
+
 ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-	try:
-		scriptCategory = unicode(ADDON_SUMMARY)
-	except NameError:
-		scriptCategory = str(ADDON_SUMMARY)
-
+	scriptCategory = ADDON_SUMMARY
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.recogUiEnhance = recogUiEnhance.RecogUiEnhance()
@@ -50,7 +47,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(
 		# Translators: Message presented in input help mode.
-		description=_("NAO: take a full screen shot and recognize it."),
+		description=_("Take a full screen shot and recognize it."),
 		gesture="kb:NVDA+shift+control+R"
 	)
 	def script_doRecognizeScreenshotObject(self, gesture):
@@ -69,7 +66,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(
 		# Translators: Message presented in input help mode.
-		description=_("NAO: recognize any sorts of images and pdf from file system."),
+		description=_("Recognize the content of the selected image or PDF file."),
 		gesture="kb:NVDA+shift+r"
 	)
 	def script_doRecognizeFileObject(self, gesture):
