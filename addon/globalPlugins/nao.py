@@ -2,6 +2,7 @@
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
 # 2021-12-08, added script decorator and category for two main keys.
+# 2021-12-11, fixed file extension check.
 #Last update 2021-11-30
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
@@ -28,7 +29,6 @@ addonHandler.initTranslation()
 # Global variables
 filePath = ""
 fileExtension = ""
-fileName = ""
 suppFiles = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
 addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
@@ -88,7 +88,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def getFilePath(self): #For this method thanks to some nvda addon developers ( code snippets and suggestion)
 		global filePath
 		global fileExtension
-		global fileName
 		
 		# We check if we are in the Total Commander
 		tcmd = totalCommanderHelper.TotalCommanderHelper()
@@ -119,15 +118,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				filePath = desktopPath + '\\' + fileName
 			else:
 				filePath = str(focusedItem.path)
-				fileName = str(focusedItem.name)
 		
 		# Getting the extension to check if is a supported file type.
-		fileExtension = filePath[-5:].lower() # Returns .jpeg or x.pdf
-		if fileExtension.startswith("."): # Case of a  .jpeg file
-			fileExtension = fileExtension[1:] # just jpeg
-		else:
-			fileExtension = fileExtension[2:] # just pdf
-		if fileExtension in suppFiles:
+		fileExtension = os.path.splitext(filePath)[1].lower()
+		if fileExtension and fileExtension.startswith('.'):
+			fileExtension = fileExtension[1:]
+		if fileExtension and fileExtension in suppFiles:
 			return True # Is a supported file format, so we can make OCR
 		else:
 			ui.message(_("File not supported"))
