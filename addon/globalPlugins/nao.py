@@ -158,7 +158,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		stdout, stderr = p.communicate()
 		
 		if p.returncode == 0:
-			self.recogUiEnhance.recognizePdfFileObject(os.listdir(pdfToImagePath), pdfToImagePath, self._pdfToPngFinish)
+			self.recogUiEnhance.recognizePdfFileObject(os.path.basename(filePath), os.listdir(pdfToImagePath), pdfToImagePath, self._pdfToPngFinish)
 		else:
 			queue_ui_message(_("Error, the file could not be processed."))
 			self.beeper.stop()

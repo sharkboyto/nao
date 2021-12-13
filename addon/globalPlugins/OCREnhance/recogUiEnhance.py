@@ -12,7 +12,7 @@ import screenBitmap
 import wx
 import queueHandler
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
-from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject
+from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject, RecogUiEnhanceResultDialog
 import addonHandler
 
 def queue_ui_message(message):
@@ -74,7 +74,7 @@ class RecogUiEnhance:
 		recogUi._activeRecog = recognizer
 		recognizer.recognize(pixels, imgInfo, recogUi._recogOnResult)
 
-	def recognizePdfFileObject(self, filePathList, pdfToImagePath, onFinish = None):
+	def recognizePdfFileObject(self, title, filePathList, pdfToImagePath, onFinish = None):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
@@ -83,6 +83,7 @@ class RecogUiEnhance:
 		if recogUi._activeRecog:
 			recogUi._activeRecog.cancel()
 			recogUi._activeRecog = None
+		self.title = title
 		self.bmp_list = []
 		self.results = []
 		self.pages_offset = []
@@ -135,9 +136,16 @@ class RecogUiEnhance:
 		
 		if not self._recognize_next_pdf_page():
 			# No more pages
-			result = LinesWordsResult(self.results, result.imageInfo)
-			resObj = RecogUiEnhanceResultNVDAObject(result=result,pages_offset=self.pages_offset)
-			self.results = []
-			self.pages_offset = []
+			#result = LinesWordsResult(self.results, result.imageInfo)
+			#resObj = RecogUiEnhanceResultNVDAObject(result=result,pages_offset=self.pages_offset)
+			#self.results = []
+			#self.pages_offset = []
 			# This method queues an event to the main thread.
-			resObj.setFocus()
+			#resObj.setFocus()
+			queueHandler.queueFunction(queueHandler.eventQueue, self._showResult, result.imageInfo)
+
+	def _showResult(self, imageInfo):
+		result = LinesWordsResult(self.results, imageInfo)
+		dlg = RecogUiEnhanceResultDialog(result=result,pages_offset=self.pages_offset,title=self.title)
+		self.results = []
+		self.pages_offset = []
