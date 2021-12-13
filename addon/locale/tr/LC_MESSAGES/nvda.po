@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nao 2021.1\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
-"POT-Creation-Date: 2021-12-04 20:43+0300\n"
-"PO-Revision-Date: 2021-12-04 20:43+0300\n"
+"POT-Creation-Date: 2021-12-11 12:37+0300\n"
+"PO-Revision-Date: 2021-12-11 12:38+0300\n"
 "Last-Translator: Çağrı Doğan <cagrid@hotmail.com>\n"
 "Language-Team: cagrid@hotmail.com\n"
 "Language: tr\n"
@@ -16,13 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.0.1\n"
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SearchPath-0: .\n"
 
 #: globalPlugins/OCREnhance/recogUiEnhance.py:34
 #: globalPlugins/OCREnhance/recogUiEnhance.py:58
-#: globalPlugins/OCREnhance/recogUiEnhance.py:81 globalPlugins/nao.py:124
+#: globalPlugins/OCREnhance/recogUiEnhance.py:81 globalPlugins/nao.py:140
 msgid "Already in a content recognition result"
 msgstr "Zaten bir içerik tanıma sonucu açık"
 
@@ -46,43 +46,44 @@ msgstr "Tanıma başarısız"
 msgid "page"
 msgstr "sayfa"
 
-#: globalPlugins/nao.py:45 globalPlugins/nao.py:59
+#: globalPlugins/nao.py:50
+msgid "Take a full screen shot and recognize it."
+msgstr "Tam ekran görüntüsü al ve tanı."
+
+#: globalPlugins/nao.py:56 globalPlugins/nao.py:75
 msgid "Windows OCR not available"
 msgstr "Windows OCR mevcut değil"
 
-#: globalPlugins/nao.py:52
+#: globalPlugins/nao.py:63
 msgid "Please disable screen curtain before using Windows OCR."
-msgstr ""
-"Lütfen Windows OCR'yi kullanmadan önce ekran perdesini devre dışı bırakın."
+msgstr "Lütfen Windows OCR'yi kullanmadan önce ekran perdesini devre dışı bırakın."
 
-#: globalPlugins/nao.py:67 globalPlugins/nao.py:143
+#: globalPlugins/nao.py:69
+msgid "Recognize the content of the selected image or PDF file."
+msgstr "Seçili imaj veya PDF dosyasının içeriğini tanı."
+
+#: globalPlugins/nao.py:83 globalPlugins/nao.py:159
 msgid "Process started"
 msgstr "İŞlem başladı"
 
-#: globalPlugins/nao.py:87
+#: globalPlugins/nao.py:103
 msgid "You must be in a Windows File Explorer window"
 msgstr "Bir Windows Dosya Gezgini penceresinde olmalısınız"
 
-#: globalPlugins/nao.py:117
+#: globalPlugins/nao.py:133
 msgid "File not supported"
 msgstr "Dosya desteklenmiyor"
 
-#: globalPlugins/nao.py:139
+#: globalPlugins/nao.py:155
 msgid "Error, file not found"
 msgstr "Hata, dosya bulunamadı"
 
-#: globalPlugins/nao.py:151
+#: globalPlugins/nao.py:167
 msgid "Error, the file could not be processed."
 msgstr "Hata, dosya işlenemedi."
 
-#: installTasks.py:20
-msgid ""
-"You have installed an incompatible version of the add-on. Do you want to "
-"uninstall the incompatible version?"
-msgstr ""
-"Eklentinin uyumsuz bir sürümünü yüklediniz. Uyumsuz sürümü kaldırmak istiyor "
-"musunuz?"
+#~ msgid "Nao"
+#~ msgstr "Nao"
 
-#: installTasks.py:22
-msgid "Uninstall incompatible add-on"
-msgstr "Uyumsuz eklenti kaldırılıyor"
+#~ msgid "Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions."
+#~ msgstr "Nao (NVDA Gelişmiş OCR), NVDA'nın modern Windows sürümlerinde sağladığı standart OCR özelliklerini geliştiren bir eklentidir."
