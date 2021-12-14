@@ -1,6 +1,9 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
+# 2021-12-08, added script decorator and category for two main keys.
+# 2021-12-11, fixed file extension check.
+# 2021-12-14, xplorer2 support
 #Last update 2021-12-14
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
@@ -20,6 +23,7 @@ from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper, xplore
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 from contentRecog import recogUi
+from scriptHandler import script
 
 addonHandler.initTranslation()
 
@@ -29,15 +33,25 @@ fileExtension = ""
 suppFiles = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
 addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
+webpToPngToolPath = "\""+os.path.join (addonPath, "tools", "dwebp.exe")+"\""
 pdfToImagePath = "" + os.path.join (addonPath, "images") + ""
 pdfToImageFileNamePath = pdfToImagePath + "\\img"
 
+ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	scriptCategory = ADDON_SUMMARY
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.recogUiEnhance = recogUiEnhance.RecogUiEnhance()
 		self.beeper = beepThread.BeepThread()
 
+
+	@script(
+		# Translators: Message presented in input help mode.
+		description=_("Take a full screen shot and recognize it."),
+		gesture="kb:NVDA+shift+control+R"
+	)
 	def script_doRecognizeScreenshotObject(self, gesture):
 		if not winVersion.isUwpOcrAvailable():
 			# Translators: Reported when Windows OCR is not available.
@@ -52,6 +66,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		self.recogUiEnhance.recognizeScreenshotObject()
 
+	@script(
+		# Translators: Message presented in input help mode.
+		description=_("Recognize the content of the selected image or PDF file."),
+		gesture="kb:NVDA+shift+r"
+	)
 	def script_doRecognizeFileObject(self, gesture):
 		if not winVersion.isUwpOcrAvailable():
 			# Translators: Reported when Windows OCR is not available.
@@ -62,6 +81,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if p == True:
 			if fileExtension == 'pdf':
 				self.convertPdfToPng()
+			elif fileExtension == 'webp':
+				self.convertWebPtoPng()
 			else:
 				ui.message(_("Process started"))
 				self.recogUiEnhance.recognizeImageFileObject(filePath)
@@ -110,12 +131,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 					filePath = str(focusedItem.path)
 		
 		# Getting the extension to check if is a supported file type.
-		fileExtension = filePath[-5:].lower() # Returns .jpeg or x.pdf
-		if fileExtension.startswith("."): # Case of a  .jpeg file
-			fileExtension = fileExtension[1:] # just jpeg
-		else:
-			fileExtension = fileExtension[2:] # just pdf
-		if fileExtension in suppFiles:
+		fileExtension = os.path.splitext(filePath)[1].lower()
+		if fileExtension and fileExtension.startswith('.'):
+			fileExtension = fileExtension[1:]
+		if fileExtension and fileExtension in suppFiles:
 			return True # Is a supported file format, so we can make OCR
 		else:
 			ui.message(_("File not supported"))
@@ -129,6 +148,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		
 		self._thread = threading.Thread(target = self._pdfToPngThread)
+		self._thread.setDaemon(True)
+		self._thread.start()
+
+	def convertWebPtoPng(self):
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Reported when content recognition (e.g. OCR) is attempted,
+			# but the user is already reading a content recognition result.
+			ui.message(_("Already in a content recognition result"))
+			return
+		
+		self._thread = threading.Thread(target = self._webpToPngThread)
 		self._thread.setDaemon(True)
 		self._thread.start()
 
@@ -164,7 +194,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		except FileNotFoundError:
 			pass
 
-	__gestures={
-		"kb:NVDA+shift+control+R": "doRecognizeScreenshotObject",
-		"kb:NVDA+shift+R": "doRecognizeFileObject"
-	}
+	def _webpToPngThread(self):
+		# The next two lines are to prevent the cmd from being displayed.
+		si = subprocess.STARTUPINFO()
+		si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		try:
+			for f in os.listdir(pdfToImagePath):
+				os.remove(os.path.join(pdfToImagePath, f))
+		except FileNotFoundError:
+			queue_ui_message(_("Error, file not found"))
+			pass
+		command = "{} \"{}\" -o \"{}\\{}.png\"".format(webpToPngToolPath, filePath, pdfToImagePath, os.path.basename(filePath))
+		print(command)
+		
+		queue_ui_message(_("Process started"))
+		self.beeper.start()
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=si)
+		stdout, stderr = p.communicate()
+		
+		if p.returncode == 0:
+			self.recogUiEnhance.recognizeImageFileObject("{}\\{}.png".format(pdfToImagePath, os.path.basename(filePath)))
+			try:
+				for f in os.listdir(pdfToImagePath):
+					os.remove(os.path.join(pdfToImagePath, f))
+			except FileNotFoundError:
+				pass
+		else:
+			queue_ui_message(_("Error, the file could not be processed."))
+		self.beeper.stop()

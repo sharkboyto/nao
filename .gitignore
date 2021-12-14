@@ -1,7 +1,5 @@
-bugandnewfeatures.txt
 addon/doc/*.css
 addon/doc/en/
-addon/doc/it/
 *_docHandler.py
 *.html
 *.ini
