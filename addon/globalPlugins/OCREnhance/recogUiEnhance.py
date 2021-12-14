@@ -12,7 +12,8 @@ import screenBitmap
 import wx
 import queueHandler
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
-from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject, RecogUiEnhanceResultDialog
+from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset, RecogUiEnhanceResultNVDAObject
+from .recogUiEnhanceResultDialog import RecogUiEnhanceResultDialog
 import addonHandler
 
 def queue_ui_message(message):
@@ -146,6 +147,6 @@ class RecogUiEnhance:
 
 	def _showResult(self, imageInfo):
 		result = LinesWordsResult(self.results, imageInfo)
-		dlg = RecogUiEnhanceResultDialog(result=result,pages_offset=self.pages_offset,title=self.title)
+		dlg = RecogUiEnhanceResultDialog(title=self.title,result=result,pages_offset=self.pages_offset)
 		self.results = []
 		self.pages_offset = []
