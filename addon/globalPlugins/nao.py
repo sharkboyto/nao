@@ -3,7 +3,7 @@
 #See the file COPYING for more details.
 # 2021-12-08, added script decorator and category for two main keys.
 # 2021-12-11, fixed file extension check.
-#Last update 2021-11-30
+#Last update 2021-12-14
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import globalPluginHandler
@@ -32,6 +32,7 @@ fileExtension = ""
 suppFiles = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
 addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
+webpToPngToolPath = "\""+os.path.join (addonPath, "tools", "dwebp.exe")+"\""
 pdfToImagePath = "" + os.path.join (addonPath, "images") + ""
 pdfToImageFileNamePath = pdfToImagePath + "\\img"
 
@@ -79,6 +80,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if p == True:
 			if fileExtension == 'pdf':
 				self.convertPdfToPng()
+			elif fileExtension == 'webp':
+				self.convertWebPtoPng()
 			else:
 				ui.message(_("Process started"))
 				self.recogUiEnhance.recognizeImageFileObject(filePath)
@@ -140,6 +143,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self._thread.setDaemon(True)
 		self._thread.start()
 
+	def convertWebPtoPng(self):
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Reported when content recognition (e.g. OCR) is attempted,
+			# but the user is already reading a content recognition result.
+			ui.message(_("Already in a content recognition result"))
+			return
+		
+		self._thread = threading.Thread(target = self._webpToPngThread)
+		self._thread.setDaemon(True)
+		self._thread.start()
+
 	def _pdfToPngThread(self):
 		# The next two lines are to prevent the cmd from being displayed.
 		si = subprocess.STARTUPINFO()
@@ -171,3 +185,32 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				os.remove(os.path.join(pdfToImagePath, f))
 		except FileNotFoundError:
 			pass
+
+	def _webpToPngThread(self):
+		# The next two lines are to prevent the cmd from being displayed.
+		si = subprocess.STARTUPINFO()
+		si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		try:
+			for f in os.listdir(pdfToImagePath):
+				os.remove(os.path.join(pdfToImagePath, f))
+		except FileNotFoundError:
+			queue_ui_message(_("Error, file not found"))
+			pass
+		command = "{} \"{}\" -o \"{}\\{}.png\"".format(webpToPngToolPath, filePath, pdfToImagePath, os.path.basename(filePath))
+		print(command)
+		
+		queue_ui_message(_("Process started"))
+		self.beeper.start()
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=si)
+		stdout, stderr = p.communicate()
+		
+		if p.returncode == 0:
+			self.recogUiEnhance.recognizeImageFileObject("{}\\{}.png".format(pdfToImagePath, os.path.basename(filePath)))
+			try:
+				for f in os.listdir(pdfToImagePath):
+					os.remove(os.path.join(pdfToImagePath, f))
+			except FileNotFoundError:
+				pass
+		else:
+			queue_ui_message(_("Error, the file could not be processed."))
+		self.beeper.stop()
