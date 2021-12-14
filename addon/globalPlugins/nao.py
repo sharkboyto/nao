@@ -1,8 +1,9 @@
-﻿#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
+#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
 # 2021-12-08, added script decorator and category for two main keys.
 # 2021-12-11, fixed file extension check.
+# 2021-12-14, xplorer2 support
 #Last update 2021-12-14
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
@@ -18,7 +19,7 @@ import nvwave
 import speech
 import addonHandler
 from comtypes.client import CreateObject as COMCreate
-from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper
+from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper, xplorer2Helper
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 from contentRecog import recogUi
@@ -92,35 +93,42 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		global filePath
 		global fileExtension
 		
-		# We check if we are in the Total Commander
-		tcmd = totalCommanderHelper.TotalCommanderHelper()
-		if tcmd.is_valid():
-			filePath = tcmd.currentFileWithPath()
+		# We check if we are in the xplorer2
+		xplorer2 = xplorer2Helper.Xplorer2Helper()
+		if xplorer2.is_valid():
+			filePath = xplorer2.currentFileWithPath()
 			if not filePath:
 				return False
 		else:
-			# We check if we are in the Windows Explorer.
-			fg = api.getForegroundObject()
-			if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
-				ui.message(_("You must be in a Windows File Explorer window"))
-				return False
-			
-			self.shell = COMCreate("shell.application")
-			desktop = False
-			# We go through the list of open Windows Explorers to find the one that has the focus.
-			for window in self.shell.Windows():
-				if window.hwnd == fg.windowHandle:
-					focusedItem=window.Document.FocusedItem
-					break
-			else: # loop exhausted
-				desktop = True
-			# Now that we have the current folder, we can explore the SelectedItems collection.
-			if desktop:
-				desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-				fileName = api.getDesktopObject().objectWithFocus().name
-				filePath = desktopPath + '\\' + fileName
+			# We check if we are in the Total Commander
+			tcmd = totalCommanderHelper.TotalCommanderHelper()
+			if tcmd.is_valid():
+				filePath = tcmd.currentFileWithPath()
+				if not filePath:
+					return False
 			else:
-				filePath = str(focusedItem.path)
+				# We check if we are in the Windows Explorer.
+				fg = api.getForegroundObject()
+				if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
+					ui.message(_("You must be in a Windows File Explorer window"))
+					return False
+				
+				self.shell = COMCreate("shell.application")
+				desktop = False
+				# We go through the list of open Windows Explorers to find the one that has the focus.
+				for window in self.shell.Windows():
+					if window.hwnd == fg.windowHandle:
+						focusedItem=window.Document.FocusedItem
+						break
+				else: # loop exhausted
+					desktop = True
+				# Now that we have the current folder, we can explore the SelectedItems collection.
+				if desktop:
+					desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+					fileName = api.getDesktopObject().objectWithFocus().name
+					filePath = desktopPath + '\\' + fileName
+				else:
+					filePath = str(focusedItem.path)
 		
 		# Getting the extension to check if is a supported file type.
 		fileExtension = os.path.splitext(filePath)[1].lower()
