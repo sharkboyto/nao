@@ -12,7 +12,7 @@ import os
 import queueHandler
 import speech
 import cursorManager
-import webbrowser
+#import webbrowser
 
 class RecogUiEnhanceResultPageOffset():
 	def __init__(self, start, length):
@@ -33,7 +33,7 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 		self.pages_offset = pages_offset
 		
 		title = _("Result") + (' ' + self.file_name if self.file_name else '')
-		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_("page") if len(self.pages_offset) == 1 else _("&Pages")[1:])
+		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_("page") if len(self.pages_offset) == 1 else _("&Pages").replace('&', ''))
 		super(RecogUiEnhanceResultDialog, self).__init__(gui.mainFrame, wx.ID_ANY, title)
 		
 		self._lastFindText = ""
@@ -80,7 +80,7 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 		elif key == wx.WXK_F3:
 			# F3 or Shift+F3
 			self.find_next(evt.shiftDown)
-		elif evt.controlDown and evt.UnicodeKey == ord(u'F'):
+		elif evt.UnicodeKey == ord(u'F'):
 			# Control+F
 			speech._suppressSpeakTypedCharacters(1)
 			wx.CallAfter(self.open_find_dialog)
@@ -95,11 +95,14 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 		elif evt.UnicodeKey == ord(u'C'):
 			# C
 			speech._suppressSpeakTypedCharacters(1)
-			queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.result.text, True)
+			if evt.controlDown:
+				queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.outputCtrl.GetStringSelection(), True)
+			else:
+				queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.result.text, True)
 		elif evt.UnicodeKey == ord(u'S'):
 			# S
 			speech._suppressSpeakTypedCharacters(1)
-			self.save_as()
+			wx.CallAfter(self.save_as)
 			"""elif evt.UnicodeKey == ord(u'D'):
 				# D
 				speech._suppressSpeakTypedCharacters(1)
