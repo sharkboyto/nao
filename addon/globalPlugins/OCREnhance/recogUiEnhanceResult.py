@@ -1,260 +1,231 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-11-30
+#Last update 2021-12-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
-
-import ui
-#from contentRecog import recogUi
-from scriptHandler import willSayAllResume
-import speech
-import controlTypes
-import textInfos
 
 import wx
 import gui
-import eventHandler
+import ui
 import api
-
+import os
+import queueHandler
+import speech
 import cursorManager
-import NVDAObjects.window
-import NVDAObjects.IAccessible
-import browseMode
-import winUser
-import ctypes
-
-class RecogUiEnhanceResultDialog(wx.Dialog):
-	def __init__(self, title, result=None, pages_offset=None):
-		self.coming_from = api.getFocusObject()
-		super(RecogUiEnhanceResultDialog, self).__init__(None, title=title)
-		
-		self._nvdaobj = None
-		self.result = result
-		self.pages_offset = pages_offset
-		self.resObj = None
-		
-		self._timer_activate = wx.PyTimer(self.on_timer_activate)
-		
-		mainSizer = wx.BoxSizer(wx.VERTICAL)
-		
-		text = wx.StaticText(self, label=title)
-		text.SetFont(wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.BOLD))
-		
-		#close_btn = wx.Button(self, wx.ID_CLOSE, label=_("Close"))
-		
-		mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
-		mainSizer.Add(text, border=20, flag=wx.EXPAND | wx.LEFT | wx.RIGHT)
-		mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
-		#mainSizer.Add(close_btn, border=20, flag=wx.EXPAND | wx.LEFT | wx.RIGHT)
-		#mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
-		
-		#close_btn.Bind(wx.EVT_BUTTON, lambda evt: self.coming_from.setFocus())
-		self.Bind(wx.EVT_CLOSE, self.on_close)
-		self.Bind(wx.EVT_CHAR_HOOK, self.on_keypress)
-		self.Bind(wx.EVT_ACTIVATE, self.on_activate)
-		self.EscapeId = wx.ID_CLOSE
-		
-		mainSizer.Fit(self)
-		self.SetSizer(mainSizer)
-		
-		text.SetLabel('')
-		self.Show()
-
-	def on_close(self, evt):
-		self._timer_activate.Stop()
-		self.DestroyChildren()
-		self.Destroy()
-		self.resObj = None
-		self.coming_from.setFocus()
-
-	def on_result_closed(self):
-		self.on_close(None)
-
-	def on_keypress(self, evt: wx.KeyEvent):
-		key = evt.GetKeyCode()
-		if evt.UnicodeKey == ord(u'A'):
-			self.on_activate(None)
-		elif evt.UnicodeKey == ord(u'R') and evt.controlDown and evt.shiftDown:
-			print(key)
-		else:
-			evt.Skip()
-		#if key == wx.WXK_ESCAPE:
-		#	self.Destroy()
-
-	def on_activate(self, evt):
-		if evt and evt.GetActive():
-			self._timer_activate.Start(100)
-		"""oldSpeechMode = speech.getState().speechMode
-		speech.setSpeechMode(speech.SpeechMode.off)
-		speech.setSpeechMode(oldSpeechMode)
-		"""
-		#eventHandler.queueEvent("gainFocus", self.resObj)
-		#evt.Skip()
-		
-	def on_timer_activate(self):
-		self._timer_activate.Stop()
-		if not self._nvdaobj:
-			self._nvdaobj = NVDAObjects.IAccessible.getNVDAObjectFromEvent(self.GetHandle(), winUser.OBJID_CLIENT, 0)
-		if not self.resObj:
-				self.resObj = RecogUiEnhanceResultNVDAObject(parent=self._nvdaobj,result=self.result,pages_offset=self.pages_offset,owner_dlg=self)
-				self.result = None
-				self.pages_offset = None
-		self.resObj.setFocus()
-
-class RecogResultNVDAObject(cursorManager.CursorManager, NVDAObjects.window.Window):
-	"""Fake NVDAObject used to present a recognition result in a cursor manager.
-	This allows the user to read the result with cursor keys, etc.
-	Pressing enter will activate (e.g. click) the text at the cursor.
-	Pressing escape dismisses the recognition result.
-	"""
-
-	role = controlTypes.Role.DOCUMENT
-	# Translators: The title of the document used to present the result of content recognition.
-	name = _("Result")
-	treeInterceptor = None
-
-	def __init__(self, parent=None, result=None, obj=None, owner_dlg=None):
-		if not parent:
-			parent = api.getDesktopObject()
-		self.parent = parent
-		self.result = result
-		self.owner_dlg = owner_dlg
-		self._selection = self.makeTextInfo(textInfos.POSITION_FIRST)
-		super(RecogResultNVDAObject, self).__init__(windowHandle=parent.windowHandle)
-
-	def makeTextInfo(self, position):
-		# Maintain our own fake selection/caret.
-		if position == textInfos.POSITION_SELECTION:
-			ti = self._selection.copy()
-		elif position == textInfos.POSITION_CARET:
-			ti = self._selection.copy()
-			ti.collapse()
-		else:
-			ti = self.result.makeTextInfo(self, position)
-		return ti
-
-	def setFocus(self):
-		ti = self.parent.treeInterceptor
-		if isinstance(ti, browseMode.BrowseModeDocumentTreeInterceptor):
-			# Normally, when entering browse mode from a descendant (e.g. dialog),
-			# we want the cursor to move to the focus (#3145).
-			# However, we don't want this for recognition results, as these aren't focusable.
-			ti._enteringFromOutside = True
-		# This might get called from a background thread and all NVDA events must run in the main thread.
-		eventHandler.queueEvent("gainFocus", self)
-
-	def script_activatePosition(self, gesture):
-		try:
-			self._selection.activate()
-		except NotImplementedError:
-			log.debugWarning("Result TextInfo does not implement activate")
-	# Translators: Describes a command.
-	script_activatePosition.__doc__ = _("Activates the text at the cursor if possible")
-
-	def script_exit(self, gesture):
-		if self.owner_dlg:
-			self.owner_dlg.on_result_closed()
-		else:
-			eventHandler.executeEvent("gainFocus", self.parent)
-	# Translators: Describes a command.
-	script_exit.__doc__ = _("Dismiss the recognition result")
-
-	# The find commands are tricky to support because they pop up dialogs.
-	# This moves the focus, so we lose our fake focus.
-	# See https://github.com/nvaccess/nvda/pull/7361#issuecomment-314698991
-	def script_find(self, gesture):
-		# Translators: Reported when a user tries to use a find command when it isn't supported.
-		ui.message(_("Not supported in this document"))
-
-	def script_findNext(self, gesture):
-		# Translators: Reported when a user tries to use a find command when it isn't supported.
-		ui.message(_("Not supported in this document"))
-
-	def script_findPrevious(self, gesture):
-		# Translators: Reported when a user tries to use a find command when it isn't supported.
-		ui.message(_("Not supported in this document"))
-
-	__gestures = {
-		"kb:enter": "activatePosition",
-		"kb:space": "activatePosition",
-		"kb:escape": "exit",
-	}
+import webbrowser
 
 class RecogUiEnhanceResultPageOffset():
 	def __init__(self, start, length):
 		self.start = start
 		self.end = start + length
 
-class RecogUiEnhanceResultNVDAObject(RecogResultNVDAObject):
-	def __init__(self, parent=None, result=None, obj=None, pages_offset=None, owner_dlg=None):
-		super(RecogUiEnhanceResultNVDAObject, self).__init__(parent=parent, result=result, obj=obj, owner_dlg=owner_dlg)
+def ui_message(message, queue=False):
+	if queue:
+		queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
+	else:
+		ui.message(message)
+
+class RecogUiEnhanceResultDialog(wx.Frame):
+	def __init__(self, result, pages_offset=None, file_name=None):
+		self.file_name = os.path.basename(file_name)
+		self.file_path = os.path.dirname(file_name)
+		self.result = result
 		self.pages_offset = pages_offset
+		
+		title = _("Result") + (' ' + self.file_name if self.file_name else '')
+		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_("page") if len(self.pages_offset) == 1 else _("&Pages")[1:])
+		super(RecogUiEnhanceResultDialog, self).__init__(gui.mainFrame, wx.ID_ANY, title)
+		
+		self._lastFindText = ""
+		self._lastCaseSensitivity = False
+		self._lastFindPos = -1
+		self._casefold_text = None
+		
+		self.Bind(wx.EVT_CLOSE, self.onClose)
+		
+		mainSizer = wx.BoxSizer(wx.VERTICAL)
+		
+		self.outputCtrl = wx.TextCtrl(self, wx.ID_ANY, size=(500, 500), style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_RICH)
+		mainSizer.Add(self.outputCtrl, proportion=1, flag=wx.EXPAND)
+		
+		self.SetSizer(mainSizer)
+		mainSizer.Fit(self)
+		
+		self.Bind(wx.EVT_KEY_DOWN, self.onOutputKeyDown)
+		self.outputCtrl.Bind(wx.EVT_KEY_DOWN, self.onOutputKeyDown)
+		
+		if self.result and self.result.text:
+			self.outputCtrl.AppendText(self.result.text)
+			self.outputCtrl.SetInsertionPoint(0)
+		self.outputCtrl.SetFocus()
+		
+		self.Raise()
+		self.Maximize()
+		self.Show()
 
-	def script_moveByPage_back(self,gesture):
-		self.move_by_page(gesture,-1)
+	def onClose(self, evt):
+		self.Destroy()
 
-	def script_moveByPage_forward(self,gesture):
-		self.move_by_page(gesture,1)
-
-	def script_page_number(self,gesture):
-		ui.message(_("page") + " " + str(self.get_current_page() + 1))
-
-	def move_by_page(self,gesture,direction):
-		page = self.get_current_page() + direction
-		if page >= 0 and page < len(self.pages_offset):
-			ui.message(_("page") + " " + str(page + 1))
-			offset = self.pages_offset[page].start - self._selection._startOffset
-			self._caretMovementScriptHelper(gesture,textInfos.UNIT_CHARACTER,offset,extraDetail=True,handleSymbols=True,speak=False)
-			self._caretMovementScriptHelper(gesture,textInfos.UNIT_LINE,extraDetail=True,handleSymbols=True)
+	def onOutputKeyDown(self, evt):
+		key = evt.GetKeyCode()
+		if key == wx.WXK_ESCAPE:
+			# ESC
+			self.Close()
+		elif key == wx.WXK_PAGEUP or key == wx.WXK_NUMPAD_PAGEUP:
+			# PAGE UP
+			self.on_page_move(-1)
+		elif key == wx.WXK_PAGEDOWN or key == wx.WXK_NUMPAD_PAGEDOWN:
+			# PAGE DOWN
+			self.on_page_move(1)
+		elif key == wx.WXK_F3:
+			# F3 or Shift+F3
+			self.find_next(evt.shiftDown)
+		elif evt.controlDown and evt.UnicodeKey == ord(u'F'):
+			# Control+F
+			speech._suppressSpeakTypedCharacters(1)
+			wx.CallAfter(self.open_find_dialog)
+		elif evt.UnicodeKey == ord(u'P'):
+			# P
+			speech._suppressSpeakTypedCharacters(1)
+			self.speak_page(queue=True)
+		elif evt.UnicodeKey == ord(u'L'):
+			# L
+			speech._suppressSpeakTypedCharacters(1)
+			self.speak_line(queue=True)
+		elif evt.UnicodeKey == ord(u'C'):
+			# C
+			speech._suppressSpeakTypedCharacters(1)
+			queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.result.text, True)
+		elif evt.UnicodeKey == ord(u'S'):
+			# S
+			speech._suppressSpeakTypedCharacters(1)
+			self.save_as()
+			"""elif evt.UnicodeKey == ord(u'D'):
+				# D
+				speech._suppressSpeakTypedCharacters(1)
+				webbrowser.open("https://google.com")
+			"""
+		else:
+			evt.Skip()
 
 	def get_current_page(self):
-		i = 0
+		return self.get_pos_page()
+
+	def get_current_line(self):
+		return self.get_pos_line()
+
+	def get_pos_page(self, pos=None):
+		if pos is None:
+			pos = self.outputCtrl.GetInsertionPoint()
+		i = 1
 		for offset in self.pages_offset:
-			if self._selection._startOffset >= offset.start and self._selection._startOffset < offset.end:
-				return i
+			if pos >= offset.start and pos < offset.end:
+				break
 			i = i + 1
-		return 0
+		if i > len(self.pages_offset):
+			i = len(self.pages_offset)
+		return i
 
-	def _caretMovementScriptHelper(self,gesture,unit,direction=None,posConstant=textInfos.POSITION_SELECTION,posUnit=None,posUnitEnd=False,extraDetail=False,handleSymbols=False,speak=True):
-		oldInfo=self.makeTextInfo(posConstant)
-		info=oldInfo.copy()
-		info.collapse(end=self.isTextSelectionAnchoredAtStart)
-		if self.isTextSelectionAnchoredAtStart and not oldInfo.isCollapsed:
-			info.move(textInfos.UNIT_CHARACTER,-1)
-		if posUnit is not None:
-			# expand and collapse to ensure that we are aligned with the end of the intended unit
-			info.expand(posUnit)
+	def get_pos_line(self, pos=None):
+		if pos is None:
+			pos = self.outputCtrl.GetInsertionPoint()
+		i = 0
+		for offset in self.result.lines:
+			if pos < offset:
+				break
+			i = i + 1
+		return i + 1
+
+	"""def get_line_start_end_offset(self, line):
+		if line < 1 or line > len(self.result.lines):
+			return False
+		if line == 1:
+			return [0, self.result.lines[0]]
+		return [self.result.lines[line - 2], self.result.lines[line - 1]]
+	"""
+
+	def speak_page(self, page=None, queue=False):
+		if page is None:
+			page = self.get_current_page()
+		ui_message(_("page %s")%page, queue)
+
+	def speak_line(self, line=None, queue=False):
+		if line is None:
+			line = self.get_current_line()
+		ui_message(_("line %s")%line, queue)
+
+	def on_page_move(self, offset):
+		page = self.get_current_page() + offset
+		if page <= 0:
+			page = 1
+		if page <= len(self.pages_offset):
+			self.speak_page(page)
+			self.outputCtrl.SetInsertionPoint(self.pages_offset[page - 1].start)
+
+	def open_find_dialog(self, reverse=False):
+		gui.mainFrame.prePopup()
+		cursorManager.FindDialog(self, self, self._lastFindText, self._lastCaseSensitivity, reverse).ShowModal()
+		gui.mainFrame.postPopup()
+
+	def find_next(self, reverse=False):
+		if not self._lastFindText:
+			self.open_find_dialog(reverse)
+		else:
+			self.doFindText(self._lastFindText, caseSensitive=self._lastCaseSensitivity, reverse=reverse)
+
+	def save(self, filename):
+		if filename:
 			try:
-				info.collapse(end=posUnitEnd)
-			except RuntimeError:
-				# MS Word has a "virtual linefeed" at the end of the document which can cause RuntimeError to be raised.
-				# In this case it can be ignored.
-				# See #7009
-				pass
-			if posUnitEnd:
-				info.move(textInfos.UNIT_CHARACTER,-1)
-		if direction is not None:
-			info.expand(unit)
-			info.collapse(end=posUnitEnd)
-			if info.move(unit,direction)==0 and isinstance(self,textInfos.DocumentWithPageTurns):
-				try:
-					self.turnPage(previous=direction<0)
-				except RuntimeError:
-					pass
-				else:
-					info=self.makeTextInfo(textInfos.POSITION_FIRST if direction>0 else textInfos.POSITION_LAST)
-		# #10343: Speak before setting selection because setting selection might
-		# move the focus, which might mutate the document, potentially invalidating
-		# info if it is offset-based.
-		selection = info.copy()
-		info.expand(unit)
-		if speak:
-			if not willSayAllResume(gesture):
-				speech.speakTextInfo(info, unit=unit, reason=controlTypes.OutputReason.CARET)
-			if not oldInfo.isCollapsed:
-				speech.speakSelectionChange(oldInfo, selection)
-		self.selection = selection
+				with open(filename, "w", encoding="UTF-8") as f:
+					f.write(self.result.text)
+			except (IOError, OSError) as e:
+				gui.messageBox(_("Error saving log: %s") % e.strerror, _("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
 
-	__gestures = {
-		"kb:NVDA+Shift+p": "page_number",
-	}
+	def save_as(self):
+		filename = os.path.splitext(self.file_name)[0] + '.txt'
+		filename = wx.FileSelector(_("Save As"), default_path=self.file_path, default_filename=filename, flags=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, parent=self)
+		self.save(filename)
+
+	def doFindText(self, text, reverse=False, caseSensitive=False, willSayAllResume=False):
+		speech.cancelSpeech()
+		pos = self.outputCtrl.GetInsertionPoint()
+		if pos == self._lastFindPos:
+			if text != self._lastFindText or caseSensitive != self._lastCaseSensitivity:
+				self._lastFindPos = -1
+			elif reverse:
+				pos = pos - len(self._lastFindText)
+			else:
+				pos = pos + len(self._lastFindText)
+		if not caseSensitive:
+			casefold_text = text.casefold()
+			if self._casefold_text is None:
+				self._casefold_text = self.result.text.casefold()
+			if reverse:
+				pos = self._casefold_text.rfind(casefold_text, 0, pos + len(casefold_text))
+			else:
+				pos = self._casefold_text.find(casefold_text, pos)
+		elif reverse:
+			pos = self.result.text.rfind(text, 0, pos + len(text))
+		else:
+			pos = self.result.text.find(text, pos)
+		if pos >= 0:
+			self._lastFindPos = pos
+			current_page = self.get_current_page()
+			find_page = self.get_pos_page(pos)
+			self.outputCtrl.SetInsertionPoint(pos)
+			min_words = len(text.split())
+			if min_words < 5:
+				min_words = 5 # speak max 5 words
+			line = self.get_pos_line(pos)
+			if current_page != find_page:
+				self.speak_page(page=find_page,queue=True)
+			self.speak_line(line=line,queue=True)
+			line_end = self.result.lines[line - 1]
+			line = self.result.text[pos:line_end]
+			line = line.split()[:min_words]
+			line = ' '.join(line)
+			ui_message(line, True)
+		else:
+			wx.CallAfter(gui.messageBox,_('text "%s" not found')%text,_("Find Error"),wx.OK|wx.ICON_ERROR)
+		self._lastFindText = text
+		self._lastCaseSensitivity = caseSensitive
