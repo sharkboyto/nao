@@ -1,8 +1,10 @@
-﻿#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
+#Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
 # 2021-12-08, added script decorator and category for two main keys.
 # 2021-12-11, fixed file extension check.
+# 2021-12-14, xplorer2 support
+# 2021-12-15, new result dialog
 #Last update 2021-12-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
@@ -18,7 +20,7 @@ import nvwave
 import speech
 import addonHandler
 from comtypes.client import CreateObject as COMCreate
-from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper
+from .OCREnhance import recogUiEnhance, beepThread, totalCommanderHelper, xplorer2Helper
 from .OCREnhance.recogUiEnhance import queue_ui_message
 from visionEnhancementProviders.screenCurtain import ScreenCurtainProvider
 from contentRecog import recogUi
@@ -32,6 +34,7 @@ fileExtension = ""
 suppFiles = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
 addonPath = os.path.dirname(__file__)
 pdfToPngToolPath = "\""+os.path.join (addonPath, "tools", "pdftopng.exe")+"\""
+webpToPngToolPath = "\""+os.path.join (addonPath, "tools", "dwebp.exe")+"\""
 pdfToImagePath = "" + os.path.join (addonPath, "images") + ""
 pdfToImageFileNamePath = pdfToImagePath + "\\img"
 
@@ -79,6 +82,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if p == True:
 			if fileExtension == 'pdf':
 				self.convertPdfToPng()
+			elif fileExtension == 'webp':
+				self.convertWebPtoPng()
 			else:
 				ui.message(_("Process started"))
 				self.recogUiEnhance.recognizeImageFileObject(filePath)
@@ -89,35 +94,42 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		global filePath
 		global fileExtension
 		
-		# We check if we are in the Total Commander
-		tcmd = totalCommanderHelper.TotalCommanderHelper()
-		if tcmd.is_valid():
-			filePath = tcmd.currentFileWithPath()
+		# We check if we are in the xplorer2
+		xplorer2 = xplorer2Helper.Xplorer2Helper()
+		if xplorer2.is_valid():
+			filePath = xplorer2.currentFileWithPath()
 			if not filePath:
 				return False
 		else:
-			# We check if we are in the Windows Explorer.
-			fg = api.getForegroundObject()
-			if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
-				ui.message(_("You must be in a Windows File Explorer window"))
-				return False
-			
-			self.shell = COMCreate("shell.application")
-			desktop = False
-			# We go through the list of open Windows Explorers to find the one that has the focus.
-			for window in self.shell.Windows():
-				if window.hwnd == fg.windowHandle:
-					focusedItem=window.Document.FocusedItem
-					break
-			else: # loop exhausted
-				desktop = True
-			# Now that we have the current folder, we can explore the SelectedItems collection.
-			if desktop:
-				desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-				fileName = api.getDesktopObject().objectWithFocus().name
-				filePath = desktopPath + '\\' + fileName
+			# We check if we are in the Total Commander
+			tcmd = totalCommanderHelper.TotalCommanderHelper()
+			if tcmd.is_valid():
+				filePath = tcmd.currentFileWithPath()
+				if not filePath:
+					return False
 			else:
-				filePath = str(focusedItem.path)
+				# We check if we are in the Windows Explorer.
+				fg = api.getForegroundObject()
+				if (fg.role != api.controlTypes.Role.PANE and fg.role != api.controlTypes.Role.WINDOW) or fg.appModule.appName != "explorer":
+					ui.message(_("You must be in a Windows File Explorer window"))
+					return False
+				
+				self.shell = COMCreate("shell.application")
+				desktop = False
+				# We go through the list of open Windows Explorers to find the one that has the focus.
+				for window in self.shell.Windows():
+					if window.hwnd == fg.windowHandle:
+						focusedItem=window.Document.FocusedItem
+						break
+				else: # loop exhausted
+					desktop = True
+				# Now that we have the current folder, we can explore the SelectedItems collection.
+				if desktop:
+					desktopPath = desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+					fileName = api.getDesktopObject().objectWithFocus().name
+					filePath = desktopPath + '\\' + fileName
+				else:
+					filePath = str(focusedItem.path)
 		
 		# Getting the extension to check if is a supported file type.
 		fileExtension = os.path.splitext(filePath)[1].lower()
@@ -137,6 +149,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		
 		self._thread = threading.Thread(target = self._pdfToPngThread)
+		self._thread.setDaemon(True)
+		self._thread.start()
+
+	def convertWebPtoPng(self):
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Reported when content recognition (e.g. OCR) is attempted,
+			# but the user is already reading a content recognition result.
+			ui.message(_("Already in a content recognition result"))
+			return
+		
+		self._thread = threading.Thread(target = self._webpToPngThread)
 		self._thread.setDaemon(True)
 		self._thread.start()
 
@@ -171,3 +194,32 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 				os.remove(os.path.join(pdfToImagePath, f))
 		except FileNotFoundError:
 			pass
+
+	def _webpToPngThread(self):
+		# The next two lines are to prevent the cmd from being displayed.
+		si = subprocess.STARTUPINFO()
+		si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		try:
+			for f in os.listdir(pdfToImagePath):
+				os.remove(os.path.join(pdfToImagePath, f))
+		except FileNotFoundError:
+			queue_ui_message(_("Error, file not found"))
+			pass
+		command = "{} \"{}\" -o \"{}\\{}.png\"".format(webpToPngToolPath, filePath, pdfToImagePath, os.path.basename(filePath))
+		print(command)
+		
+		queue_ui_message(_("Process started"))
+		self.beeper.start()
+		p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=si)
+		stdout, stderr = p.communicate()
+		
+		if p.returncode == 0:
+			self.recogUiEnhance.recognizeImageFileObject("{}\\{}.png".format(pdfToImagePath, os.path.basename(filePath)))
+			try:
+				for f in os.listdir(pdfToImagePath):
+					os.remove(os.path.join(pdfToImagePath, f))
+			except FileNotFoundError:
+				pass
+		else:
+			queue_ui_message(_("Error, the file could not be processed."))
+		self.beeper.stop()
