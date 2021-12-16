@@ -1,38 +1,31 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-15
+#Last update 2021-12-16
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import wx
 import gui
-import ui
 import api
 import os
 import queueHandler
-import speech
 import cursorManager
 #import webbrowser
+from .. speech import speech
 
 class RecogUiEnhanceResultPageOffset():
 	def __init__(self, start, length):
 		self.start = start
 		self.end = start + length
 
-def ui_message(message, queue=False):
-	if queue:
-		queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
-	else:
-		ui.message(message)
-
 class RecogUiEnhanceResultDialog(wx.Frame):
-	def __init__(self, result, pages_offset=None, file_name=None):
-		self.file_name = os.path.basename(file_name)
-		self.file_path = os.path.dirname(file_name)
+	def __init__(self, result, pages_offset=None, source_file=None):
+		self.source_file = os.path.basename(source_file)
+		self.file_path = os.path.dirname(source_file)
 		self.result = result
 		self.pages_offset = pages_offset
 		
-		title = _("Result") + (' ' + self.file_name if self.file_name else '')
+		title = _("Result") + (' ' + self.source_file if self.source_file else '')
 		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_("page") if len(self.pages_offset) == 1 else _("&Pages").replace('&', ''))
 		super(RecogUiEnhanceResultDialog, self).__init__(gui.mainFrame, wx.ID_ANY, title)
 		
@@ -82,30 +75,30 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 			self.find_next(evt.shiftDown)
 		elif evt.UnicodeKey == ord(u'F'):
 			# Control+F
-			speech._suppressSpeakTypedCharacters(1)
+			speech.suppress_typed_characters()
 			wx.CallAfter(self.open_find_dialog)
 		elif evt.UnicodeKey == ord(u'P'):
 			# P
-			speech._suppressSpeakTypedCharacters(1)
+			speech.suppress_typed_characters()
 			self.speak_page(queue=True)
 		elif evt.UnicodeKey == ord(u'L'):
 			# L
-			speech._suppressSpeakTypedCharacters(1)
+			speech.suppress_typed_characters()
 			self.speak_line(queue=True)
 		elif evt.UnicodeKey == ord(u'C'):
 			# C
-			speech._suppressSpeakTypedCharacters(1)
+			speech.suppress_typed_characters()
 			if evt.controlDown:
 				queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.outputCtrl.GetStringSelection(), True)
 			else:
 				queueHandler.queueFunction(queueHandler.eventQueue, api.copyToClip, self.result.text, True)
 		elif evt.UnicodeKey == ord(u'S'):
 			# S
-			speech._suppressSpeakTypedCharacters(1)
+			speech.suppress_typed_characters()
 			wx.CallAfter(self.save_as)
 			"""elif evt.UnicodeKey == ord(u'D'):
 				# D
-				speech._suppressSpeakTypedCharacters(1)
+				speech.suppress_typed_characters()
 				webbrowser.open("https://google.com")
 			"""
 		else:
@@ -150,12 +143,12 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 	def speak_page(self, page=None, queue=False):
 		if page is None:
 			page = self.get_current_page()
-		ui_message(_("page %s")%page, queue)
+		speech.message(_("page %s")%page, queue=queue)
 
 	def speak_line(self, line=None, queue=False):
 		if line is None:
 			line = self.get_current_line()
-		ui_message(_("line %s")%line, queue)
+		speech.message(_("line %s")%line, queue=queue)
 
 	def on_page_move(self, offset):
 		page = self.get_current_page() + offset
@@ -185,12 +178,12 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 				gui.messageBox(_("Error saving log: %s") % e.strerror, _("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
 
 	def save_as(self):
-		filename = os.path.splitext(self.file_name)[0] + '.txt'
+		filename = os.path.splitext(self.source_file)[0] + '.txt'
 		filename = wx.FileSelector(_("Save As"), default_path=self.file_path, default_filename=filename, flags=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, parent=self)
 		self.save(filename)
 
 	def doFindText(self, text, reverse=False, caseSensitive=False, willSayAllResume=False):
-		speech.cancelSpeech()
+		speech.cancel()
 		pos = self.outputCtrl.GetInsertionPoint()
 		if pos == self._lastFindPos:
 			if text != self._lastFindText or caseSensitive != self._lastCaseSensitivity:
@@ -227,7 +220,7 @@ class RecogUiEnhanceResultDialog(wx.Frame):
 			line = self.result.text[pos:line_end]
 			line = line.split()[:min_words]
 			line = ' '.join(line)
-			ui_message(line, True)
+			speech.queue_message(line)
 		else:
 			wx.CallAfter(gui.messageBox,_('text "%s" not found')%text,_("Find Error"),wx.OK|wx.ICON_ERROR)
 		self._lastFindText = text

@@ -1,115 +1,97 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-15
+#Last update 2021-12-16
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
-import os
-import ui
 import winGDI
-import screenBitmap
 import wx
 import queueHandler
-from contentRecog import uwpOcr, recogUi, LinesWordsResult
-from .recogUiEnhanceResult import RecogUiEnhanceResultDialog, RecogUiEnhanceResultPageOffset
 import addonHandler
-
-def queue_ui_message(message):
-	queueHandler.queueFunction(queueHandler.eventQueue, ui.message, message)
+import winVersion
+from contentRecog import uwpOcr, recogUi, LinesWordsResult
+from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset
+from .. speech import speech
+from .. generic import screen
 
 addonHandler.initTranslation()
 
 class RecogUiEnhance:
+	def is_uwp_ocr_available():
+		return winVersion.isUwpOcrAvailable()
+
+	def recognize_screenshot(on_finish=None, on_finish_arg=None):
+		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
+			# Translators: Reported when content recognition (e.g. OCR) is attempted,
+			# but the user is already reading a content recognition result.
+			speech.message(_("Already in a content recognition result"))
+			return
+		if not RecogUiEnhance.is_uwp_ocr_available():
+			# Translators: Reported when Windows OCR is not available.
+			speech.message(_("Windows OCR not available"))
+			return
+		if screen.have_curtain():
+			# Translators: Reported when screen curtain is enabled.
+			speech.message(_("Please disable screen curtain before using Windows OCR."))
+			return
+		speech.message(_("Recognizing"))
+		pixels, width, height = screen.take_snapshot_pixels()
+		recognizer = uwpOcr.UwpOcr()
+		try:
+			imgInfo = recogUi.RecogImageInfo.createFromRecognizer(0, 0, width, height, recognizer)
+		except ValueError:
+			speech.message(_("Internal conversion error"))
+			return
+		if recogUi._activeRecog:
+			recogUi._activeRecog.cancel()
+			recogUi._activeRecog = None
+		recogUi._activeRecog = recognizer
+		def h(result):
+			recogUi._recogOnResult(result)
+			recogUi._activeRecog = None
+			if on_finish:
+				if on_finish_arg is None:
+					on_finish()
+				else:
+					on_finish(arg=on_finish_arg)
+		recognizer.recognize(pixels, imgInfo, h)
+
 	def __init__(self):
+		self.clear()
+
+	def clear(self):
 		self.bmp_list = []
 		self.results = []
 		self.pages_offset = []
 		self.on_finish = None
+		self.on_finish_arg = None
+		self.source_file = None
 
-	def recognizeImageFileObject(self, filePath):
-		recognizer = uwpOcr.UwpOcr()
-		try:
-			imgPath = os.path.abspath(filePath)
-			bmp =  wx.Bitmap(imgPath)
-			width, height = bmp.Size.Get()
-			imgInfo = recogUi.RecogImageInfo.createFromRecognizer(0, 0, width, height, recognizer)
-		except ValueError:
-			ui.message(_("Internal conversion error"))
+	def recognize_files(self, source_file, source_file_list, on_finish=None, on_finish_arg=None):
+		if not RecogUiEnhance.is_uwp_ocr_available():
+			# Translators: Reported when Windows OCR is not available.
+			speech.queue_message(_("Windows OCR not available"))
+			if on_finish:
+				if on_finish_arg is None:
+					on_finish(source_file=source_file, result=None, pages_offset=None)
+				else:
+					on_finish(source_file=source_file, result=None, pages_offset=None, arg=on_finish_arg)
 			return
 		if recogUi._activeRecog:
 			recogUi._activeRecog.cancel()
 			recogUi._activeRecog = None
-		self.file_name = filePath
-		self.results = []
-		self.pages_offset = []
-		ui.message(_("Recognizing"))
-		pixels = (winGDI.RGBQUAD*bmp.GetWidth()*bmp.GetHeight())()
-		bmp.CopyToBuffer(pixels, format=wx.BitmapBufferFormat_ARGB32)
-		recogUi._activeRecog = recognizer
-		recognizer.recognize(pixels, imgInfo, self._FileRecogOnResult)
-		
-	def _FileRecogOnResult(self, result):
-		recogUi._activeRecog = None
-		# This might get called from a background thread, so any UI calls must be queued to the main thread.
-		if isinstance(result, Exception):
-			# Translators: Reported when recognition (e.g. OCR) fails.
-			log.error("Recognition failed: %s" % result)
-			queue_ui_message(_("Recognition failed"))
-			self.results = []
-			self.pages_offset = []
-			return
-		
-		if len(self.pages_offset) == 0:
-			self.pages_offset.append(RecogUiEnhanceResultPageOffset(0, result.textLen))
-		else:
-			self.pages_offset.append(RecogUiEnhanceResultPageOffset(self.pages_offset[len(self.pages_offset) - 1].end, result.textLen))
-		
-		# Result is a LinesWordsResult, we store all pages data objects that we will merge later in a single LinesWordsResult
-		for line in result.data:
-			self.results.append(line)
-		
-		queueHandler.queueFunction(queueHandler.eventQueue, self._showResult, result.imageInfo)
-
-	def recognizeScreenshotObject(self):
-		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
-			# Translators: Reported when content recognition (e.g. OCR) is attempted,
-			# but the user is already reading a content recognition result.
-			ui.message(_("Already in a content recognition result"))
-			return
-		recognizer = uwpOcr.UwpOcr()
-		try:
-			s = wx.ScreenDC()
-			width, height = s.Size.Get()
-			imgInfo = recogUi.RecogImageInfo.createFromRecognizer(0, 0, width, height, recognizer)
-		except ValueError:
-			ui.message(_("Internal conversion error"))
-			return
-		if recogUi._activeRecog:
-			recogUi._activeRecog.cancel()
-			recogUi._activeRecog = None
-		ui.message(_("Recognizing"))
-		sb = screenBitmap.ScreenBitmap(imgInfo.recogWidth, imgInfo.recogHeight)
-		pixels = sb.captureImage(0, 0, width, height)
-		recogUi._activeRecog = recognizer
-		recognizer.recognize(pixels, imgInfo, recogUi._recogOnResult)
-
-	def recognizePdfFileObject(self, file_name, filePathList, pdfToImagePath, onFinish = None):
-		if recogUi._activeRecog:
-			recogUi._activeRecog.cancel()
-			recogUi._activeRecog = None
-		self.file_name = file_name
-		self.bmp_list = []
-		self.results = []
-		self.pages_offset = []
-		self.on_finish = onFinish
-		queue_ui_message(_("Recognizing"))
-		for f in filePathList:
-			bmp =  wx.Bitmap(str(os.path.join(pdfToImagePath, f)))
+		self.clear()
+		self.source_file = source_file
+		self.on_finish = on_finish
+		self.on_finish_arg = on_finish_arg
+		speech.queue_message(_("Recognizing"))
+		for f in source_file_list:
+			bmp = wx.Bitmap(f)
 			self.bmp_list.append(bmp)
-		self._recognize_next_pdf_page()
+		self._recognize_next_page()
 
-	def _recognize_next_pdf_page(self):
+	def _recognize_next_page(self):
 		if len(self.bmp_list) > 0:
 			recognizer = uwpOcr.UwpOcr()
 			bmp = self.bmp_list.pop(0)
@@ -118,26 +100,23 @@ class RecogUiEnhance:
 			pixels = (winGDI.RGBQUAD*width*height)()
 			bmp.CopyToBuffer(pixels, format=wx.BitmapBufferFormat_ARGB32)
 			recogUi._activeRecog = recognizer
-			recognizer.recognize(pixels, imgInfo, self._PdfRecogOnResult)
+			recognizer.recognize(pixels, imgInfo, self._on_recognize_result)
 			return True
-		if self.on_finish:
-			self.on_finish()
-			self.on_finish = None
 		return False
 
-	def _PdfRecogOnResult(self, result):
+	def _on_recognize_result(self, result):
 		recogUi._activeRecog = None
 		# This might get called from a background thread, so any UI calls must be queued to the main thread.
 		if isinstance(result, Exception):
 			# Translators: Reported when recognition (e.g. OCR) fails.
 			log.error("Recognition failed: %s" % result)
-			queue_ui_message(_("Recognition failed"))
-			self.bmp_list = []
-			self.results = []
-			self.pages_offset = []
+			speech.queue_message(_("Recognition failed"))
 			if self.on_finish:
-				self.on_finish()
-				self.on_finish = None
+				if self.on_finish_arg is None:
+					self.on_finish(source_file=self.source_file, result=None, pages_offset=None)
+				else:
+					self.on_finish(source_file=self.source_file, result=None, pages_offset=None, arg=self.on_finish_arg)
+			self.clear()
 			return
 		
 		if len(self.pages_offset) == 0:
@@ -149,12 +128,13 @@ class RecogUiEnhance:
 		for line in result.data:
 			self.results.append(line)
 		
-		if not self._recognize_next_pdf_page():
+		if not self._recognize_next_page():
 			# No more pages
-			queueHandler.queueFunction(queueHandler.eventQueue, self._showResult, result.imageInfo)
-
-	def _showResult(self, imageInfo):
-		result = LinesWordsResult(self.results, imageInfo)
-		dlg = RecogUiEnhanceResultDialog(file_name=self.file_name,result=result,pages_offset=self.pages_offset)
-		self.results = []
-		self.pages_offset = []
+			def h():
+				if self.on_finish:
+					if self.on_finish_arg is None:
+						self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset)
+					else:
+						self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset, arg=self.on_finish_arg)
+				self.clear()
+			queueHandler.queueFunction(queueHandler.eventQueue, h)
