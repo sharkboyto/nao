@@ -27,16 +27,18 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
 
 ## Support and donations
-qua mettere testo donazioni
+Nao is absolutely free. Anyway, please remember that this addon is made during spare time of developers. 
+We'd appreciate any contribute that you could give us!
+If you think our work is good and improve your life, a <a href="http://nvda-nao.org/">Consider to make a donation.</a>
 
 ## History
-* 2021.8
-  * Ocr of pdf and images are presented in a new text window, with some hotkeys for simple operations.
-  * Support for the Xplorer filemanager.
-  * Added Turkish, Chinese and Spanish translations.
-  * Users can make donations to the project.
-* 2021.7
-  * first public version! 
+### 2021.8
+* Ocr of pdf and images are presented in a new text window, with some hotkeys for simple operations.
+* Support for the Xplorer filemanager.
+* Added Turkish, Chinese and Spanish translations.
+* Users can make donations to the project.
+### 2021.7
+* first public version! 
 
 
 [1]: https://github.com/sharkboyto/nao/releases/download/v_2021.1.07/nao-2021.1.07.nvda-addon
