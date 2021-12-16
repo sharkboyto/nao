@@ -30,6 +30,13 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
 qua mettere testo donazioni
 
 ## History
-Qui cronologia
+* 2021.8
+  * Ocr of pdf and images are presented in a new text window, with some hotkeys for simple operations.
+  * Support for the Xplorer filemanager.
+  * Added Turkish, Chinese and Spanish translations.
+  * Users can make donations to the project.
+* 2021.7
+  * first public version! 
+
 
 [1]: https://github.com/sharkboyto/nao/releases/download/v_2021.1.07/nao-2021.1.07.nvda-addon
