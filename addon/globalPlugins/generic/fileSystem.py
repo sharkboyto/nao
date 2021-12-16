@@ -7,9 +7,12 @@
 import api
 import ui
 import os
+import addonHandler
 from .xplorer2Helper import Xplorer2Helper
 from .totalCommanderHelper import TotalCommanderHelper
 from comtypes.client import CreateObject as COMCreate
+
+addonHandler.initTranslation()
 
 _shell = None
 
