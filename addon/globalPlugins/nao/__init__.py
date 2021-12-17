@@ -6,20 +6,24 @@
 # 2021-12-14, xplorer2 support
 # 2021-12-15, new result dialog
 # 2021-12-16, code refactoring
-#Last update 2021-12-16
+#Last update 2021-12-17
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
 import globalPluginHandler
 import addonHandler
 from scriptHandler import script
-from .speech import speech
-from .generic import beepThread
-from .generic import fileSystem
-from .OCREnhance.recogUiEnhance import RecogUiEnhance
-from .OCREnhance.recogUiEnhanceResult import RecogUiEnhanceResultDialog
-from .converters.pdf_converter import PDFConverter
-from .converters.webp_converter import WebpConverter
+
+from .framework import *
+begin_framework_imports()
+from framework.speech import speech
+from framework.generic import fileSystem
+from framework.generic.beepThread import BeepThread
+from framework.ocr.recogUiEnhance import RecogUiEnhance
+from framework.ocr.recogUiEnhanceResult import RecogUiEnhanceResultDialog
+from framework.converters.pdf_converter import PDFConverter
+from framework.converters.webp_converter import WebpConverter
+end_framework_imports()
 
 addonHandler.initTranslation()
 
@@ -30,7 +34,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
-		self.beeper = beepThread.BeepThread()
+		self.beeper = BeepThread()
 		PDFConverter().clear_all()
 		WebpConverter().clear_all()
 
