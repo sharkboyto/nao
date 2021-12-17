@@ -33,10 +33,11 @@ If you think our work is good and improve your life, a <a href="http://nvda-nao.
 
 ## History
 ### 2021.8
-* Ocr of pdf and images are presented in a new text window, with some hotkeys for simple operations.
+* OCR of pdf and images are presented in a new text window, with some hotkeys for simple operations.
 * Support for the Xplorer filemanager.
-* Added Turkish, Chinese and Spanish translations.
+* Added Turkish, Russian, Spanish, Chinese and french translations.
 * Users can make donations to the project.
+* Fixed a bug with some characters on the file extensions that prevents the Ocr to work properly.
 ### 2021.7
 * first public version! 
 
