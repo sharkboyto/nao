@@ -50,7 +50,16 @@ addon_info = {
 # pythonSources = ["addon/globalPlugins/*.py"]
 # For more information on SCons Glob expressions please take a look at:
 # https://scons.org/doc/production/HTML/scons-user/apd.html
-pythonSources = ["addon/globalPlugins/*.py","addon/globalPlugins/OCREnhance/*.py","addon/*.py"]
+pythonSources = [
+	"addon/*.py",
+	"addon/globalPlugins/nao/*.py",
+	"addon/nao_lib/framework/*.py",
+	"addon/nao_lib/framework/converters/*.py",
+	"addon/nao_lib/framework/converters/base/*.py",
+	"addon/nao_lib/framework/generic/*.py",
+	"addon/nao_lib/framework/ocr/*.py",
+	"addon/nao_lib/framework/speech/*.py"
+]
 
 # Files that contain strings for translation. Usually your python sources
 i18nSources = pythonSources + ["buildVars.py"]
