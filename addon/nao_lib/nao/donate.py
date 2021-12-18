@@ -16,7 +16,7 @@ def open():
 		lang = lang.split("_")[0].lower()
 	else:
 		lang = 'en'
-	webbrowser.open("https://nvda-nao.org/donate?{lang}".format(lang=lang))
+	webbrowser.open("https://nvda-nao.org/donate?lang={lang}".format(lang=lang))
 
 def request():
 	import wx
