@@ -53,6 +53,7 @@ addon_info = {
 pythonSources = [
 	"addon/*.py",
 	"addon/globalPlugins/nao/*.py",
+	"addon/globalPlugins/nao/framework/*.py",
 	"addon/nao_lib/framework/*.py",
 	"addon/nao_lib/framework/converters/*.py",
 	"addon/nao_lib/framework/converters/base/*.py",

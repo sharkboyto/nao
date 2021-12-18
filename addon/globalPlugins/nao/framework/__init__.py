@@ -5,7 +5,7 @@
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
-_framework_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "nao_lib"))
+_framework_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "nao_lib"))
 
 def begin_framework_imports():
 	import sys

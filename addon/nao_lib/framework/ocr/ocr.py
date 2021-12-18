@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-16
+#Last update 2021-12-17
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -11,13 +11,17 @@ import queueHandler
 import addonHandler
 import winVersion
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
-from .recogUiEnhanceResult import RecogUiEnhanceResultPageOffset
 from .. speech import speech
 from .. generic import screen
 
 addonHandler.initTranslation()
 
-class RecogUiEnhance:
+class OCRResultPageOffset():
+	def __init__(self, start, length):
+		self.start = start
+		self.end = start + length
+
+class OCR:
 	def is_uwp_ocr_available():
 		return winVersion.isUwpOcrAvailable()
 
@@ -27,7 +31,7 @@ class RecogUiEnhance:
 			# but the user is already reading a content recognition result.
 			speech.message(_("Already in a content recognition result"))
 			return
-		if not RecogUiEnhance.is_uwp_ocr_available():
+		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.message(_("Windows OCR not available"))
 			return
@@ -69,7 +73,7 @@ class RecogUiEnhance:
 		self.source_file = None
 
 	def recognize_files(self, source_file, source_file_list, on_finish=None, on_finish_arg=None):
-		if not RecogUiEnhance.is_uwp_ocr_available():
+		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.queue_message(_("Windows OCR not available"))
 			if on_finish:
@@ -120,9 +124,9 @@ class RecogUiEnhance:
 			return
 		
 		if len(self.pages_offset) == 0:
-			self.pages_offset.append(RecogUiEnhanceResultPageOffset(0, result.textLen))
+			self.pages_offset.append(OCRResultPageOffset(0, result.textLen))
 		else:
-			self.pages_offset.append(RecogUiEnhanceResultPageOffset(self.pages_offset[len(self.pages_offset) - 1].end, result.textLen))
+			self.pages_offset.append(OCRResultPageOffset(self.pages_offset[len(self.pages_offset) - 1].end, result.textLen))
 		
 		# Result is a LinesWordsResult, we store all pages data objects that we will merge later in a single LinesWordsResult
 		for line in result.data:
