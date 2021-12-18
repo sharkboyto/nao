@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-17
+#Last update 2021-12-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import wx
@@ -10,7 +10,6 @@ import api
 import os
 import queueHandler
 import cursorManager
-#import webbrowser
 from .. speech import speech
 
 class OCRResultDialog(wx.Frame):
@@ -91,11 +90,6 @@ class OCRResultDialog(wx.Frame):
 			# S
 			speech.suppress_typed_characters()
 			wx.CallAfter(self.save_as)
-			"""elif evt.UnicodeKey == ord(u'D'):
-				# D
-				speech.suppress_typed_characters()
-				webbrowser.open("https://google.com")
-			"""
 		else:
 			evt.Skip()
 
