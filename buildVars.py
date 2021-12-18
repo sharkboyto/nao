@@ -59,7 +59,8 @@ pythonSources = [
 	"addon/nao_lib/framework/converters/base/*.py",
 	"addon/nao_lib/framework/generic/*.py",
 	"addon/nao_lib/framework/ocr/*.py",
-	"addon/nao_lib/framework/speech/*.py"
+	"addon/nao_lib/framework/speech/*.py",
+	"addon/nao_lib/nao/*.py"
 ]
 
 # Files that contain strings for translation. Usually your python sources
