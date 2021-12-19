@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-17
+#Last update 2021-12-19
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -10,6 +10,7 @@ import wx
 import queueHandler
 import addonHandler
 import winVersion
+from logHandler import log
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
 from .. speech import speech
 from .. generic import screen
@@ -30,15 +31,15 @@ class OCR:
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
 			speech.message(_("Already in a content recognition result"))
-			return
+			return False
 		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.message(_("Windows OCR not available"))
-			return
+			return False
 		if screen.have_curtain():
 			# Translators: Reported when screen curtain is enabled.
 			speech.message(_("Please disable screen curtain before using Windows OCR."))
-			return
+			return False
 		speech.message(_("Recognizing"))
 		pixels, width, height = screen.take_snapshot_pixels()
 		recognizer = uwpOcr.UwpOcr()
@@ -46,20 +47,36 @@ class OCR:
 			imgInfo = recogUi.RecogImageInfo.createFromRecognizer(0, 0, width, height, recognizer)
 		except ValueError:
 			speech.message(_("Internal conversion error"))
-			return
+			return False
 		if recogUi._activeRecog:
 			recogUi._activeRecog.cancel()
 			recogUi._activeRecog = None
 		recogUi._activeRecog = recognizer
 		def h(result):
+			if isinstance(result, Exception):
+				recogUi._activeRecog = None
+				# Translators: Reported when recognition (e.g. OCR) fails.
+				log.error("Recognition failed: %s" % result)
+				speech.queue_message(_("Recognition failed"))
+				if on_finish:
+					if on_finish_arg is None:
+						on_finish(success=False)
+					else:
+						on_finish(success=False, arg=on_finish_arg)
+				return
 			recogUi._recogOnResult(result)
 			recogUi._activeRecog = None
 			if on_finish:
 				if on_finish_arg is None:
-					on_finish()
+					on_finish(success=True)
 				else:
-					on_finish(arg=on_finish_arg)
-		recognizer.recognize(pixels, imgInfo, h)
+					on_finish(success=True, arg=on_finish_arg)
+		try:
+			recognizer.recognize(pixels, imgInfo, h)
+			return True
+		except Exception as e:
+			h(e)
+		return False
 
 	def __init__(self):
 		self.clear()
@@ -104,8 +121,11 @@ class OCR:
 			pixels = (winGDI.RGBQUAD*width*height)()
 			bmp.CopyToBuffer(pixels, format=wx.BitmapBufferFormat_ARGB32)
 			recogUi._activeRecog = recognizer
-			recognizer.recognize(pixels, imgInfo, self._on_recognize_result)
-			return True
+			try:
+				recognizer.recognize(pixels, imgInfo, self._on_recognize_result)
+				return True
+			except Exception as e:
+				self._on_recognize_result(e)
 		return False
 
 	def _on_recognize_result(self, result):
@@ -117,9 +137,9 @@ class OCR:
 			speech.queue_message(_("Recognition failed"))
 			if self.on_finish:
 				if self.on_finish_arg is None:
-					self.on_finish(source_file=self.source_file, result=None, pages_offset=None)
+					self.on_finish(source_file=self.source_file, result=result, pages_offset=None)
 				else:
-					self.on_finish(source_file=self.source_file, result=None, pages_offset=None, arg=self.on_finish_arg)
+					self.on_finish(source_file=self.source_file, result=result, pages_offset=None, arg=self.on_finish_arg)
 			self.clear()
 			return
 		
