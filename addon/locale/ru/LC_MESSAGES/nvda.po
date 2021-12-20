@@ -1,0 +1,68 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NAO\n"
+"POT-Creation-Date: 2021-12-11 17:11+0300\n"
+"PO-Revision-Date: 2021-12-11 17:21+0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru_RU\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-Basepath: ../../../globalPlugins\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: OCREnhance/recogUiEnhance.py:34 OCREnhance/recogUiEnhance.py:58
+#: OCREnhance/recogUiEnhance.py:81 nao.py:124
+msgid "Already in a content recognition result"
+msgstr "Уже в результате распознавания содержания"
+
+#: OCREnhance/recogUiEnhance.py:43 OCREnhance/recogUiEnhance.py:66
+msgid "Internal conversion error"
+msgstr "Внутренняя ошибка преобразования"
+
+#: OCREnhance/recogUiEnhance.py:48 OCREnhance/recogUiEnhance.py:71
+#: OCREnhance/recogUiEnhance.py:90
+msgid "Recognizing"
+msgstr "Распознавание"
+
+#: OCREnhance/recogUiEnhance.py:118
+msgid "Recognition failed"
+msgstr "Не удалось распознать"
+
+#: OCREnhance/recogUiEnhanceResult.py:31 OCREnhance/recogUiEnhanceResult.py:36
+msgid "page"
+msgstr "страница"
+
+#: nao.py:45 nao.py:59
+msgid "Windows OCR not available"
+msgstr "Windows OCR недоступен"
+
+#: nao.py:52
+msgid "Please disable screen curtain before using Windows OCR."
+msgstr ""
+"Пожалуйста, перед использованием Windows OCR отключите затемнение экрана."
+
+#: nao.py:67 nao.py:143
+msgid "Process started"
+msgstr "Процесс запущен"
+
+#: nao.py:87
+msgid "You must be in a Windows File Explorer window"
+msgstr "Вы должны находиться в окне проводника файлов Windows"
+
+#: nao.py:117
+msgid "File not supported"
+msgstr "Файл не поддерживается"
+
+#: nao.py:139
+msgid "Error, file not found"
+msgstr "Ошибка, файл не найден"
+
+#: nao.py:151
+msgid "Error, the file could not be processed."
+msgstr "Ошибка, файл не удалось обработать."
