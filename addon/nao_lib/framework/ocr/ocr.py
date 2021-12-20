@@ -8,14 +8,14 @@ import api
 import winGDI
 import wx
 import queueHandler
-import addonHandler
 import winVersion
 from logHandler import log
 from contentRecog import uwpOcr, recogUi, LinesWordsResult
 from .. speech import speech
 from .. generic import screen
+from .. import language
 
-addonHandler.initTranslation()
+language.initTranslation()
 
 class OCRResultPageOffset():
 	def __init__(self, start, length):
@@ -30,22 +30,24 @@ class OCR:
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
-			speech.message(_("Already in a content recognition result"))
+			speech.message(_N("Already in a content recognition result"))
 			return False
 		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
-			speech.message(_("Windows OCR not available"))
+			speech.message(_N("Windows OCR not available"))
 			return False
 		if screen.have_curtain():
 			# Translators: Reported when screen curtain is enabled.
-			speech.message(_("Please disable screen curtain before using Windows OCR."))
+			speech.message(_N("Please disable screen curtain before using Windows OCR."))
 			return False
-		speech.message(_("Recognizing"))
+		# Translators: Reporting when recognition (e.g. OCR) begins.
+		speech.message(_N("Recognizing"))
 		pixels, width, height = screen.take_snapshot_pixels()
 		recognizer = uwpOcr.UwpOcr()
 		try:
 			imgInfo = recogUi.RecogImageInfo.createFromRecognizer(0, 0, width, height, recognizer)
 		except ValueError:
+			# Translators: Reporting an error during recognition (e.g. OCR).
 			speech.message(_("Internal conversion error"))
 			return False
 		if recogUi._activeRecog:
@@ -55,9 +57,9 @@ class OCR:
 		def h(result):
 			if isinstance(result, Exception):
 				recogUi._activeRecog = None
-				# Translators: Reported when recognition (e.g. OCR) fails.
-				log.error("Recognition failed: %s" % result)
-				speech.queue_message(_("Recognition failed"))
+				# Translators: Reporting when recognition (e.g. OCR) fails.
+				log.error(_N("Recognition failed") + ': ' + str(result))
+				speech.queue_message(_N("Recognition failed"))
 				if on_finish:
 					if on_finish_arg is None:
 						on_finish(success=False)
@@ -92,7 +94,7 @@ class OCR:
 	def recognize_files(self, source_file, source_file_list, on_finish=None, on_finish_arg=None):
 		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
-			speech.queue_message(_("Windows OCR not available"))
+			speech.queue_message(_N("Windows OCR not available"))
 			if on_finish:
 				if on_finish_arg is None:
 					on_finish(source_file=source_file, result=None, pages_offset=None)
@@ -106,7 +108,8 @@ class OCR:
 		self.source_file = source_file
 		self.on_finish = on_finish
 		self.on_finish_arg = on_finish_arg
-		speech.queue_message(_("Recognizing"))
+		# Translators: Reporting when content recognition (e.g. OCR) begins.
+		speech.queue_message(_N("Recognizing"))
 		for f in source_file_list:
 			bmp = wx.Bitmap(f)
 			self.bmp_list.append(bmp)
@@ -132,9 +135,9 @@ class OCR:
 		recogUi._activeRecog = None
 		# This might get called from a background thread, so any UI calls must be queued to the main thread.
 		if isinstance(result, Exception):
-			# Translators: Reported when recognition (e.g. OCR) fails.
-			log.error("Recognition failed: %s" % result)
-			speech.queue_message(_("Recognition failed"))
+			# Translators: Reporting when recognition (e.g. OCR) fails.
+			log.error(_N("Recognition failed") + ': ' + str(result))
+			speech.queue_message(_N("Recognition failed"))
 			if self.on_finish:
 				if self.on_finish_arg is None:
 					self.on_finish(source_file=self.source_file, result=result, pages_offset=None)

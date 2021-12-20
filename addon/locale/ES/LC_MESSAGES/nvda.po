@@ -5,11 +5,11 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.1.07'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.03'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2021-12-08 12:19+0100\n"
-"PO-Revision-Date: 2021-12-15 18:52-0500\n"
-"Last-Translator: \n"
+"POT-Creation-Date: 2021-12-20 09:35+0100\n"
+"PO-Revision-Date: 2021-12-20 09:35+0100\n"
+"Last-Translator: Mateo Cedillo\n"
 "Language-Team: \n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -18,68 +18,52 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.0.1\n"
 
-#. Translators: Reported when Windows OCR is not available.
-#: addon\globalPlugins\nao.py:45 addon\globalPlugins\nao.py:59
-msgid "Windows OCR not available"
-msgstr "OCR de Windows no disponible"
+#. Translators: Message presented in input help mode.
+#: addon\globalPlugins\nao\__init__.py:30
+#~ msgid "Recognizes the content of the selected image or PDF file"
+#~ msgstr ""
 
-#. Translators: Reported when screen curtain is enabled.
-#: addon\globalPlugins\nao.py:52
-#, fuzzy
-msgid "Please disable screen curtain before using Windows OCR."
-msgstr ""
-"Por favor, desactiva la cortina de pantalla antes de utilizar el "
-"OCR de Windows."
+#. Translators: Message presented in input help mode.
+#: addon\globalPlugins\nao\__init__.py:49
+#~ msgid "Take a full screen shot and recognize it"
+#~ msgstr ""
 
-#: addon\globalPlugins\nao.py:67 addon\globalPlugins\nao.py:143
-msgid "Process started"
-msgstr "Proceso iniciado"
-
-#: addon\globalPlugins\nao.py:87
-msgid "You must be in a Windows File Explorer window"
-msgstr "Debes estar dentro de una ventana del explorador de Windows"
-
-#: addon\globalPlugins\nao.py:117
-msgid "File not supported"
-msgstr "Archivo no soportado"
-
-#. Translators: Reported when content recognition (e.g. OCR) is attempted,
-#. but the user is already reading a content recognition result.
-#: addon\globalPlugins\nao.py:124
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:34
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:58
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:81
-msgid "Already in a content recognition result"
-msgstr "Ya estás en un resultado de reconocimiento de contenido."
-
-#: addon\globalPlugins\nao.py:139
-msgid "Error, file not found"
-msgstr "Error, el archivo no se ha encontrado"
-
-#: addon\globalPlugins\nao.py:151
-msgid "Error, the file could not be processed."
-msgstr "Error, no se ha podido procesar el archivo."
-
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:43
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:66
+#. Translators: Reporting an error during recognition (e.g. OCR).
+#: addon\nao_lib\framework\ocr\ocr.py:51
 msgid "Internal conversion error"
 msgstr "Error de conversión interno"
 
-#. Translators: Reporting when content recognition (e.g. OCR) begins.
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:48
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:71
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:90
-msgid "Recognizing"
-msgstr "Reconociendo"
+#. Translators: Reported when the file format is not supported for recognition.
+#: addon\nao_lib\framework\ocr\ocr_helper.py:36
+msgid "File not supported"
+msgstr "Archivo no soportado"
 
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:118
-msgid "Recognition failed"
-msgstr "El reconocimiento ha fallado"
+#. Translators: Reported when the recognition starts.
+#: addon\nao_lib\framework\ocr\ocr_helper.py:46
+msgid "Process started"
+msgstr "Proceso iniciado"
 
-#: addon\globalPlugins\OCREnhance\recogUiEnhanceResult.py:31
-#: addon\globalPlugins\OCREnhance\recogUiEnhanceResult.py:36
-msgid "page"
-msgstr "Página"
+#. Translators: Reported when unable to process a file for recognition.
+#: addon\nao_lib\framework\ocr\ocr_helper.py:60
+msgid "Error, the file could not be processed"
+msgstr "Error, no se ha podido procesar el archivo"
+
+#. Translators: Dialog text presented when NVDA cannot save a result file.
+#: addon\nao_lib\framework\ocr\ocr_result.py:175
+#, python-format
+#~ msgid "Error saving file: %s"
+#~ msgstr ""
+
+#. Translators: The text of the donate dialog
+#: addon\nao_lib\nao\donate.py:34
+#, python-brace-format
+#~ msgid ""
+#~ "{name} - free add-on for NVDA.\n"
+#~ "You can make a donation to our team for helping further development of this "
+#~ "add-on.\n"
+#~ "Do you want to make a donation now? For transaction you will be redirected "
+#~ "to the website of the developer."
+#~ msgstr ""
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on

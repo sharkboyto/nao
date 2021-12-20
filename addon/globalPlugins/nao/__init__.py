@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-18
+#Last update 2021-12-20
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import globalPluginHandler
@@ -14,9 +14,10 @@ begin_framework_imports()
 from framework.ocr.ocr import OCR
 from framework.ocr.ocr_helper import OCRHelper
 from framework.generic import fileSystem
+from framework import language
 end_framework_imports()
 
-addonHandler.initTranslation()
+language.initTranslation()
 
 ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
 
@@ -26,7 +27,7 @@ class RecognizableFileObject(ScriptableObject):
 
 	@script(
 		# Translators: Message presented in input help mode.
-		description=_("Recognize the content of the selected image or PDF file."),
+		description=_("Recognizes the content of the selected image or PDF file"),
 		gesture="kb:NVDA+shift+R",
 		category=ADDON_SUMMARY
 	)
@@ -45,7 +46,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	@script(
 		# Translators: Message presented in input help mode.
-		description=_("Take a full screen shot and recognize it."),
+		description=_("Take a full screen shot and recognize it"),
 		gesture="kb:NVDA+shift+control+R",
 		category=ADDON_SUMMARY
 	)

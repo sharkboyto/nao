@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-18
+#Last update 2021-12-20
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import wx
@@ -11,16 +11,21 @@ import os
 import queueHandler
 import cursorManager
 from .. speech import speech
+from .. import language
+
+language.initTranslation()
 
 class OCRResultDialog(wx.Frame):
 	def __init__(self, result, pages_offset=None, source_file=None):
-		self.source_file = os.path.basename(source_file)
-		self.file_path = os.path.dirname(source_file)
+		self.source_file = os.path.basename(source_file) if source_file else ''
+		self.file_path = os.path.dirname(source_file) if source_file else ''
 		self.result = result
 		self.pages_offset = pages_offset
 		
-		title = _("Result") + (' ' + self.source_file if self.source_file else '')
-		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_("page") if len(self.pages_offset) == 1 else _("&Pages").replace('&', ''))
+		# Translators: The title of the document used to present the result of content recognition.
+		title = _N("Result") + (' ' + self.source_file if self.source_file else '')
+		# Translators: Identifies a page
+		title = title + ' - ' + str(len(self.pages_offset)) + ' ' + (_N("page") if len(self.pages_offset) == 1 else _N("&Pages").replace('&', ''))
 		super(OCRResultDialog, self).__init__(gui.mainFrame, wx.ID_ANY, title)
 		
 		self._lastFindText = ""
@@ -46,9 +51,9 @@ class OCRResultDialog(wx.Frame):
 			self.outputCtrl.SetInsertionPoint(0)
 		self.outputCtrl.SetFocus()
 		
-		self.Raise()
 		self.Maximize()
 		self.Show()
+		self.Raise()
 
 	def onClose(self, evt):
 		self.Destroy()
@@ -132,12 +137,14 @@ class OCRResultDialog(wx.Frame):
 	def speak_page(self, page=None, queue=False):
 		if page is None:
 			page = self.get_current_page()
-		speech.message(_("page %s")%page, queue=queue)
+		# Translators: Indicates the page number in a document.
+		speech.message(_N("page %s")%page, queue=queue)
 
 	def speak_line(self, line=None, queue=False):
 		if line is None:
 			line = self.get_current_line()
-		speech.message(_("line %s")%line, queue=queue)
+		# Translators: Indicates the line number of the text.
+		speech.message(_N("line %s")%line, queue=queue)
 
 	def on_page_move(self, offset):
 		page = self.get_current_page() + offset
@@ -164,11 +171,15 @@ class OCRResultDialog(wx.Frame):
 				with open(filename, "w", encoding="UTF-8") as f:
 					f.write(self.result.text)
 			except (IOError, OSError) as e:
-				gui.messageBox(_("Error saving log: %s") % e.strerror, _("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
+				# Translators: Dialog text presented when NVDA cannot save a result file.
+				message = _("Error saving file: %s") % e.strerror
+				# Translators: The title of an error message dialog.
+				gui.messageBox(message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
 
 	def save_as(self):
 		filename = os.path.splitext(self.source_file)[0] + '.txt'
-		filename = wx.FileSelector(_("Save As"), default_path=self.file_path, default_filename=filename, flags=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, parent=self)
+		# Translators: Label of a save dialog
+		filename = wx.FileSelector(_N("Save As"), default_path=self.file_path, default_filename=filename, flags=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT, parent=self)
 		self.save(filename)
 
 	def doFindText(self, text, reverse=False, caseSensitive=False, willSayAllResume=False):
@@ -211,6 +222,6 @@ class OCRResultDialog(wx.Frame):
 			line = ' '.join(line)
 			speech.queue_message(line)
 		else:
-			wx.CallAfter(gui.messageBox,_('text "%s" not found')%text,_("Find Error"),wx.OK|wx.ICON_ERROR)
+			wx.CallAfter(gui.messageBox,_N('text "%s" not found')%text,_N("Find Error"),wx.OK|wx.ICON_ERROR)
 		self._lastFindText = text
 		self._lastCaseSensitivity = caseSensitive
