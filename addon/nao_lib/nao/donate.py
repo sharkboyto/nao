@@ -26,7 +26,7 @@ def request():
 	title = _("Request donations for {name}")
 	
 	# Translators: The text of the donate dialog
-	message = _(""" {name} - this free add-on for NVDA.
+	message = _(""" {name} - free add-on for NVDA.
 You can make a donation to our team for helping further development of this add-on.
 Do you want to make a donation now? For transaction you will be redirected to the website of the developer.""")
 	
