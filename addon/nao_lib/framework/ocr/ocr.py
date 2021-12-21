@@ -1,12 +1,13 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-19
+#Last update 2021-12-21
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
 import winGDI
 import wx
+import time
 import queueHandler
 import winVersion
 from logHandler import log
@@ -26,7 +27,7 @@ class OCR:
 	def is_uwp_ocr_available():
 		return winVersion.isUwpOcrAvailable()
 
-	def recognize_screenshot(on_finish=None, on_finish_arg=None):
+	def recognize_screenshot(on_start=None, on_finish=None, on_finish_arg=None):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
@@ -40,8 +41,8 @@ class OCR:
 			# Translators: Reported when screen curtain is enabled.
 			speech.message(_N("Please disable screen curtain before using Windows OCR."))
 			return False
-		# Translators: Reporting when recognition (e.g. OCR) begins.
-		speech.message(_N("Recognizing"))
+		if on_start:
+			on_start()
 		pixels, width, height = screen.take_snapshot_pixels()
 		recognizer = uwpOcr.UwpOcr()
 		try:
@@ -84,14 +85,22 @@ class OCR:
 		self.clear()
 
 	def clear(self):
+		self.source_count = 0
 		self.bmp_list = []
 		self.results = []
 		self.pages_offset = []
 		self.on_finish = None
 		self.on_finish_arg = None
+		self.on_progress = None
+		self.progress_timeout = 1
+		self.last_progress = 0
 		self.source_file = None
+		self.must_abort = False
 
-	def recognize_files(self, source_file, source_file_list, on_finish=None, on_finish_arg=None):
+	def abort(self):
+		self.must_abort = True
+
+	def recognize_files(self, source_file, source_file_list, on_start=None, on_finish=None, on_finish_arg=None, on_progress=None, progress_timeout=0):
 		if not OCR.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.queue_message(_N("Windows OCR not available"))
@@ -108,15 +117,32 @@ class OCR:
 		self.source_file = source_file
 		self.on_finish = on_finish
 		self.on_finish_arg = on_finish_arg
-		# Translators: Reporting when content recognition (e.g. OCR) begins.
-		speech.queue_message(_N("Recognizing"))
+		self.on_progress = on_progress
+		self.progress_timeout = progress_timeout
+		self.source_count = len(source_file_list)
+		self.last_progress = time.time()
+		if on_start:
+			on_start(source_file=self.source_file)
 		for f in source_file_list:
 			bmp = wx.Bitmap(f)
 			self.bmp_list.append(bmp)
-		self._recognize_next_page()
+		if not self._recognize_next_page():
+			if on_finish:
+				if on_finish_arg is None:
+					on_finish(source_file=source_file, result=None, pages_offset=None)
+				else:
+					on_finish(source_file=source_file, result=None, pages_offset=None, arg=on_finish_arg)
+			self.clear()
 
 	def _recognize_next_page(self):
-		if len(self.bmp_list) > 0:
+		if self.must_abort: return False
+		remaining = len(self.bmp_list)
+		now = time.time()
+		if now - self.last_progress >= self.progress_timeout:
+			self.last_progress = now
+			if self.on_progress:
+				self.on_progress(self.source_count - remaining, self.source_count)
+		if remaining > 0:
 			recognizer = uwpOcr.UwpOcr()
 			bmp = self.bmp_list.pop(0)
 			width, height = bmp.Size.Get()
@@ -159,9 +185,15 @@ class OCR:
 			# No more pages
 			def h():
 				if self.on_finish:
-					if self.on_finish_arg is None:
-						self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset)
+					if self.must_abort:
+						if self.on_finish_arg is None:
+							self.on_finish(source_file=self.source_file, result=None, pages_offset=None)
+						else:
+							self.on_finish(source_file=self.source_file, result=None, pages_offset=None, arg=self.on_finish_arg)
 					else:
-						self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset, arg=self.on_finish_arg)
+						if self.on_finish_arg is None:
+							self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset)
+						else:
+							self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset, arg=self.on_finish_arg)
 				self.clear()
 			queueHandler.queueFunction(queueHandler.eventQueue, h)

@@ -25,7 +25,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("""Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions."""),
 	# version
-	"addon_version": "2021.2.00.rc.04",
+	"addon_version": "2021.2.00.rc.05",
 	# Author(s)
 	"addon_author": "Alessandro Albano<ale.albano1980@gmail.com>, Davide De Carne<davide.dec@gmail.com> and Simone Dal Maso<simone.dalmaso@gmail.com>",
 	# URL for the add-on documentation support
