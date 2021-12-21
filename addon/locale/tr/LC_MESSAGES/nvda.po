@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.2.00.rc.03'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.04'\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2021-12-20 09:35+0100\n"
-"PO-Revision-Date: 2021-12-20 09:35+0100\n"
+"PO-Revision-Date: 2021-12-21 10:05+0100\n"
 "Last-Translator: Çağrı Doğan <cagrid@hotmail.com>\n"
 "Language-Team: cagrid@hotmail.com\n"
 "Language: tr\n"
@@ -53,19 +53,19 @@ msgstr "Hata, dosya işlenemedi"
 #. Translators: Dialog text presented when NVDA cannot save a result file.
 #: addon\nao_lib\framework\ocr\ocr_result.py:175
 #, python-format
-#~ msgid "Error saving file: %s"
-#~ msgstr ""
+msgid "Error saving file: %s"
+msgstr ""
 
 #. Translators: The text of the donate dialog
 #: addon\nao_lib\nao\donate.py:34
 #, python-brace-format
-#~ msgid ""
-#~ "{name} - free add-on for NVDA.\n"
-#~ "You can make a donation to our team for helping further development of this "
-#~ "add-on.\n"
-#~ "Do you want to make a donation now? For transaction you will be redirected "
-#~ "to the website of the developer."
-#~ msgstr ""
+msgid ""
+"{name} - free add-on for NVDA.\n"
+"You can make a donation to our team for helping further development of this "
+"add-on.\n"
+"Do you want to make a donation now? For transaction you will be redirected "
+"to the website of the developer."
+msgstr ""
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on

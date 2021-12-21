@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.2.00.rc.03'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.04'\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2021-12-20 09:35+0100\n"
-"PO-Revision-Date: 2021-12-20 09:35+0100\n"
+"PO-Revision-Date: 2021-12-21 10:05+0100\n"
 "Last-Translator: Simone Dal Maso <simone.dalmaso@gmail.com>\n"
 "Language-Team: NVDA community <simone.dalmaso@gmail.com>\n"
 "Language: it\n"
