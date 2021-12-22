@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.2.00.rc.04'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.06'\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
-"POT-Creation-Date: 2021-12-20 09:35+0100\n"
-"PO-Revision-Date: 2021-12-21 10:05+0100\n"
+"POT-Creation-Date: 2021-12-22 14:27+0100\n"
+"PO-Revision-Date: 2021-12-22 14:27+0100\n"
 "Last-Translator: Çağrı Doğan <cagrid@hotmail.com>\n"
 "Language-Team: cagrid@hotmail.com\n"
 "Language: tr\n"
@@ -20,44 +20,8 @@ msgstr ""
 "X-Poedit-Basepath: ../../..\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:30
-msgid "Recognizes the content of the selected image or PDF file"
-msgstr "Seçili imaj veya PDF dosyasının içeriğini tanı"
-
-#. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:49
-msgid "Take a full screen shot and recognize it"
-msgstr "Tam ekran görüntüsü al ve tanı"
-
-#. Translators: Reporting an error during recognition (e.g. OCR).
-#: addon\nao_lib\framework\ocr\ocr.py:51
-msgid "Internal conversion error"
-msgstr "Dahili dönüştürme hatası"
-
-#. Translators: Reported when the file format is not supported for recognition.
-#: addon\nao_lib\framework\ocr\ocr_helper.py:36
-msgid "File not supported"
-msgstr "Dosya desteklenmiyor"
-
-#. Translators: Reported when the recognition starts.
-#: addon\nao_lib\framework\ocr\ocr_helper.py:46
-msgid "Process started"
-msgstr "İŞlem başladı"
-
-#. Translators: Reported when unable to process a file for recognition.
-#: addon\nao_lib\framework\ocr\ocr_helper.py:60
-msgid "Error, the file could not be processed"
-msgstr "Hata, dosya işlenemedi"
-
-#. Translators: Dialog text presented when NVDA cannot save a result file.
-#: addon\nao_lib\framework\ocr\ocr_result.py:175
-#, python-format
-msgid "Error saving file: %s"
-msgstr ""
-
 #. Translators: The text of the donate dialog
-#: addon\nao_lib\nao\donate.py:34
+#: addon\installTasks.py:30 addon\globalPlugins\nao\donate.py:31
 #, python-brace-format
 msgid ""
 "{name} - free add-on for NVDA.\n"
@@ -65,6 +29,42 @@ msgid ""
 "add-on.\n"
 "Do you want to make a donation now? For transaction you will be redirected "
 "to the website of the developer."
+msgstr ""
+
+#. Translators: Message presented in input help mode.
+#: addon\globalPlugins\nao\__init__.py:26
+msgid "Recognizes the content of the selected image or PDF file"
+msgstr "Seçili imaj veya PDF dosyasının içeriğini tanı"
+
+#. Translators: Message presented in input help mode.
+#: addon\globalPlugins\nao\__init__.py:45
+msgid "Take a full screen shot and recognize it"
+msgstr "Tam ekran görüntüsü al ve tanı"
+
+#. Translators: Reporting an error during recognition (e.g. OCR).
+#: addon\globalPlugins\nao\framework\ocr\ocr.py:52
+msgid "Internal conversion error"
+msgstr "Dahili dönüştürme hatası"
+
+#. Translators: Reported when the file format is not supported for recognition.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
+msgid "File not supported"
+msgstr "Dosya desteklenmiyor"
+
+#. Translators: Reported when the recognition starts.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:71
+msgid "Process started"
+msgstr "İŞlem başladı"
+
+#. Translators: Reported when unable to process a file for recognition.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:97
+msgid "Error, the file could not be processed"
+msgstr "Hata, dosya işlenemedi"
+
+#. Translators: Dialog text presented when NVDA cannot save a result file.
+#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
+#, python-format
+msgid "Error saving file: %s"
 msgstr ""
 
 #. Add-on summary, usually the user visible name of the addon.

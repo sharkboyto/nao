@@ -9,12 +9,9 @@ import addonHandler
 from scriptHandler import script
 from baseObject import ScriptableObject
 
-from .framework import *
-begin_framework_imports()
-from framework.ocr.ocr_helper import OCRHelper
-from framework.generic import fileSystem
-from framework import language
-end_framework_imports()
+from .framework.ocr.ocr_helper import OCRHelper
+from .framework.generic import fileSystem
+from .framework import language
 
 language.initTranslation()
 
