@@ -6,6 +6,7 @@
 
 import os
 from . ocr import OCR
+from . ocr_service import OCRService
 from . ocr_progress import OCRProgressDialog
 from . ocr_result import OCRResultDialog
 from .. speech import speech
@@ -31,7 +32,7 @@ class OCRHelper:
 	def recognize_file(self, source_file):
 		if not source_file:
 			return False
-		if not OCR.is_uwp_ocr_available():
+		if not OCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.message(_N("Windows OCR not available"))
 			return False
