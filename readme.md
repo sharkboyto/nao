@@ -22,7 +22,8 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
   * P: report page number related to the cursor position, in a multipage document.
   * l: report line number related to the cursor position, in a multipage document.
   * c: copy all text to the clipboard.
-  * s: Save a copy of the document in text format. 
+  * s: Save a copy of the document in text format.
+  * f: find text and read some words before and after the string.
 * NVDA + Shift + Ctrl + R: take a full screen shot and recognize it.
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
 Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog.
