@@ -5,89 +5,68 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.1.07'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.08'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2021-12-16 09:31+0800\n"
-"PO-Revision-Date: 2021-12-16 09:38+0800\n"
+"POT-Creation-Date: 2021-12-23 17:10+0100\n"
+"PO-Revision-Date: 2021-12-23 17:10+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.4.3\n"
-"Last-Translator: \n"
+"Last-Translator: Rowen\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Language: zh_CN\n"
 
+#. Translators: The text of the donate dialog
+#: addon\installTasks.py:31 addon\globalPlugins\nao\donate.py:31
+#, python-brace-format
+msgid ""
+"{name} - free add-on for NVDA.\n"
+"You can make a donation to our team for helping further development of this "
+"add-on.\n"
+"Do you want to make a donation now? For transaction you will be redirected "
+"to the website of the developer."
+msgstr ""
+"{name} - NVDA 的免费插件。\n"
+"您可以给我们的开发团队捐款，以帮助我们更好的开发此插件。\n"
+"您现在要捐款吗？对于该笔捐款交易您将被重定向到开发商的网站。"
+
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao.py:52
-msgid "Take a full screen shot and recognize it."
+#: addon\globalPlugins\nao\__init__.py:27
+msgid "Recognizes the content of the selected image or PDF file"
+msgstr "识别所选图片或 PDF 文件的内容"
+
+#. Translators: Message presented in input help mode.
+#: addon\globalPlugins\nao\__init__.py:54
+msgid "Take a full screen shot and recognize it"
 msgstr "全屏截图并识别"
 
-#. Translators: Reported when Windows OCR is not available.
-#: addon\globalPlugins\nao.py:58 addon\globalPlugins\nao.py:77
-msgid "Windows OCR not available"
-msgstr "Windows OCR 不可用"
-
-#. Translators: Reported when screen curtain is enabled.
-#: addon\globalPlugins\nao.py:65
-msgid "Please disable screen curtain before using Windows OCR."
-msgstr "使用 Windows OCR 之前，请先关闭黑屏。"
-
-#. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao.py:71
-msgid "Recognize the content of the selected image or PDF file."
-msgstr "识别所选图片或 PDF 文件的内容。"
-
-#: addon\globalPlugins\nao.py:87 addon\globalPlugins\nao.py:177
-#: addon\globalPlugins\nao.py:210
-msgid "Process started"
-msgstr "开始识别"
-
-#: addon\globalPlugins\nao.py:113
-msgid "You must be in a Windows File Explorer window"
-msgstr "必须在 Windows 资源管理器窗口中"
-
-#: addon\globalPlugins\nao.py:140
-msgid "File not supported"
-msgstr "文件不支持"
-
-#. Translators: Reported when content recognition (e.g. OCR) is attempted,
-#. but the user is already reading a content recognition result.
-#: addon\globalPlugins\nao.py:147 addon\globalPlugins\nao.py:158
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:34
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:58
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:81
-msgid "Already in a content recognition result"
-msgstr "已处于内容识别结果区域"
-
-#: addon\globalPlugins\nao.py:173 addon\globalPlugins\nao.py:205
-msgid "Error, file not found"
-msgstr "错误，找不到文件"
-
-#: addon\globalPlugins\nao.py:185 addon\globalPlugins\nao.py:223
-msgid "Error, the file could not be processed."
-msgstr "错误，无法处理文件。"
-
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:43
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:66
+#. Translators: Reporting an error during recognition (e.g. OCR).
+#: addon\globalPlugins\nao\framework\ocr\ocr.py:52
 msgid "Internal conversion error"
 msgstr "内部转换错误"
 
-#. Translators: Reporting when content recognition (e.g. OCR) begins.
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:48
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:71
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:90
-msgid "Recognizing"
-msgstr "识别中"
+#. Translators: Reported when the file format is not supported for recognition.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:45
+msgid "File not supported"
+msgstr "文件不支持"
 
-#: addon\globalPlugins\OCREnhance\recogUiEnhance.py:118
-msgid "Recognition failed"
-msgstr "识别错误"
+#. Translators: Reported when the recognition starts.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:72
+msgid "Process started"
+msgstr "开始识别"
 
-#: addon\globalPlugins\OCREnhance\recogUiEnhanceResult.py:31
-#: addon\globalPlugins\OCREnhance\recogUiEnhanceResult.py:36
-msgid "page"
-msgstr "页"
+#. Translators: Reported when unable to process a file for recognition.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:98
+msgid "Error, the file could not be processed"
+msgstr "错误，无法处理文件"
+
+#. Translators: Dialog text presented when NVDA cannot save a result file.
+#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
+#, python-format
+msgid "Error saving file: %s"
+msgstr "保存文件时出错： %s"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
@@ -103,5 +82,5 @@ msgid ""
 "Nao (NVDA Advanced OCR) is an addon that improves the standard OCR "
 "capabilities that NVDA provides on modern Windows versions."
 msgstr ""
-"Nao(NVDA Advanced OCR) 是一个 NVDA 插件，该插件改进了 Windows 的内"
-"置 OCR 功能。"
+"Nao(NVDA Advanced OCR) 是一个 NVDA 插件，该插件改进了 Windows 的内置 OCR 功"
+"能。"

@@ -1,6 +1,6 @@
 # Nao - NVDA Advanced OCR
 
-* Autori: Alessandro Albano, Davide Decarne, Simone Dal Maso
+* Autori: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * Download [versione stabile][1]
 * Compatibilità NVDA: 2021.2 e successive
 

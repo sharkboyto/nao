@@ -1,13 +1,12 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-11-30
+#Last update 2021-12-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import winUser
 import ctypes
 import api
-from appModules.totalcmd import AppModule as TotalCommanderAppModule
 
 def get_window_text(handle):
 	if handle:
@@ -22,10 +21,13 @@ def get_window_text(handle):
 	return ""
 
 class TotalCommanderHelper:
-	def __init__(self):
+	def is_totalcommander(obj=None):
+		if obj is None: obj = api.getForegroundObject()
+		return obj and obj.appModule and obj.appModule.appName and obj.appModule.appName.startswith('totalcmd')
+
+	def __init__(self, obj=None):
 		self.handle = None
-		fg = api.getForegroundObject()
-		if fg and isinstance(fg.appModule, TotalCommanderAppModule):
+		if TotalCommanderHelper.is_totalcommander(obj):
 			self.handle = ctypes.windll.user32.GetForegroundWindow()
 			if self.handle and self.currentPanel() <= 0:
 				self.handle = None

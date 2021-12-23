@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-13
+#Last update 2021-12-17
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import ctypes
@@ -13,11 +13,14 @@ import threading
 import re
 
 class Xplorer2Helper:
-	def __init__(self):
+	def is_xplorer2(obj=None):
+		if obj is None: obj = api.getForegroundObject()
+		return obj and obj.appModule and obj.appModule.appName and obj.appModule.appName.startswith('xplorer2')
+
+	def __init__(self, obj=None):
 		self.handle = None
 		self._thread_context_menu = None
-		fg = api.getForegroundObject()
-		if fg and fg.appModule and fg.appModule.appName and fg.appModule.appName.startswith('xplorer2'):
+		if Xplorer2Helper.is_xplorer2(obj):
 			self.handle = ctypes.windll.user32.GetForegroundWindow()
 			if self.handle:
 				self._thread_event = threading.Event()

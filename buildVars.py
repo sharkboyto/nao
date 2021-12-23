@@ -25,11 +25,11 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("""Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions."""),
 	# version
-	"addon_version": "2021.1.07",
+	"addon_version": "2021.2.00.rc.08",
 	# Author(s)
-	"addon_author": "Alessandro Albano<ale.albano1980@gmail.com>, Davide De Carne and Simone Dal Maso<simone.dalmaso@gmail.com>",
+	"addon_author": "Alessandro Albano<ale.albano1980@gmail.com>, Davide De Carne<davide.dec@gmail.com> and Simone Dal Maso<simone.dalmaso@gmail.com>",
 	# URL for the add-on documentation support
-	"addon_url": None,
+	"addon_url": "https://nvda-nao.org/",
 	# Documentation file name
 	"addon_docFileName": "readme.html",
 	# Minimum NVDA version supported (e.g. "2018.3.0", minor version is optional)
@@ -50,7 +50,17 @@ addon_info = {
 # pythonSources = ["addon/globalPlugins/*.py"]
 # For more information on SCons Glob expressions please take a look at:
 # https://scons.org/doc/production/HTML/scons-user/apd.html
-pythonSources = ["addon/globalPlugins/*.py","addon/globalPlugins/OCREnhance/*.py"]
+pythonSources = [
+	"addon/*.py",
+	"addon/globalPlugins/nao/*.py",
+	"addon/globalPlugins/nao/framework/*.py",
+	"addon/globalPlugins/nao/framework/converters/*.py",
+	"addon/globalPlugins/nao/framework/converters/base/*.py",
+	"addon/globalPlugins/nao/framework/generic/*.py",
+	"addon/globalPlugins/nao/framework/language/*.py",
+	"addon/globalPlugins/nao/framework/ocr/*.py",
+	"addon/globalPlugins/nao/framework/speech/*.py"
+]
 
 # Files that contain strings for translation. Usually your python sources
 i18nSources = pythonSources + ["buildVars.py"]
