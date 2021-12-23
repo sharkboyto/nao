@@ -30,12 +30,12 @@ msgid ""
 msgstr ""
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:26
+#: addon\globalPlugins\nao\__init__.py:27
 msgid "Recognizes the content of the selected image or PDF file"
 msgstr ""
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:45
+#: addon\globalPlugins\nao\__init__.py:54
 msgid "Take a full screen shot and recognize it"
 msgstr ""
 

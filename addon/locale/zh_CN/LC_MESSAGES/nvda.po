@@ -33,12 +33,12 @@ msgstr ""
 "您现在要捐款吗？对于该笔捐款交易您将被重定向到开发商的网站。"
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:26
+#: addon\globalPlugins\nao\__init__.py:27
 msgid "Recognizes the content of the selected image or PDF file"
 msgstr "识别所选图片或 PDF 文件的内容"
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:45
+#: addon\globalPlugins\nao\__init__.py:54
 msgid "Take a full screen shot and recognize it"
 msgstr "全屏截图并识别"
 
