@@ -15,6 +15,16 @@ from .. import language
 
 language.initTranslation()
 
+class FakeRecog:
+	def __init__(self):
+		self._lock = threading.Lock()
+		self._lock.acquire()
+		self._cancelled = False
+
+	def cancel(self):
+		self._cancelled = True
+		self._lock.acquire()
+
 class OCRService:
 	def is_uwp_ocr_available():
 		return winVersion.isUwpOcrAvailable()
@@ -35,14 +45,17 @@ class OCRService:
 		self._thread = None
 		self._queue = []
 		self._queue_lock = threading.Lock()
+		self._queue_push = threading.Event()
 		self._pixels = None
 		self._pixels_size = [0, 0]
+		self._fake_recog = FakeRecog()
 
 	def push_bitmap(self, bitmap, on_recognize_result):
 		if bitmap and on_recognize_result:
 			width, height = bitmap.Size.Get()
 			self._queue_lock.acquire()
 			self._queue.append([bitmap, None, width, height, on_recognize_result])
+			self._queue_push.set()
 			self._thread_start()
 			self._queue_lock.release()
 
@@ -50,6 +63,7 @@ class OCRService:
 		if pixels and on_recognize_result:
 			self._queue_lock.acquire()
 			self._queue.append([None, pixels, width, height, on_recognize_result])
+			self._queue_push.set()
 			self._thread_start()
 			self._queue_lock.release()
 
@@ -89,13 +103,30 @@ class OCRService:
 				on_recognize_result(e)
 
 	def _threadproc(self):
+		must_exit = False
 		self._queue_lock.acquire()
-		while len(self._queue) > 0:
-			bmp, pixels, width, height, on_recognize_result = self._queue.pop(0)
+		while not must_exit:
+			while not recogUi._activeRecog and len(self._queue) > 0:
+				recogUi._activeRecog = self._fake_recog
+				bmp, pixels, width, height, on_recognize_result = self._queue.pop(0)
+				self._queue_lock.release()
+				if (bmp or pixels) and on_recognize_result:
+					self._recognize(bmp, pixels, width, height, on_recognize_result)
+				self._queue_lock.acquire()
+				recogUi._activeRecog = None
+				try:
+					self._fake_recog._lock.release()
+				except RuntimeError:
+					pass
+				if self._fake_recog._cancelled:
+					break
+			self._queue_push.clear()
 			self._queue_lock.release()
-			if (bmp or pixels) and on_recognize_result:
-				self._recognize(bmp, pixels, width, height, on_recognize_result)
+			self._queue_push.wait(timeout=5)
 			self._queue_lock.acquire()
+			self._fake_recog._lock.acquire(blocking=False)
+			self._fake_recog._cancelled = False
+			must_exit = len(self._queue) == 0
 		self._thread = None
 		self._pixels = None
 		self._queue_lock.release()
