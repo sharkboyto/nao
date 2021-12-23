@@ -35,7 +35,7 @@ If you think our work is good and improve your life, a <a href="http://nvda-nao.
 Do you want to report a bug, suggest new features, translate the addon in your language? We have the email for you! Just write to support@nvda-nao.org and we will be happy to help you.
 
 ## History
-### 2021.8
+### 2021.2
 * OCR of pdf and images are presented in a new text window, with some hotkeys for simple operations.
 * Support for the Xplorer filemanager.
 * Nao shortcuts are customizable from the Input Gestures Dialog of NVDA.
@@ -44,8 +44,8 @@ Do you want to report a bug, suggest new features, translate the addon in your l
 * Added Turkish, Russian, Spanish, Chinese and french translations.
 * Users can make donations to the project.
 * Fixed a bug with some characters on the file extensions that prevents the Ocr to work properly.
-### 2021.7
+### 2021.1
 * first public version! 
 
 
-[1]: https://github.com/sharkboyto/nao/releases/download/v_2021.1.07/nao-2021.1.07.nvda-addon
+[1]: https://nvda-nao.org/download
