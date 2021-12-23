@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.2.00.rc.06'\n"
+"Project-Id-Version: 'nao' '2021.2.00.rc.08'\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
-"POT-Creation-Date: 2021-12-22 14:27+0100\n"
-"PO-Revision-Date: 2021-12-22 14:27+0100\n"
+"POT-Creation-Date: 2021-12-23 17:10+0100\n"
+"PO-Revision-Date: 2021-12-23 17:10+0100\n"
 "Last-Translator: Simone Dal Maso <simone.dalmaso@gmail.com>\n"
 "Language-Team: NVDA community <simone.dalmaso@gmail.com>\n"
 "Language: it\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 1.6.10\n"
 
 #. Translators: The text of the donate dialog
-#: addon\installTasks.py:30 addon\globalPlugins\nao\donate.py:31
+#: addon\installTasks.py:31 addon\globalPlugins\nao\donate.py:31
 #, python-brace-format
 msgid ""
 "{name} - free add-on for NVDA.\n"
@@ -50,17 +50,17 @@ msgid "Internal conversion error"
 msgstr "Errore di conversione interno"
 
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:45
 msgid "File not supported"
 msgstr "File non supportato"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:71
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:72
 msgid "Process started"
 msgstr "Processo avviato"
 
 #. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:97
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:98
 msgid "Error, the file could not be processed"
 msgstr "Errore, non è stato possibile elaborare il file"
 
