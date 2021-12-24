@@ -1,4 +1,4 @@
- # Nao - NVDA Advanced OCR
+# Nao - NVDA Advanced OCR
 
 * Authors: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * Download [stable version][1]
@@ -26,7 +26,7 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
   * f: find text and read some words before and after the string.
 * NVDA + Shift + Ctrl + R: take a full screen shot and recognize it.
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
-Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog.
+Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog. Remember that this feature is not global, but it works only where Nao can make an ocr. So gestures will appear only if you are in the desktop, or in file explorer, Total Commander or Xplorer. You can assign different gestures for each app.
 You can also abort a long Ocr process simply pressing "Cancel" from the progress bar window; this window also gives you information about the state of the OCR, updating informations every 5 seconds. You can configure how to receive progress bar information with the standard NVDA-u command.
 
 ## Support and donations
