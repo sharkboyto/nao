@@ -1,6 +1,6 @@
 # Nao - NVDA Gelişmiş OCR
-Nao (NVDA Gelişmiş OCR), NVDA'nın modern Windows sürümlerinde sağladığı standart OCR özelliklerini geliştiren bir eklentidir.
-* Yazarlar: Alessandro Albano, Davide Decarne, Simone Dal Maso
+
+* Yazarlar: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * [Kararlı sürümü][1] indir
 * NVDA uyumluluğu: 2021.2 ve üstü
 
@@ -25,14 +25,16 @@ Nao'nun Windows Gezgini, masaüstü veya Total Commander dosya yöneticisi ile �
   * s: Belgenin bir kopyasını metin biçiminde kaydet.
   * f: Metni ara ve dizeden önce ve sonra bulunan bazı kelimeleri oku.
 * NVDA + Shift + Ctrl + R: tam ekran görüntüsü alır ve tanır.
-* Pencerede gezinmek ve odağı bir öğeye getirmek için standart NVDA komutlarının kullanılabileceğini unutmayın. Örneğin, yön tuşlarıyla hareket edebilir ve etkinleştirmek için bir düğme üzerinde enter tuşuna basabilirsiniz. Ayrıca NVDA + sayısal tuş takımı kombinasyonuna basarak ve ardından sol / sağ tıklayarak fareyi o konuma getirebilirsiniz.
+  * Pencerede gezinmek ve odağı bir öğeye getirmek için standart NVDA komutlarının kullanılabileceğini unutmayın. Örneğin, yön tuşlarıyla hareket edebilir ve etkinleştirmek için bir düğme üzerinde enter tuşuna basabilirsiniz. Ayrıca NVDA + sayısal tuş takımı kombinasyonuna basarak ve ardından sol / sağ tıklayarak fareyi o konuma getirebilirsiniz.
+
 Nao'nun kısayollarını yalnızca NVDA Girdi hareketleri iletişim kutusundan özelleştirebileceğinizi unutmayın. NVDA menüsünü açın, tercihlere gidin ve bu alt menüden girdi hareketlerini seçin.
-ayrıca ilerleme çubuğu penceresinden sadece "İptal"e basarak çok uzun bir Ocr işlemini kesmek de mümkündür; bu pencere ayrıca, kullanıcıyı her 5 saniyede bir güncelleyerek OCR durumu hakkında bilgi sağlar. Standart NVDA+u komutu ile ilerleme çubuğunda bilgi mesajlarını nasıl almak istediğinizi yapılandırabilirsiniz.
+
+Ayrıca ilerleme çubuğu penceresinden sadece "İptal"e basarak çok uzun bir Ocr işlemini kesmek de mümkündür; bu pencere ayrıca, kullanıcıyı her 5 saniyede bir güncelleyerek OCR durumu hakkında bilgi sağlar. Standart NVDA+u komutu ile ilerleme çubuğunda bilgi mesajlarını nasıl almak istediğinizi yapılandırabilirsiniz.
 
 ## Destek ve bağışlar
 Nao tamamen ücretsizdir. Yine de, bu eklentinin geliştiricilerin boş zamanlarında yapıldığını unutmayın.
 Bize yapabileceğiniz her türlü katkıyı takdir ediyoruz!
-Çalışmamızın işe yarar  olduğunu ve hayatınızı iyileştirdiğini düşünüyorsanız, <a href="http://nvda-nao.org/donate">Bağış yapmayı değerlendirebilirsiniz.</a>
+Çalışmamızın işe yarar  olduğunu ve hayatınızı iyileştirdiğini düşünüyorsanız, <a href="https://nvda-nao.org/donate">Bağış yapmayı değerlendirebilirsiniz.</a>
 Bir hatayı bildirmek, yeni özellikler önermek, eklentiyi kendi dilinize çevirmek mi istiyorsunuz? Sizin için e-postamız var! support@nvda-nao.org adresine yazın, size yardımcı olmaktan memnuniyet duyarız.
 
 ## kronoloji
