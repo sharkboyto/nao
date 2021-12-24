@@ -22,4 +22,4 @@ Ten en cuenta que NAO funciona con el explorador de Windows, en el escritorio, o
   * NVDA + Shift + P: lee el número de página relativo a la posición del cursor, en un documento de varias páginas.
 * NVDA + Shift + Ctrl + R: Toma una captura de pantalla de toda la pantalla y la reconoce.
 
-[1]: https://github.com/sharkboyto/nao/releases/download/v_2021.1.07/nao-2021.1.07.nvda-addon
+[1]: https://nvda-nao.org/download

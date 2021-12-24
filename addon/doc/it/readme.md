@@ -1,6 +1,6 @@
 # Nao - NVDA Advanced OCR
 
-* Autori: Alessandro Albano, Davide Decarne, Simone Dal Maso
+* Autori: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * Download [versione stabile][1]
 * Compatibilità NVDA: 2021.2 e successive
 
@@ -26,15 +26,18 @@ Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager 
   * f: trova il testo e legge alcune parole prima e dopo la stringa.
 * NVDA + Shift + Ctrl + R: Effettua lo screenshot dell'intera videata e la riconosce.
 * Si tenga presente che è possibile utilizzare i comandi standard di NVDA per esplorare la finestra e portare il focus su un elemento. Ad esempio ci si può spostare con i tasti freccia e premere invio in un pulsante per attivarlo. Inoltre si può anche portare il mouse in quella posizione premendo la combinazione NVDA+barra del tastierino numerico e quindi fare clic con i tasti sinistro/destro.
-Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione. La cosa importante da tenere a mente è che questi gesti non sono globali; essi appariranno soltanto se ci si trova in un ambiente in cui Nao può funzionare: desktop, Esplora file, Total Commander o Xplorer; i gesti non
-saranno personalizzabili per singola app, in modo che l'utente possa crearsi anche tasti rapidi diversi a seconda delle situazioni. 
-è possibile anche interrompere un processo di Ocr molto lungo semplicemente premendo "Annulla" dalla finestra della barra di avanzamento; questa finestra fornisce anche informazioni sullo stato dell'OCR, aggiornando l'utente ogni 5 secondi. È possibile configurare la modalità con cui si desidera ricevere messaggi informativi sulla barra di avanzamento con il comando standard NVDA-u.
-è stato aggiunto un sottomenu chiamato "Nao" al menu strumenti di NVDA. Per adesso consente di effettuare una donazione al progetto, ma verrà arricchito in futuro con nuove funzionalità!
+
+Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione. La cosa importante da tenere a mente è che questi gesti non sono globali; essi appariranno soltanto se ci si trova in un ambiente in cui Nao può funzionare: desktop, Esplora file, Total Commander o Xplorer.
+
+È possibile anche interrompere un processo di Ocr molto lungo semplicemente premendo "Annulla" dalla finestra della barra di avanzamento; questa finestra fornisce anche informazioni sullo stato dell'OCR, aggiornando l'utente ogni 5 secondi. È possibile configurare la modalità con cui si desidera ricevere messaggi informativi sulla barra di avanzamento con il comando standard NVDA-u.
+
+È stato aggiunto un sottomenu chiamato "Nao" al menu strumenti di NVDA. Per adesso consente di effettuare una donazione al progetto, ma verrà arricchito in futuro con nuove funzionalità!
 
 ## Supporto e donazioni
 Nao è completamente gratuito. Ad ogni modo, è bene non dimenticare che questo addon viene realizzato durante il tempo libero degli sviluppatori.
 Apprezzeremmo qualsiasi contributo tu potessi darci!
-Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="http://nvda-nao.org/donate">Considera di effettuare una donazione.</a>
+Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https://nvda-nao.org/donate">Considera di effettuare una donazione.</a>
+
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
@@ -46,7 +49,7 @@ Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua
 * Un lungo processo Ocr può essere interrotto semplicemente premendo il pulsante "Annulla" nella finestra della barra di avanzamento.
 * Aggiunte traduzioni in turco, russo, spagnolo, cinese e francese.
 * Gli utenti possono effettuare donazioni al progetto.
-* Risolto un bug con alcuni caratteri sulle estensioni dei file che impediva all'Ocr di funzionare correttamente.
+* Risolto un bug con alcuni caratteri sui nomi dei file che impediva all'Ocr di funzionare correttamente.
 ### 2021.1
 * Prima versione pubblica! 
 

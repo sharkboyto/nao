@@ -26,14 +26,18 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
   * f: find text and read some words before and after the string.
 * NVDA + Shift + Ctrl + R: take a full screen shot and recognize it.
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
-Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog. Remember that this feature is not global, but it works only where Nao can make an ocr. So gestures will appear only if you are in the desktop, or in file explorer, Total Commander or Xplorer. You can assign different gestures for each app.
+
+Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog. Remember that this feature is not global, but it works only where Nao can make an ocr. So gestures will appear only if you are in the desktop, or in file explorer, Total Commander or Xplorer.
+
 You can also abort a long Ocr process simply pressing "Cancel" from the progress bar window; this window also gives you information about the state of the OCR, updating informations every 5 seconds. You can configure how to receive progress bar information with the standard NVDA-u command.
+
 You can find a submenu named Nao, under the NVDA - Tools - menu. For the moment it contains only an item that allow you to make a donation, but we will improve that with new features!
 
 ## Support and donations
 Nao is absolutely free. Anyway, please remember that this addon is made during spare time of developers. 
 We'd appreciate any contribute that you could give us!
-If you think our work is good and improve your life, a <a href="http://nvda-nao.org/donate">Consider to make a donation.</a>
+If you think our work is good and improve your life, a <a href="https://nvda-nao.org/donate">Consider to make a donation.</a>
+
 Do you want to report a bug, suggest new features, translate the addon in your language? We have the email for you! Just write to support@nvda-nao.org and we will be happy to help you.
 
 ## History
@@ -45,7 +49,7 @@ Do you want to report a bug, suggest new features, translate the addon in your l
 * A long Ocr process can be aborted simply pressing the "Cancel" button on the progress bar window.
 * Added Turkish, Russian, Spanish, Chinese and french translations.
 * Users can make donations to the project.
-* Fixed a bug with some characters on the file extensions that prevents the Ocr to work properly.
+* Fixed a bug with some characters on the file name that prevents the Ocr to work properly.
 ### 2021.1
 * first public version! 
 

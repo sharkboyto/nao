@@ -23,4 +23,4 @@ Nao 与 NVDA 版本 2021.2 兼容，所以也不要使用旧版本的屏幕阅�
     * NVDA + Shift + P：在多页文档中读出与光标位置相对应的页码。
 * NVDA + Shift + Ctrl + R：全屏截图并识别。
 
-[1]: https://github.com/sharkboyto/nao/releases/download/v_2021.1.07/nao-2021.1.07.nvda-addon
+[1]: https://nvda-nao.org/download
