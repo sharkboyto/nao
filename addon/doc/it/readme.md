@@ -26,8 +26,10 @@ Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager 
   * f: trova il testo e legge alcune parole prima e dopo la stringa.
 * NVDA + Shift + Ctrl + R: Effettua lo screenshot dell'intera videata e la riconosce.
 * Si tenga presente che è possibile utilizzare i comandi standard di NVDA per esplorare la finestra e portare il focus su un elemento. Ad esempio ci si può spostare con i tasti freccia e premere invio in un pulsante per attivarlo. Inoltre si può anche portare il mouse in quella posizione premendo la combinazione NVDA+barra del tastierino numerico e quindi fare clic con i tasti sinistro/destro.
-Si noti che si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione.
+Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione. La cosa importante da tenere a mente è che questi gesti non sono globali; essi appariranno soltanto se ci si trova in un ambiente in cui Nao può funzionare: desktop, Esplora file, Total Commander o Xplorer; i gesti non
+saranno personalizzabili per singola app, in modo che l'utente possa crearsi anche tasti rapidi diversi a seconda delle situazioni. 
 è possibile anche interrompere un processo di Ocr molto lungo semplicemente premendo "Annulla" dalla finestra della barra di avanzamento; questa finestra fornisce anche informazioni sullo stato dell'OCR, aggiornando l'utente ogni 5 secondi. È possibile configurare la modalità con cui si desidera ricevere messaggi informativi sulla barra di avanzamento con il comando standard NVDA-u.
+è stato aggiunto un sottomenu chiamato "Nao" al menu strumenti di NVDA. Per adesso consente di effettuare una donazione al progetto, ma verrà arricchito in futuro con nuove funzionalità!
 
 ## Supporto e donazioni
 Nao è completamente gratuito. Ad ogni modo, è bene non dimenticare che questo addon viene realizzato durante il tempo libero degli sviluppatori.
