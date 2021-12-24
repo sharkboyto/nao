@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2021.2.00.rc.08'\n"
+"Project-Id-Version: 'nao' '2021.2'\n"
 "POT-Creation-Date: 2021-12-23 17:10+0100\n"
 "PO-Revision-Date: 2021-12-23 17:10+0100\n"
 "Last-Translator: \n"
@@ -33,12 +33,12 @@ msgstr ""
 "Для транзакции вы будете перенаправлены на сайт разработчика."
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:27
+#: addon\globalPlugins\nao\__init__.py:28
 msgid "Recognizes the content of the selected image or PDF file"
 msgstr "Распознать содержимое выбранного изображения или PDF-файла"
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:54
+#: addon\globalPlugins\nao\__init__.py:57
 msgid "Take a full screen shot and recognize it"
 msgstr "Сделать снимок всего экрана и распознать его"
 
