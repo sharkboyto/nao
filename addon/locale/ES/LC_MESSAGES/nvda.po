@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 'nao' '2021.2'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-12-23 17:10+0100\n"
-"PO-Revision-Date: 2021-12-23 17:10+0100\n"
+"PO-Revision-Date: 2021-12-29 14:44-0500\n"
 "Last-Translator: Mateo Cedillo\n"
 "Language-Team: \n"
 "Language: es\n"
@@ -28,16 +28,21 @@ msgid ""
 "Do you want to make a donation now? For transaction you will be redirected "
 "to the website of the developer."
 msgstr ""
+"{name} - complemento gratuito para NVDA.\n"
+"Puede hacer una donación a nuestro equipo para ayudar al desarrollo de este "
+"complemento.\n"
+"¿Quieres hacer una donación ahora? Para la transacción, será redirigido al "
+"sitio web del desarrollador."
 
 #. Translators: Message presented in input help mode.
 #: addon\globalPlugins\nao\__init__.py:28
 msgid "Recognizes the content of the selected image or PDF file"
-msgstr ""
+msgstr "Reconoce el contenido de la imagen o archivo PDF seleccionado"
 
 #. Translators: Message presented in input help mode.
 #: addon\globalPlugins\nao\__init__.py:57
 msgid "Take a full screen shot and recognize it"
-msgstr ""
+msgstr "TomA una captura de pantalla completa y LA RECONOCE"
 
 #. Translators: Reporting an error during recognition (e.g. OCR).
 #: addon\globalPlugins\nao\framework\ocr\ocr.py:52
@@ -63,7 +68,7 @@ msgstr "Error, no se ha podido procesar el archivo"
 #: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
 #, python-format
 msgid "Error saving file: %s"
-msgstr ""
+msgstr "Error al guardar el archivo:%s"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
@@ -79,6 +84,5 @@ msgid ""
 "Nao (NVDA Advanced OCR) is an addon that improves the standard OCR "
 "capabilities that NVDA provides on modern Windows versions."
 msgstr ""
-"Nao (NVDA Advanced OCR) es un complemento que mejora las "
-"capacidades estándar de OCR que proporciona NVDA en las versiones "
-"modernas de Windows."
+"Nao (NVDA Advanced OCR) es un complemento que mejora las capacidades "
+"estándar de OCR que proporciona NVDA en las versiones modernas de Windows."
