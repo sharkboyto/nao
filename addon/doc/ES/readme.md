@@ -25,7 +25,7 @@ Ten en cuenta que NAO funciona con el explorador de Windows, en el escritorio, o
   * s: guarda una copia del documento en un formato de texto.
   * f: busca texto y lee algunas palabras antes y después de la cadena.
 * NVDA + Shift + Ctrl + R: Toma una captura de pantalla de toda la pantalla y la reconoce.
-* Ten en cuenta que puedes usar comandos estándar de NVDA para explorar la ventana y enfocar un elemento. Por ejemplo, puedes moverte con las teclas de flecha y presionar enter en un botón para activarlo. También puedes llevar el mouse a su posición con la barra del teclado numérico de NVDA y luego hacer clic con las teclas izquierda/derecha.
+  * Ten en cuenta que puedes usar comandos estándar de NVDA para explorar la ventana y enfocar un elemento. Por ejemplo, puedes moverte con las teclas de flecha y presionar enter en un botón para activarlo. También puedes llevar el mouse a su posición con la barra del teclado numérico de NVDA y luego hacer clic con las teclas izquierda/derecha.
 
 Ten en cuenta que puedes personalizar los accesos directos de Nao simplemente desde el cuadro de diálogo de gestos de entrada de NVDA. Abre el menú de NVDA, vé a las preferencias y, desde ese submenú, selecciona la opción gestos de entrada. Recuerda que esta característica no es global, pero funciona solo donde Nao puede hacer un OCR. Entonces, los gestos aparecerán solo si está en el escritorio, o en el explorador de archivos, Total Commander o Xplorer.
 
