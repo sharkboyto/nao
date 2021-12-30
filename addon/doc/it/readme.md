@@ -41,6 +41,9 @@ Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
+### 2022.1
+* Update automatico dell'addon.
+* Aggiornate traduzioni in spagnolo e francese.
 ### 2021.2
 * L'OCR di pdf e immagini viene presentato in una nuova finestra di testo, con alcuni tasti di scelta rapida per semplici operazioni.
 * Supporto per il gestore di file Xplorer.
