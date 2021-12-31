@@ -1,11 +1,12 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-30
+#Last update 2021-12-31
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import json
 import threading
+import weakref
 import time
 import os
 import wx
@@ -82,11 +83,58 @@ class UpdatesConfirmDialog(wx.Dialog):
 			gui.mainFrame.postPopup()
 		queueHandler.queueFunction(queueHandler.eventQueue, h)
 
+class UpdatesCheckAndDownloadStatus:
+	OK = 'ok'
+	FAIL = 'fail'
+	BUSY = 'busy'
+	UPGRADE = 'upgrade'
+
+	def __init__(self, status=None, installed=False):
+		self._status = status
+		self._installed = installed
+
+	@property
+	def Status(self):
+		return self._status
+
+	@property
+	def Found(self):
+		return True if self._status and self._status == UpdatesCheckAndDownloadStatus.UPGRADE else False
+
+	@property
+	def Failed(self):
+		return False if self._status and (self._status == UpdatesCheckAndDownloadStatus.OK or self._status == UpdatesCheckAndDownloadStatus.UPGRADE) else True
+
+	@property
+	def Installed(self):
+		return self._installed
+
 class Updates:
+	_instances = {}
+	_instances_lock = threading.Lock()
+
+	def __new__(cls, url):
+		ret = None
+		cls._instances_lock.acquire()
+		if url in cls._instances:
+			ret = cls._instances[url]()
+		cls._instances_lock.release()
+		if ret is None:
+			ret = super(Updates, cls).__new__(cls)
+		else:
+			#singleton
+			ret = None
+		return ret
+
 	def __init__(self, url):
-		self._request_data = None
-		self._url = url
-		self._thread = None
+		Updates._instances_lock.acquire()
+		if url not in Updates._instances or Updates._instances[url]() is None:
+			Updates._instances[url] = weakref.ref(self)
+			self._request_data = None
+			self._url = url
+			self._thread = None
+			self._progressDialog = None
+		Updates._instances_lock.release()
 
 	def _get_request_data(self, pickle):
 		if not self._request_data:
@@ -100,7 +148,7 @@ class Updates:
 		def _check_proc():
 			cb_data = self._get_request_data(pickle)
 			response = json_post(self._url, cb_data)
-			status = "fail"
+			status = UpdatesCheckAndDownloadStatus.FAIL
 			if response:
 				try:
 					response = json.load(response)
@@ -110,15 +158,14 @@ class Updates:
 						del cb_data["update"]["status"]
 				except:
 					del cb_data["update"]
-					status = "fail"
+					status = UpdatesCheckAndDownloadStatus.FAIL
 			if pickle:
 				data = pickle.start_write()
 				data["updates"]["last_check"] = time.time()
 				data["updates"]["last_status"] = status
 				pickle.commit_write()
 			self._thread = None
-			if cb:
-				cb(self, status, cb_data)
+			if cb: wx.CallAfter(cb, self, status, cb_data)
 
 		if not self._thread:
 			self._thread = threading.Thread(target = _check_proc)
@@ -127,7 +174,7 @@ class Updates:
 			return True
 		return False
 
-	def download(self, cb, data, pickle=None):
+	def download(self, cb, data):
 		url = None
 		if data:
 			if "update" in data:
@@ -142,8 +189,7 @@ class Updates:
 			def _download_proc():
 				response = json_post(url, data)
 				self._thread = None
-				if cb:
-					cb(self, response)
+				if cb: wx.CallAfter(cb, self, response)
 			
 			if not self._thread:
 				self._thread = threading.Thread(target = _download_proc)
@@ -151,6 +197,87 @@ class Updates:
 				self._thread.start()
 				return True
 		return False
+
+	def check_and_download(self, cb, verbose=True, pickle=None):
+		if verbose:
+			self._progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
+				# Translators: The title of the dialog displayed while manually checking for an update.
+				_N("Checking for Update"),
+				# Translators: The progress message displayed while manually checking for an update.
+				_N("Checking for update"))
+		
+		def check_cb(updates, status, data):
+			if self._progressDialog:
+				self._progressDialog.done()
+				self._progressDialog = None
+			if status == UpdatesCheckAndDownloadStatus.UPGRADE:
+				last_version = None
+				if data and "update" in data and "last_version" in data["update"] and data["update"]["last_version"]:
+					last_version = data["update"]["last_version"]
+				
+				def do_update():
+					self._progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
+						# Translators: The title of the dialog displayed while downloading an update.
+						_N("Downloading Update"),
+						# Translators: The title of the dialog displayed while downloading an update.
+						_N("Downloading Update"))
+					
+					if data and "addon" in data and "name" in data["addon"] and data["addon"]["name"]:
+						tmp_file = data["addon"]["name"]
+					else:
+						tmp_file = addonHandler.getCodeAddon().manifest["summary"]
+					if last_version:
+						tmp_file = tmp_file + "-" + last_version
+					else:
+						tmp_file = tmp_file + "-update"
+					tmp_file = os.path.join(tempfile.gettempdir(), tmp_file + ".nvda-addon")
+					
+					def remove_file():
+						if os.path.isfile(tmp_file):
+							try:
+								os.chmod(tmp_file, stat.S_IWRITE)
+								os.remove(tmp_file)
+							except:
+								pass
+					
+					def download_cb(updates, response):
+						if self._progressDialog:
+							self._progressDialog.done()
+							self._progressDialog = None
+						
+						def install_cb(installed):
+							remove_file()
+							if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status, installed=installed))
+						
+						if response and response.status == 200:
+							try:
+								package = response.read()
+							except:
+								package = None
+							if package:
+								try:
+									f = open(tmp_file, 'wb')
+									f.write(package)
+									f.close()
+									self.install(tmp_file, install_cb)
+									return
+								except:
+									remove_file()
+						if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+					
+					remove_file()
+					if not self.download(download_cb, data):
+						if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+				
+				def cancel_update():
+					if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+				
+				UpdatesConfirmDialog.Ask(do_update, cancel_update, version=last_version)
+			else:
+				if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+		
+		if not self.check(check_cb, pickle):
+			if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=UpdatesCheckAndDownloadStatus.BUSY))
 
 	def install(self, addonPath, cb=None):
 		def h():
@@ -162,95 +289,81 @@ class Updates:
 
 class AutoUpdates:
 	def __init__(self, url, pickle):
-		self._updates = Updates(url)
+		self._url = url
 		self._pickle = pickle
-		self._timer = None
+		self._timer = wx.PyTimer(self._check_remaining_time)
+		wx.CallAfter(self._timer.Start, 10000, True)
 
-	def stop(self):
+	def __del__(self):
+		self.terminate()
+
+	def terminate(self):
 		if self._timer and self._timer.IsRunning():
 			self._timer.Stop()
 		self._timer = None
+		self._url = None
+		self._pickle = None
 
-	def start(self):
-		if not self._timer:
-			self._timer = wx.PyTimer(self.check)
-			wx.CallAfter(self._timer.Start, 5000, True)
-
-	def check(self):
+	def _check_remaining_time(self):
+		if self._timer and self._timer.IsRunning():
+			self._timer.Stop()
+			self._timer = None
 		if globalVars.appArgs.secure:
-			wx.CallAfter(self._timer.Start, 5000, True)
+			self._timer = wx.PyTimer(self._check_remaining_time)
+			wx.CallAfter(self._timer.Start, 10000, True)
 		else:
 			data = self._pickle.cdata["updates"]
 			secsSinceLast = max(time.time() - data["last_check"], 0)
-			if data["last_status"] == "ok" or data["last_status"] == "upgrade":
+			if data["last_status"] == UpdatesCheckAndDownloadStatus.OK or data["last_status"] == UpdatesCheckAndDownloadStatus.UPGRADE:
 				secsTillNext = CHECK_INTERVAL - int(min(secsSinceLast, CHECK_INTERVAL))
 			else:
 				secsTillNext = CHECK_INTERVAL_FAIL - int(min(secsSinceLast, CHECK_INTERVAL_FAIL))
-			if secsTillNext < 10:
-				secsTillNext = 10
-			self._timer = wx.PyTimer(self._updates_proc)
+			if secsTillNext < 5:
+				secsTillNext = 5
+				self._timer = wx.PyTimer(self._updates_proc)
+			else:
+				self._timer = wx.PyTimer(self._check_remaining_time)
 			wx.CallAfter(self._timer.Start, secsTillNext * 1000, True)
 
 	def _updates_proc(self):
-		def _end_proc(restart=True):
-			if self._timer:
+		def _end_proc(updates, status):
+			if updates: del updates
+			if not status.Installed:
+				self._timer = wx.PyTimer(self._check_remaining_time)
+				wx.CallAfter(self._timer.Start, 10000, True)
+			else:
 				self._timer = None
-				if restart:
-					self.start()
-		
-		if self._timer:
-			def check_cb(updates, status, data):
-				if status == "upgrade":
-					last_version = None
-					if data and "update" in data and "last_version" in data["update"] and data["update"]["last_version"]:
-						last_version = data["update"]["last_version"]
-					
-					def do_update():
-						if data and "addon" in data and "name" in data["addon"] and data["addon"]["name"]:
-							tmp_file = data["addon"]["name"]
-						else:
-							tmp_file = addonHandler.getCodeAddon().manifest["summary"]
-						if last_version:
-							tmp_file = tmp_file + "-" + last_version
-						else:
-							tmp_file = tmp_file + "-update"
-						tmp_file = os.path.join(tempfile.gettempdir(), tmp_file + ".nvda-addon")
-						
-						def remove_file():
-							if os.path.isfile(tmp_file):
-								try:
-									os.chmod(tmp_file, stat.S_IWRITE)
-									os.remove(tmp_file)
-								except:
-									pass
-						
-						def download_cb(updates, response):
-							def install_cb(installed):
-								remove_file()
-								_end_proc(restart=not installed)
-							
-							if response and response.status == 200:
-								try:
-									package = response.read()
-								except:
-									package = None
-								if package:
-									try:
-										f = open(tmp_file, 'wb')
-										f.write(package)
-										f.close()
-										self._updates.install(tmp_file, install_cb)
-										return
-									except:
-										remove_file()
-							_end_proc()
-						
-						remove_file()
-						if not self._updates.download(download_cb, data, self._pickle):
-							_end_proc()
-					
-					UpdatesConfirmDialog.Ask(do_update, _end_proc, version=last_version)
-				else:
-					_end_proc()
-			
-			self._updates.check(check_cb, self._pickle)
+		updates = Updates(self._url)
+		if updates:
+			updates.check_and_download(_end_proc, verbose=False, pickle=self._pickle)
+		else:
+			_end_proc(updates, UpdatesCheckAndDownloadStatus(status=UpdatesCheckAndDownloadStatus.BUSY))
+
+def ManualUpdatesCheck(url, pickle=None):
+	def _end_proc(updates, status):
+		if updates: del updates
+		if status.Failed:
+			# Translators: The title of the update dialog
+			title = _("{name} Update")
+			title = title.format(name=addonHandler.getCodeAddon().manifest["summary"]) + ' - '
+			# Translators: The title of an error message dialog.
+			title = title + _N("Error")
+			wx.CallAfter(gui.messageBox,
+				# Translators: A message indicating that an error occurred while checking for an update.
+				_N("Error checking for update."),
+				title,
+				wx.OK | wx.ICON_ERROR)
+		elif not status.Found:
+			# Translators: The title of the update dialog
+			title = _("{name} Update")
+			title = title.format(name=addonHandler.getCodeAddon().manifest["summary"])
+			wx.CallAfter(gui.messageBox,
+				# Translators: A message indicating that no update is available.
+				_N("No update available."),
+				title,
+				wx.OK)
+	updates = Updates(url)
+	if updates:
+		updates.check_and_download(_end_proc, pickle=pickle)
+	else:
+		_end_proc(updates, UpdatesCheckAndDownloadStatus(status=UpdatesCheckAndDownloadStatus.BUSY))
