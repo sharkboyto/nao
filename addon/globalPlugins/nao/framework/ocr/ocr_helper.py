@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-22
+#Last update 2021-12-31
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -14,12 +14,13 @@ from .. import language
 from .. generic.beepThread import BeepThread
 from .. converters.pdf_converter import PDFConverter
 from .. converters.webp_converter import WebpConverter
+from .. converters.djvu_converter import DjVuConverter
 
 language.initTranslation()
 
 class OCRHelper:
 	def __init__(self):
-		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp"]
+		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp", "djvu"]
 		self.beeper = BeepThread()
 		self.progress_timeout = 1
 
@@ -51,8 +52,11 @@ class OCRHelper:
 		on_convert_progress = None
 		on_recognize_start = None
 		on_recognize_progress = None
-		if file_extension == 'pdf':
-			conv = PDFConverter()
+		if file_extension == 'pdf' or file_extension == 'djvu':
+			if file_extension == 'pdf':
+				conv = PDFConverter()
+			else:
+				conv = DjVuConverter()
 			def on_cancel():
 				conv.abort()
 				ocr.abort()
@@ -97,5 +101,5 @@ class OCRHelper:
 				# Translators: Reported when unable to process a file for recognition.
 				speech.queue_message(_("Error, the file could not be processed"))
 		
-		conv.to_png(source_file, on_convert_finish, on_convert_progress, self.progress_timeout)
+		conv.convert(source_file, on_convert_finish, on_convert_progress, self.progress_timeout)
 		return True

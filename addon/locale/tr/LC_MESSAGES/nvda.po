@@ -70,17 +70,17 @@ msgid "Internal conversion error"
 msgstr "Dahili dönüştürme hatası"
 
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:45
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:46
 msgid "File not supported"
 msgstr "Dosya desteklenmiyor"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:72
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:76
 msgid "Process started"
 msgstr "İŞlem başladı"
 
 #. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:98
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:102
 msgid "Error, the file could not be processed"
 msgstr "Hata, dosya işlenemedi"
 

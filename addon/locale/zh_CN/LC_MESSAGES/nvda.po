@@ -66,17 +66,17 @@ msgid "Internal conversion error"
 msgstr "内部转换错误"
 
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:45
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:46
 msgid "File not supported"
 msgstr "文件不支持"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:72
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:76
 msgid "Process started"
 msgstr "开始识别"
 
 #. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:98
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:102
 msgid "Error, the file could not be processed"
 msgstr "错误，无法处理文件"
 

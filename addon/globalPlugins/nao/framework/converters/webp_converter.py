@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-21
+#Last update 2021-12-31
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -12,7 +12,7 @@ class WebpConverter(Converter):
 		super(WebpConverter, self).__init__("tmp_webp", clear_on_destruct)
 		self._to_png_tool = os.path.join(self._addon_path, "tools", "dwebp.exe")
 
-	def to_png(self, webp_file, on_finish=None, on_progress=None, progress_timeout=1):
+	def convert(self, webp_file, on_finish=None, on_progress=None, progress_timeout=1):
 		self._convert(webp_file, "png", on_finish, on_progress, progress_timeout)
 
 	@property
