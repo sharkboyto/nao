@@ -207,74 +207,83 @@ class Updates:
 				_N("Checking for update"))
 		
 		def check_cb(updates, status, data):
+			def check_cb_later():
+				if status == UpdatesCheckAndDownloadStatus.UPGRADE:
+					last_version = None
+					if data and "update" in data and "last_version" in data["update"] and data["update"]["last_version"]:
+						last_version = data["update"]["last_version"]
+					
+					def do_update():
+						self._progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
+							# Translators: The title of the dialog displayed while downloading an update.
+							_N("Downloading Update"),
+							# Translators: The title of the dialog displayed while downloading an update.
+							_N("Downloading Update"))
+						
+						if data and "addon" in data and "name" in data["addon"] and data["addon"]["name"]:
+							tmp_file = data["addon"]["name"]
+						else:
+							tmp_file = addonHandler.getCodeAddon().manifest["summary"]
+						if last_version:
+							tmp_file = tmp_file + "-" + last_version
+						else:
+							tmp_file = tmp_file + "-update"
+						tmp_file = os.path.join(tempfile.gettempdir(), tmp_file + ".nvda-addon")
+						
+						def remove_file():
+							if os.path.isfile(tmp_file):
+								try:
+									os.chmod(tmp_file, stat.S_IWRITE)
+									os.remove(tmp_file)
+								except:
+									pass
+						
+						def download_cb(updates, response):
+							def download_cb_later():
+								def install_cb(installed):
+									remove_file()
+									if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status, installed=installed))
+								
+								if response and response.status == 200:
+									try:
+										package = response.read()
+									except:
+										package = None
+									if package:
+										try:
+											f = open(tmp_file, 'wb')
+											f.write(package)
+											f.close()
+											self.install(tmp_file, install_cb)
+											return
+										except:
+											remove_file()
+								if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+							
+							if self._progressDialog:
+								self._progressDialog.done()
+								self._progressDialog = None
+								wx.CallLater(100, download_cb_later)
+							else:
+								download_cb_later()
+						
+						remove_file()
+						if not self.download(download_cb, data):
+							if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+					
+					def cancel_update():
+						if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+					
+					UpdatesConfirmDialog.Ask(do_update, cancel_update, version=last_version)
+				else:
+					if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+			
 			if self._progressDialog:
 				self._progressDialog.done()
 				self._progressDialog = None
-			if status == UpdatesCheckAndDownloadStatus.UPGRADE:
-				last_version = None
-				if data and "update" in data and "last_version" in data["update"] and data["update"]["last_version"]:
-					last_version = data["update"]["last_version"]
-				
-				def do_update():
-					self._progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
-						# Translators: The title of the dialog displayed while downloading an update.
-						_N("Downloading Update"),
-						# Translators: The title of the dialog displayed while downloading an update.
-						_N("Downloading Update"))
-					
-					if data and "addon" in data and "name" in data["addon"] and data["addon"]["name"]:
-						tmp_file = data["addon"]["name"]
-					else:
-						tmp_file = addonHandler.getCodeAddon().manifest["summary"]
-					if last_version:
-						tmp_file = tmp_file + "-" + last_version
-					else:
-						tmp_file = tmp_file + "-update"
-					tmp_file = os.path.join(tempfile.gettempdir(), tmp_file + ".nvda-addon")
-					
-					def remove_file():
-						if os.path.isfile(tmp_file):
-							try:
-								os.chmod(tmp_file, stat.S_IWRITE)
-								os.remove(tmp_file)
-							except:
-								pass
-					
-					def download_cb(updates, response):
-						if self._progressDialog:
-							self._progressDialog.done()
-							self._progressDialog = None
-						
-						def install_cb(installed):
-							remove_file()
-							if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status, installed=installed))
-						
-						if response and response.status == 200:
-							try:
-								package = response.read()
-							except:
-								package = None
-							if package:
-								try:
-									f = open(tmp_file, 'wb')
-									f.write(package)
-									f.close()
-									self.install(tmp_file, install_cb)
-									return
-								except:
-									remove_file()
-						if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
-					
-					remove_file()
-					if not self.download(download_cb, data):
-						if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
-				
-				def cancel_update():
-					if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
-				
-				UpdatesConfirmDialog.Ask(do_update, cancel_update, version=last_version)
+				wx.CallLater(100, check_cb_later)
 			else:
-				if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=status))
+				check_cb_later()
 		
 		if not self.check(check_cb, pickle):
 			if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=UpdatesCheckAndDownloadStatus.BUSY))
@@ -285,7 +294,7 @@ class Updates:
 			if cb: cb(ret)
 			if ret:
 				addonGui.promptUserForRestart()
-		wx.CallAfter(h)
+		wx.CallLater(100, h)
 
 class AutoUpdates:
 	def __init__(self, url, pickle):
@@ -348,20 +357,24 @@ def ManualUpdatesCheck(url, pickle=None):
 			title = title.format(name=addonHandler.getCodeAddon().manifest["summary"]) + ' - '
 			# Translators: The title of an error message dialog.
 			title = title + _N("Error")
-			wx.CallAfter(gui.messageBox,
+			gui.mainFrame.prePopup()
+			gui.messageBox(
 				# Translators: A message indicating that an error occurred while checking for an update.
 				_N("Error checking for update."),
 				title,
 				wx.OK | wx.ICON_ERROR)
+			gui.mainFrame.postPopup()
 		elif not status.Found:
 			# Translators: The title of the update dialog
 			title = _("{name} Update")
 			title = title.format(name=addonHandler.getCodeAddon().manifest["summary"])
-			wx.CallAfter(gui.messageBox,
+			gui.mainFrame.prePopup()
+			gui.messageBox(
 				# Translators: A message indicating that no update is available.
 				_N("No update available."),
 				title,
 				wx.OK)
+			gui.mainFrame.postPopup()
 	updates = Updates(url)
 	if updates:
 		updates.check_and_download(_end_proc, pickle=pickle)
