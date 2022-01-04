@@ -2,7 +2,7 @@
 
 * Yazarlar: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * [Kararlı sürümü][1] indir
-* NVDA uyumluluğu: 2021.2 ve üstü
+* NVDA uyumluluğu: 2019.3 ve üstü
 
 Nao (NVDA Advanced OCR), Windows'un modern sürümlerinde NVDA tarafından sağlanan standart OCR özelliklerini geliştiren bir eklentidir.
 NVDA standart komutu, ekranı tanımak için Windows OCR'yi kullanırken, NAO, sabit sürücünüzde veya USB aygıtlarınızda kayıtlı dosyalar üzerinde OCR yapabilir.
@@ -13,7 +13,7 @@ Nao aynı zamanda çok sayfalı pdf'yi de işleyebilir, bu nedenle erişilebilir
 
 ## sistem gereksinimleri
 Eklenti, yerleşik OCR özelliklerine sahip oldukları için Windows 10 ve Windows 11 sistemlerinde çalışır.
-Nao, NVDA 2021.2 sürümünden itibaren sonrakilerle uyumludur, bu nedenle ekran okuyucunun eski sürümlerini kullanmayın.
+Nao, NVDA 2019.3 sürümünden itibaren sonrakilerle uyumludur, bu nedenle ekran okuyucunun eski sürümlerini kullanmayın.
 Nao'nun Windows Gezgini, masaüstü veya Total Commander dosya yöneticisi ile çalıştığını unutmayın; 7zip veya Winrar gibi başka yazılımlar desteklenmediği için kullanmayın.
 
 ## Özellikler ve komutlar

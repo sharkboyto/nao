@@ -1,12 +1,13 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-22
+#Last update 2022-01-04
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
 import wx
 import time
+import os
 import queueHandler
 from logHandler import log
 from contentRecog import recogUi, LinesWordsResult
@@ -17,12 +18,45 @@ from .. import language
 
 language.initTranslation()
 
-class OCRResultPageOffset():
+class OCRResultPageOffset:
 	def __init__(self, start, length):
 		self.start = start
 		self.end = start + length
 
+class OCRMultipageSourceFile:
+	MULTIPAGE_FORMATS = ["gif", "tif", "tiff"]
+
+	def is_multipage_format(filename):
+		return OCRMultipageSourceFile.is_multipage_extension(OCR.get_file_extension(filename))
+
+	def is_multipage_extension(file_extension):
+		return file_extension and (file_extension in OCRMultipageSourceFile.MULTIPAGE_FORMATS)
+
+	def __new__(cls, filename):
+		if OCRMultipageSourceFile.is_multipage_format(filename):
+			return super(OCRMultipageSourceFile, cls).__new__(cls)
+		return None
+
+	def __init__(self, filename):
+		self.filename = filename
+		self.remaining = self.page_count = wx.Image.GetImageCount(filename)
+
+	def next(self):
+		if self.remaining > 0:
+			image = wx.Image(self.filename, index=self.page_count - self.remaining)
+			self.remaining = self.remaining - 1
+			if image:
+				return wx.Bitmap(image, depth=24)
+		return None
+
 class OCR:
+	def get_file_extension(filename):
+		if not filename: return None
+		file_extension = os.path.splitext(filename)[1].lower()
+		if file_extension and file_extension.startswith('.'):
+			file_extension = file_extension[1:]
+		return file_extension
+
 	def recognize_screenshot(on_start=None, on_finish=None, on_finish_arg=None):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
@@ -67,6 +101,7 @@ class OCR:
 		self.service = None
 		self.source_file_list = []
 		self.source_count = 0
+		self.remaining = 0
 		self.results = []
 		self.pages_offset = []
 		self.on_finish = None
@@ -92,15 +127,24 @@ class OCR:
 			return
 		self.clear()
 		self.source_file = source_file
+		self.source_file_list = []
+		self.source_count = 0
 		self.on_finish = on_finish
 		self.on_finish_arg = on_finish_arg
 		self.on_progress = on_progress
 		self.progress_timeout = progress_timeout
-		self.source_count = len(source_file_list)
-		self.source_file_list = source_file_list
 		self.last_progress = time.time()
 		if on_start:
 			on_start(source_file=self.source_file)
+		for f in source_file_list:
+			multi_page_file = OCRMultipageSourceFile(f)
+			if (multi_page_file and multi_page_file.page_count > 1):
+				self.source_file_list.append(multi_page_file)
+				self.source_count = self.source_count + multi_page_file.page_count
+			else:
+				self.source_file_list.append(f)
+				self.source_count = self.source_count + 1
+		self.remaining = self.source_count
 		if not self._recognize_next_page():
 			if on_finish:
 				if on_finish_arg is None:
@@ -111,16 +155,23 @@ class OCR:
 
 	def _recognize_next_page(self):
 		if self.must_abort: return False
-		remaining = len(self.source_file_list)
 		now = time.time()
 		if now - self.last_progress >= self.progress_timeout:
 			self.last_progress = now
 			if self.on_progress:
-				self.on_progress(self.source_count - remaining, self.source_count)
-		if remaining > 0:
+				self.on_progress(self.source_count - self.remaining, self.source_count)
+		if len(self.source_file_list) > 0:
+			source = self.source_file_list[0]
+			if isinstance(source, OCRMultipageSourceFile):
+				bitmap = source.next()
+				if source.remaining == 0:
+					self.source_file_list.pop(0)
+			else:
+				bitmap = wx.Bitmap(source)
+				self.source_file_list.pop(0)
 			if not self.service:
 				self.service = OCRService()
-			self.service.push_bitmap(wx.Bitmap(self.source_file_list.pop(0)), self._on_recognize_result)
+			self.service.push_bitmap(bitmap, self._on_recognize_result)
 			return True
 		return False
 
@@ -147,6 +198,7 @@ class OCR:
 		for line in result.data:
 			self.results.append(line)
 		
+		self.remaining = self.remaining - 1
 		if not self._recognize_next_page():
 			# No more pages
 			def h():

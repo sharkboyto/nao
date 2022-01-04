@@ -2,7 +2,7 @@
 
 * 作者：Alessandro Albano、Davide De Carne、Simone Dal Maso
 * 下载[稳定版][1]
-* NVDA 兼容性：2021.2 及以后
+* NVDA 兼容性：2019.3 及以后
 
 Nao(NVDA Advanced OCR) 是一个 NVDA 插件，该插件改进了 Windows 的内置 OCR 功能。
 虽然 NVDA 本身可以使用 Windows OCR 来识别屏幕，但 NAO 能够对保存在硬盘驱动器或 USB 设备上的文件进行 OCR。
@@ -14,7 +14,7 @@ Nao 也能够处理多页 PDF，所以，如果您有一个无法访问的扫描
 ## 系统要求
 
 该插件适用于内置了 OCR 功能的 Windows 10 和 Windows 11 系统。
-Nao 与 NVDA 版本 2021.2 兼容，所以也不要使用旧版本的屏幕阅读器。
+Nao 与 NVDA 版本 2019.3 兼容，所以也不要使用旧版本的屏幕阅读器。
 另外请注意，Nao 可与 Windows 资源管理器、桌面或 Total Commander 文件管理器配合使用；不要使用 7zip 或 Winrar 等其他软件，因为这些软件不在本插件支持范围内。
 
 ## 功能和命令
