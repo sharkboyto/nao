@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2022.1'\n"
+"Project-Id-Version: 'nao' '2022.1.1'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-12-22 14:27+0100\n"
-"PO-Revision-Date: 2021-12-31 14:54+0100\n"
+"PO-Revision-Date: 2022-01-04 13:43+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -46,8 +46,8 @@ msgstr "Prend une capture de tout l'écran et en fait la reconnaissance"
 
 #. Translators: The title of the update dialog
 #: addon\globalPlugins\nao\framework\generic\updates.py:37
-#: addon\globalPlugins\nao\framework\generic\updates.py:347
-#: addon\globalPlugins\nao\framework\generic\updates.py:358
+#: addon\globalPlugins\nao\framework\generic\updates.py:356
+#: addon\globalPlugins\nao\framework\generic\updates.py:369
 #, python-brace-format
 msgid "{name} Update"
 msgstr "Mise à jour de {name}"
@@ -68,17 +68,17 @@ msgid "Internal conversion error"
 msgstr "Erreur de conversion interne"
 
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:46
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
 msgid "File not supported"
 msgstr "Fichier non pris en charge"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:76
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:84
 msgid "Process started"
 msgstr "Processus démarré"
 
 #. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:102
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:110
 msgid "Error, the file could not be processed"
 msgstr "Erreur, le fichier n'a pas pu être traité"
 

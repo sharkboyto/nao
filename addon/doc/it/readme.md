@@ -2,7 +2,7 @@
 
 * Autori: Alessandro Albano, Davide De Carne, Simone Dal Maso
 * Download [versione stabile][1]
-* Compatibilità NVDA: 2021.2 e successive
+* Compatibilità NVDA: 2019.3 e successive
 
 Nao (NVDA Advanced OCR) è un addon che migliora le capacità OCR standard fornite da NVDA nelle versioni moderne di Windows.
 Mentre il comando standard NVDA utilizza l'OCR di Windows per riconoscere lo schermo, NAO è in grado di eseguire l'OCR sui file salvati sul disco rigido o sui dispositivi USB.
@@ -13,7 +13,7 @@ Nao è in grado di gestire anche pdf multipagina, quindi se hai un documento non
 
 ## Requisiti di sistema
 L'addon lavora soltanto sui sistemi Windows 10 e Windows 11, poiché dispongono di funzionalità OCR integrate.
-Nao è compatibile dalla versione NVDA 2021.2, quindi non utilizzare versioni precedenti dello screen reader.
+Nao è compatibile dalla versione NVDA 2019.3, quindi non utilizzare versioni precedenti dello screen reader.
 Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager Total Commander o Xplorer; non utilizzare altri software come 7zip o Winrar, poiché non sono supportati.
 
 ## Funzionalità e comandi
@@ -41,6 +41,12 @@ Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
+### 2022.1.1
+* Supporto file formato DjVu.
+* Supporto file tiff multipagina.
+* Risoluzione bug di encoding nel riconoscimento file PDF su sistemi operativi in lingua cinese.
+* Update manuale dell'addon da menu strumenti di NVDA.
+* Compatibilità a partire da NVDA 2019.3.
 ### 2022.1
 * Update automatico dell'addon.
 * Aggiornate traduzioni in spagnolo e francese.
