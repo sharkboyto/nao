@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: 'nao' '2022.1.1'\n"
-"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2021-12-23 17:10+0100\n"
-"PO-Revision-Date: 2022-01-04 13:43+0100\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
+"POT-Creation-Date: 2022-01-05 15:23+0800\n"
+"PO-Revision-Date: 2022-01-05 15:24+0800\n"
+"Last-Translator: Rowen\n"
 "Language-Team: \n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.4.3\n"
-"Last-Translator: Rowen\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Language: zh_CN\n"
 
 #. Translators: The text of the donate dialog
 #: addon\installTasks.py:31 addon\globalPlugins\nao\donate.py:31
@@ -60,11 +60,6 @@ msgstr "可用"
 msgid "Do you want to download and install it?"
 msgstr "您要下载并安装它吗？"
 
-#. Translators: Reporting an error during recognition (e.g. OCR).
-#: addon\globalPlugins\nao\framework\ocr\ocr.py:52
-msgid "Internal conversion error"
-msgstr "内部转换错误"
-
 #. Translators: Reported when the file format is not supported for recognition.
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
 msgid "File not supported"
@@ -102,3 +97,6 @@ msgid ""
 msgstr ""
 "Nao(NVDA Advanced OCR) 是一个 NVDA 插件，该插件改进了 Windows 的内置 OCR 功"
 "能。"
+
+#~ msgid "Internal conversion error"
+#~ msgstr "内部转换错误"
