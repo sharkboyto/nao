@@ -62,11 +62,6 @@ msgstr "est disponible"
 msgid "Do you want to download and install it?"
 msgstr "Voulez-vous la télécharger et l'installer?"
 
-#. Translators: Reporting an error during recognition (e.g. OCR).
-#: addon\globalPlugins\nao\framework\ocr\ocr.py:52
-msgid "Internal conversion error"
-msgstr "Erreur de conversion interne"
-
 #. Translators: Reported when the file format is not supported for recognition.
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
 msgid "File not supported"
@@ -104,3 +99,6 @@ msgid ""
 msgstr ""
 "Nao (NVDA Advanced OCR) est une extension qui améliore les capacités d'OCR "
 "standard fournies par NVDA sur les versions modernes de Windows."
+
+#~ msgid "Internal conversion error"
+#~ msgstr "Erreur de conversion interne"
