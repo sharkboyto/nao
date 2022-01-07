@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-04
+#Last update 2022-01-07
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -169,10 +169,11 @@ class OCR:
 			else:
 				bitmap = wx.Bitmap(source)
 				self.source_file_list.pop(0)
-			if not self.service:
-				self.service = OCRService()
-			self.service.push_bitmap(bitmap, self._on_recognize_result)
-			return True
+			if bitmap:
+				if not self.service:
+					self.service = OCRService()
+				self.service.push_bitmap(bitmap, self._on_recognize_result)
+				return True
 		return False
 
 	def _on_recognize_result(self, result):

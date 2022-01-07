@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-21
+#Last update 2022-01-07
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -80,6 +80,7 @@ class Converter:
 		self._thread = None
 
 	def _convert(self, source_file, type, on_finish=None, on_progress=None, progress_timeout=1):
+		self._failed = False
 		self._source_file = source_file
 		self._type = type
 		self._on_finish = on_finish
@@ -91,33 +92,43 @@ class Converter:
 
 	def _thread(self):
 		self.clear()
-		if not os.path.isdir(self._temp_path):
-			os.mkdir(self._temp_path)
-		
-		if self._on_progress:
-			self._on_progress(self, 0, self.count)
-		
-		# The next two lines are to prevent the cmd from being displayed.
-		si = subprocess.STARTUPINFO()
-		si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-		
-		p = subprocess.Popen(self._command(self._type), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, startupinfo=si)
-		while self._thread:
-			try:
-				p.wait(timeout=self._progress_timeout)
-				break
-			except subprocess.TimeoutExpired:
-				if self._thread and self._on_progress:
-					self._on_progress(self, len(self.results), self.count)
-		
-		if self._thread:
+		if not self._failed:
+			if not os.path.isdir(self._temp_path):
+				os.mkdir(self._temp_path)
+			
 			if self._on_progress:
-				self._on_progress(self, len(self.results), self.count)
-			if self._on_finish:
-				self._on_finish(success=(p.returncode == 0), converter=self)
-		else:
-			p.kill()
+				self._on_progress(self, 0, self.count)
+			
+			# The next two lines are to prevent the cmd from being displayed.
+			si = subprocess.STARTUPINFO()
+			si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+			
+			try:
+				p = subprocess.Popen(self._command(self._type), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, startupinfo=si)
+			except:
+				p = None
+				self._failed = True
+			
+			if p:
+				while self._thread:
+					try:
+						p.wait(timeout=self._progress_timeout)
+						break
+					except subprocess.TimeoutExpired:
+						if self._thread and self._on_progress:
+							self._on_progress(self, len(self.results), self.count)
+				
+				if self._thread:
+					if self._on_progress:
+						self._on_progress(self, len(self.results), self.count)
+					if self._on_finish:
+						self._on_finish(success=(p.returncode == 0), converter=self)
+				else:
+					p.kill()
 		
+		if self._failed:
+			if self._on_finish:
+				self._on_finish(success=False, converter=self)
 		self._type = None
 		self._on_finish = None
 		self._on_progress = None
