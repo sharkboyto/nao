@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-07
+#Last update 2022-01-08
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -10,18 +10,14 @@ import time
 import os
 import queueHandler
 from logHandler import log
-from contentRecog import recogUi, LinesWordsResult
+from contentRecog import recogUi
 from .ocr_service import OCRService
+from .ocr_result import OCRResult
 from .. speech import speech
 from .. generic import screen
 from .. import language
 
 language.initTranslation()
-
-class OCRResultPageOffset:
-	def __init__(self, start, length):
-		self.start = start
-		self.end = start + length
 
 class OCRMultipageSourceFile:
 	MULTIPAGE_FORMATS = ["gif", "tif", "tiff"]
@@ -102,14 +98,12 @@ class OCR:
 		self.source_file_list = []
 		self.source_count = 0
 		self.remaining = 0
-		self.results = []
-		self.pages_offset = []
+		self.result = None
 		self.on_finish = None
 		self.on_finish_arg = None
 		self.on_progress = None
 		self.progress_timeout = 1
 		self.last_progress = 0
-		self.source_file = None
 		self.must_abort = False
 
 	def abort(self):
@@ -121,12 +115,12 @@ class OCR:
 			speech.queue_message(_N("Windows OCR not available"))
 			if on_finish:
 				if on_finish_arg is None:
-					on_finish(source_file=source_file, result=None, pages_offset=None)
+					on_finish(source_file=source_file, result=None)
 				else:
-					on_finish(source_file=source_file, result=None, pages_offset=None, arg=on_finish_arg)
+					on_finish(source_file=source_file, result=None, arg=on_finish_arg)
 			return
 		self.clear()
-		self.source_file = source_file
+		self.result = OCRResult(source_file=source_file)
 		self.source_file_list = []
 		self.source_count = 0
 		self.on_finish = on_finish
@@ -135,7 +129,7 @@ class OCR:
 		self.progress_timeout = progress_timeout
 		self.last_progress = time.time()
 		if on_start:
-			on_start(source_file=self.source_file)
+			on_start(source_file=source_file)
 		for f in source_file_list:
 			multi_page_file = OCRMultipageSourceFile(f)
 			if (multi_page_file and multi_page_file.page_count > 1):
@@ -148,9 +142,9 @@ class OCR:
 		if not self._recognize_next_page():
 			if on_finish:
 				if on_finish_arg is None:
-					on_finish(source_file=source_file, result=None, pages_offset=None)
+					on_finish(source_file=source_file, result=None)
 				else:
-					on_finish(source_file=source_file, result=None, pages_offset=None, arg=on_finish_arg)
+					on_finish(source_file=source_file, result=None, arg=on_finish_arg)
 			self.clear()
 
 	def _recognize_next_page(self):
@@ -184,21 +178,13 @@ class OCR:
 			speech.queue_message(_N("Recognition failed"))
 			if self.on_finish:
 				if self.on_finish_arg is None:
-					self.on_finish(source_file=self.source_file, result=result, pages_offset=None)
+					self.on_finish(source_file=self.result.source_file, result=result)
 				else:
-					self.on_finish(source_file=self.source_file, result=result, pages_offset=None, arg=self.on_finish_arg)
+					self.on_finish(source_file=self.result.source_file, result=result, arg=self.on_finish_arg)
 			self.clear()
 			return
 		
-		if len(self.pages_offset) == 0:
-			self.pages_offset.append(OCRResultPageOffset(0, result.textLen))
-		else:
-			self.pages_offset.append(OCRResultPageOffset(self.pages_offset[len(self.pages_offset) - 1].end, result.textLen))
-		
-		# Result is a LinesWordsResult, we store all pages data objects that we will merge later in a single LinesWordsResult
-		for line in result.data:
-			self.results.append(line)
-		
+		self.result.append_page(result)
 		self.remaining = self.remaining - 1
 		if not self._recognize_next_page():
 			# No more pages
@@ -206,13 +192,13 @@ class OCR:
 				if self.on_finish:
 					if self.must_abort:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.source_file, result=None, pages_offset=None)
+							self.on_finish(source_file=self.result.source_file, result=None)
 						else:
-							self.on_finish(source_file=self.source_file, result=None, pages_offset=None, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.result.source_file, result=None, arg=self.on_finish_arg)
 					else:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset)
+							self.on_finish(source_file=self.result.source_file, result=self.result)
 						else:
-							self.on_finish(source_file=self.source_file, result=LinesWordsResult(self.results, result.imageInfo), pages_offset=self.pages_offset, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.result.source_file, result=self.result, arg=self.on_finish_arg)
 				self.clear()
 			queueHandler.queueFunction(queueHandler.eventQueue, h)

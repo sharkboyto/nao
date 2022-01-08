@@ -89,13 +89,13 @@ class OCRHelper:
 				# Translators: Reporting when recognition (e.g. OCR) begins.
 				speech.queue_message(_N("Recognizing"))
 		
-		def on_recognize_finish(source_file, result, pages_offset, arg=None):
+		def on_recognize_finish(source_file, result, arg=None):
 			self.beeper.stop()
 			if progress:
 				progress.Close()
 			if result and not isinstance(result, Exception):
 				speech.cancel()
-				OCRResultDialog(source_file=source_file, result=result, pages_offset=pages_offset)
+				OCRResultDialog(result=result)
 		
 		if not conv:
 			ocr.recognize_files(source_file, [source_file], on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
