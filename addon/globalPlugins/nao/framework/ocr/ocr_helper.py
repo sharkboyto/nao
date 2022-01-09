@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-07
+#Last update 2022-01-09
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -10,7 +10,7 @@ import wx
 from . ocr import OCR, OCRMultipageSourceFile
 from . ocr_service import OCRService
 from . ocr_progress import OCRProgressDialog
-from . ocr_result import OCRResultDialog
+from . ocr_result import OCRResult, OCRResultDialog
 from .. speech import speech
 from .. import language
 from .. generic.beepThread import BeepThread
@@ -21,10 +21,14 @@ from .. converters.djvu_converter import DjVuConverter
 language.initTranslation()
 
 class OCRHelper:
-	def __init__(self):
+	def __init__(self, ocr_result_file_extension=None, pickle=None):
 		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp", "djvu"]
+		self.ocr_result_file_extension = ocr_result_file_extension
+		self.pickle = pickle
 		self.beeper = BeepThread()
 		self.progress_timeout = 1
+		if ocr_result_file_extension:
+			self.supported_extensions.append(ocr_result_file_extension)
 
 	def recognize_screenshot():
 		def recognize_start():
@@ -42,6 +46,15 @@ class OCRHelper:
 		# Getting the extension to check if is a supported file type.
 		file_extension = OCR.get_file_extension(source_file)
 		if not file_extension or not (file_extension in self.supported_extensions):
+			# Translators: Reported when the file format is not supported for recognition.
+			speech.message(_("File not supported"))
+			return False
+		
+		if self.ocr_result_file_extension and file_extension == self.ocr_result_file_extension:
+			result = OCRResult(source_file)
+			if result and isinstance(result, OCRResult):
+				OCRResultDialog(result=result, ocr_result_file_extension=self.ocr_result_file_extension, pickle=self.pickle)
+				return True
 			# Translators: Reported when the file format is not supported for recognition.
 			speech.message(_("File not supported"))
 			return False
@@ -95,7 +108,7 @@ class OCRHelper:
 				progress.Close()
 			if result and not isinstance(result, Exception):
 				speech.cancel()
-				OCRResultDialog(result=result)
+				OCRResultDialog(result=result, ocr_result_file_extension=self.ocr_result_file_extension, pickle=self.pickle)
 		
 		if not conv:
 			ocr.recognize_files(source_file, [source_file], on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)

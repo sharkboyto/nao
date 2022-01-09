@@ -77,6 +77,11 @@ msgstr "Proceso iniciado"
 msgid "Error, the file could not be processed"
 msgstr "Error, no se ha podido procesar el archivo"
 
+#. Translators: The title of the dialog used to move to a different page
+#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:292
+msgid "Move to"
+msgstr "Moverse a"
+
 #. Translators: Dialog text presented when NVDA cannot save a result file.
 #: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
 #, python-format

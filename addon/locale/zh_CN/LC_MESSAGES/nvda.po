@@ -75,6 +75,11 @@ msgstr "开始识别"
 msgid "Error, the file could not be processed"
 msgstr "错误，无法处理文件"
 
+#. Translators: The title of the dialog used to move to a different page
+#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:292
+msgid "Move to"
+msgstr "移动到"
+
 #. Translators: Dialog text presented when NVDA cannot save a result file.
 #: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
 #, python-format
