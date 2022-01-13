@@ -9,8 +9,10 @@ import gui
 import api
 import os
 import numbers
+import threading
 import queueHandler
 import cursorManager
+import addonHandler
 from collections import namedtuple
 from .. speech import speech
 from .. generic import window
@@ -19,8 +21,14 @@ from .. import language
 language.initTranslation()
 
 class OCRResult:
-	OCRRESULT_JSON_TYPE = 'ocr_result'
-	OCRRESULT_JSON_VERSION = 1
+	default_data = {
+		'type': 'ocr_result',
+		'version': 1,
+		'generator': addonHandler.getCodeAddon().manifest["name"] + '-' + addonHandler.getCodeAddon().manifest["version"],
+		'source_file': None,
+		'length': 0,
+		'hash': None,
+	}	
 
 	def __new__(cls, filename=None, validator=None, source_file=None):
 		ret = super(OCRResult, cls).__new__(cls)
@@ -35,18 +43,16 @@ class OCRResult:
 	def __init__(self, filename=None, validator=None, source_file=None):
 		if not filename:
 			self.clear()
-			self.source_file = source_file
+			self.data['source_file'] = source_file
 
 	def clear(self):
-		self.source_file = None
-		self._length = 0
+		self.data = OCRResult.default_data.copy()
+		self.data['pages'] = []	#: pages/lines/words data structure
 		self._hash = None
-		#: pages/lines/words data structure
-		self.pages = []
 
 	def append_page(self, result):
 		# result is a LinesWordsResult
-		page = { 'start': self._length }
+		page = { 'start': self.data['length'] }
 		length = 0
 		lines = []
 		for line_result in result.data:
@@ -70,18 +76,18 @@ class OCRResult:
 		if length == 0:
 			# Empty page, end with new line.
 			length = 1
-		self._length += length
-		page['end'] = self._length
+		self.data['length'] += length
+		page['end'] = self.data['length']
 		page['lines'] = lines
-		self.pages.append(page)
+		self.Pages.append(page)
 
 	def page_at_position(self, pos):
 		ret = 0
-		for page in self.pages:
+		for page in self.Pages:
 			ret += 1
 			if pos >= page['start'] and pos < page['end']:
 				break
-		if ret > self.Pages: ret = self.Pages
+		if ret > self.PagesCount: ret = self.PagesCount
 		return ret
 
 	def info_at_position(self, pos):
@@ -89,7 +95,7 @@ class OCRResult:
 		ret_line = 0
 		ret_line_in_page = 0
 		last_page_lines = 0
-		for page in self.pages:
+		for page in self.Pages:
 			ret_page += 1
 			page_start = page['start']
 			if pos >= page_start and pos < page['end']:
@@ -105,41 +111,47 @@ class OCRResult:
 			if ret_line > 0:
 				ret_line += 1
 				ret_line_in_page = last_page_lines + 1
-		if ret_page > self.Pages: ret_page = self.Pages
+		if ret_page > self.PagesCount: ret_page = self.PagesCount
 		return namedtuple('Info', ['page', 'line', 'line_in_page'])(page=ret_page, line=ret_line, line_in_page=ret_line_in_page)
 
 	def position_at_page(self, page):
 		if page < 1: page = 1
-		if page >= self.Pages: page = self.Pages
+		if page >= self.PagesCount: page = self.PagesCount
 		if page > 0:
-			return self.pages[page - 1]['start'], self.pages[page - 1]['end']
+			return self.Pages[page - 1]['start'], self.Pages[page - 1]['end']
 		return 0
 
-	def save(self, filename, extra=None, compress=True):
+	def save(self, filename, cb=None, extra=None, compress=True):
 		if filename:
-			import gzip
-			try:
-				json = self.to_json(extra)
-				json_gz = None
-				if compress:
-					try:
-						json_gz = gzip.compress(json.encode("UTF-8"))
-					except:
-						json_gz = None
-				if json_gz:
-					with open(filename, "wb") as f:
-						f.write(json_gz)
-				else:
-					with open(filename, "w", encoding="UTF-8") as f:
-						f.write(json)
-				return True
-			except Exception as e:
-				if os.path.isfile(filename):
-					try:
-						os.remove(filename)
-					except:
-						pass
-				raise
+			def h():
+				try:
+					json = self.to_json(extra)
+					json_gz = None
+					if compress:
+						try:
+							import gzip
+							json_gz = gzip.compress(json.encode("UTF-8"))
+						except:
+							json_gz = None
+					if json_gz:
+						with open(filename, "wb") as f:
+							f.write(json_gz)
+					else:
+						with open(filename, "w", encoding="UTF-8") as f:
+							f.write(json)
+					if cb: cb(filename, True)
+				except Exception as e:
+					if os.path.isfile(filename):
+						try:
+							os.remove(filename)
+						except:
+							pass
+					if cb: cb(filename, e)
+			thread = threading.Thread(target=h)
+			thread.setDaemon(True)
+			thread.start()
+			return True
+		if cb: cb(filename, False)
 		return False
 
 	def load(self, filename, validator=None):
@@ -164,20 +176,13 @@ class OCRResult:
 
 	def to_json(self, extra=None):
 		import json
-		if extra:
-			data = extra.copy()
-		else:
-			data = {}
-		data.update({
-			'version': OCRResult.OCRRESULT_JSON_VERSION,
-			'type': OCRResult.OCRRESULT_JSON_TYPE,
-			'source_file': self.source_file,
-			'length': self._length,
-			'pages': self.pages
-		})
+		data = extra.copy() if extra else {}
+		data.update(self.data)
 		hash = self.Hash
 		if hash:
 			data['hash'] = hash.hex()
+		elif 'hash' in data:
+			del data['hash']
 		return json.dumps(data)
 
 	def from_json(self, json, validator=None):
@@ -186,11 +191,10 @@ class OCRResult:
 		data = jsonp.loads(json)
 		if validator:
 			if not validator(self, data): return False
-		if not 'type' in data or data['type'] != OCRResult.OCRRESULT_JSON_TYPE: return False
+		if not 'type' in data or data['type'] != OCRResult.default_data['type']: return False
 		if not 'pages' in data: return False
-		self.pages = data['pages']
-		self._length = data['length'] if 'length' in data else 0
-		self.source_file = data['source_file'] if 'source_file' in data else None
+		self.data.update(data)
+		if 'hash' in self.data: del self.data['hash']
 		try:
 			self.Text
 		except:
@@ -200,8 +204,8 @@ class OCRResult:
 
 	def get_page(self, page):
 		if isinstance(page, numbers.Number):
-			if page > 0 and page <= self.Pages:
-				page = self.pages[page - 1]
+			if page > 0 and page <= self.PagesCount:
+				page = self.Pages[page - 1]
 			else:
 				page = None
 		return page
@@ -240,29 +244,37 @@ class OCRResult:
 		return text
 
 	@property
+	def SourceFile(self):
+		return self.data['source_file']
+
+	@property
 	def Json(self):
 		return self.to_json()
 
 	@property
-	def Length(self):
-		if self._length == 0:
+	def TextLength(self):
+		if self.data['length'] == 0:
 			self.Text
-		return self._length
+		return self.data['length']
+
+	@property
+	def PagesCount(self):
+		return len(self.data['pages'])
 
 	@property
 	def Pages(self):
-		return len(self.pages)
+		return self.data['pages']
 
 	@property
 	def Text(self):
 		text = ""
-		for page in self.pages:
+		for page in self.Pages:
 			if len(page['lines']) > 0:
 				text += self.get_page_text(page)
 			else:
 				# Empty page, end with new line.
 				text += "\n"
-		self._length = len(text)
+		self.data['length'] = len(text)
 		return text
 
 	@property
@@ -272,8 +284,8 @@ class OCRResult:
 				import hashlib
 				from struct import pack
 				md = hashlib.sha256()
-				md.update(pack('<ll', len(self.pages), self.Length))
-				for page in self.pages:
+				md.update(pack('<ll', self.PagesCount, self.TextLength))
+				for page in self.Pages:
 					md.update(pack('<lll', page['start'], page['end'], len(page['lines'])))
 					for line in page['lines']:
 						md.update(pack('<lll', line['start'], line['end'], len(line['words'])))
@@ -321,14 +333,14 @@ class MoveToDialog(wx.Dialog):
 
 class OCRResultDialog(wx.Frame):
 	def __init__(self, result, ocr_result_file_extension=None, pickle=None):
-		self.source_file = os.path.basename(result.source_file) if result.source_file else ''
-		self.file_path = os.path.dirname(result.source_file) if result.source_file else ''
+		self.source_file = os.path.basename(result.SourceFile) if result and result.SourceFile else ''
+		self.file_path = os.path.dirname(result.SourceFile) if result and result.SourceFile else ''
 		self.result = result
 		self.text = result.Text if result else ''
 		self.ocr_result_file_extension = ocr_result_file_extension
 		self.pickle = pickle
 		
-		pages = result.Pages if result else 0
+		pages = result.PagesCount if result else 0
 		# Translators: The title of the document used to present the result of content recognition.
 		title = _N("Result")
 		if self.source_file:
@@ -461,7 +473,7 @@ class OCRResultDialog(wx.Frame):
 			if page is None and offset is not None:
 				page = self.get_current_page() + offset
 			if page is not None:
-				if page > self.result.Pages:
+				if page > self.result.PagesCount:
 					self.outputCtrl.SetInsertionPoint(self.result.position_at_page(page)[1])
 					# Translators: a message reported when cursor is at the last line of result window.
 					speech.message(_N("Bottom"))
@@ -494,19 +506,19 @@ class OCRResultDialog(wx.Frame):
 				gui.messageBox(message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
 
 	def save_result(self, filename):
-		if filename and self.result and self.result.Length > 0:
-			try:
-				self.result.save(filename)
-			except (IOError, OSError) as e:
-				# Translators: Dialog text presented when NVDA cannot save a result file.
-				message = _("Error saving file: %s") % e.strerror
-				# Translators: The title of an error message dialog.
-				gui.messageBox(message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
-			except Exception as e:
-				# Translators: Dialog text presented when NVDA cannot save a result file.
-				message = _("Error saving file: %s") % str(e)
-				# Translators: The title of an error message dialog.
-				gui.messageBox(message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
+		if filename and self.result and self.result.TextLength > 0:
+			def h(filename, status):
+				if isinstance(status, IOError) or isinstance(status, OSError):
+					# Translators: Dialog text presented when NVDA cannot save a result file.
+					message = _("Error saving file: %s") % status.strerror
+					# Translators: The title of an error message dialog.
+					wx.CallAfter(gui.messageBox, message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
+				if isinstance(status, Exception):
+					# Translators: Dialog text presented when NVDA cannot save a result file.
+					message = _("Error saving file: %s") % str(status)
+					# Translators: The title of an error message dialog.
+					wx.CallAfter(gui.messageBox, message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=self)
+			self.result.save(filename, h)
 
 	def save_as(self):
 		if self.text:
@@ -518,7 +530,7 @@ class OCRResultDialog(wx.Frame):
 					self.save(filename)
 
 	def save_result_as(self):
-		if self.ocr_result_file_extension and self.result and self.result.Length > 0:
+		if self.ocr_result_file_extension and self.result and self.result.TextLength > 0:
 			filename = os.path.splitext(self.source_file)[0] + '.' + self.ocr_result_file_extension
 			# Translators: Label of a save dialog
 			title = _N("Save As")
@@ -574,7 +586,7 @@ class OCRResultDialog(wx.Frame):
 			if current_page != find_pos_info.page:
 				self.speak_page(page=find_pos_info.page,queue=True)
 			self.speak_line(line=find_pos_info.line_in_page,queue=True)
-			page = self.result.pages[find_pos_info.page - 1]
+			page = self.result.Pages[find_pos_info.page - 1]
 			line_end = page['lines'][find_pos_info.line_in_page - 1]['end'] + page['start']
 			line = self.text[pos:line_end]
 			line = line.split()[:min_words]

@@ -178,9 +178,9 @@ class OCR:
 			speech.queue_message(_N("Recognition failed"))
 			if self.on_finish:
 				if self.on_finish_arg is None:
-					self.on_finish(source_file=self.result.source_file, result=result)
+					self.on_finish(source_file=self.result.SourceFile, result=result)
 				else:
-					self.on_finish(source_file=self.result.source_file, result=result, arg=self.on_finish_arg)
+					self.on_finish(source_file=self.result.SourceFile, result=result, arg=self.on_finish_arg)
 			self.clear()
 			return
 		
@@ -192,13 +192,13 @@ class OCR:
 				if self.on_finish:
 					if self.must_abort:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.result.source_file, result=None)
+							self.on_finish(source_file=self.result.SourceFile, result=None)
 						else:
-							self.on_finish(source_file=self.result.source_file, result=None, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.result.SourceFile, result=None, arg=self.on_finish_arg)
 					else:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.result.source_file, result=self.result)
+							self.on_finish(source_file=self.result.SourceFile, result=self.result)
 						else:
-							self.on_finish(source_file=self.result.source_file, result=self.result, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.result.SourceFile, result=self.result, arg=self.on_finish_arg)
 				self.clear()
 			queueHandler.queueFunction(queueHandler.eventQueue, h)
