@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-31
+#Last update 2022-01-13
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import gui
@@ -17,10 +17,14 @@ class SysTrayMenu:
 	def __init__(self):
 		self._tool_menu_root = None
 
-	def create(self, on_updates_check=None):
+	def create(self, on_updates_check=None, on_select_file=None):
 		if not self._tool_menu_root:
 			_menu = wx.Menu()
 			tools_menu = gui.mainFrame.sysTrayIcon.toolsMenu
+			if on_select_file:
+				# Translators: The label of the button to select a file
+				_browse = _menu.Append(wx.ID_ANY, _N("file chooser"))
+				gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, lambda evt: on_select_file(), _browse)
 			# Translators: The label of the button to donate
 			_donate = _menu.Append(wx.ID_ANY, _N("&Donate"), _N("Please Donate"))
 			gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, lambda evt: donate.open(), _donate)
