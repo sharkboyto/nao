@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-09
+#Last update 2022-01-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -114,23 +114,24 @@ class OCRHelper:
 			ocr.recognize_files(source_file, [source_file], on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
 			return True
 		
-		def on_convert_finish(success, converter):
+		def on_convert_finish(success, aborted, converter):
 			if success:
 				ocr.recognize_files(converter.source_file, converter.results, on_start=on_recognize_start, on_finish=on_recognize_finish, on_finish_arg=conv, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
 			else:
 				if progress:
 					progress.Close()
 				self.beeper.stop()
-				def h():
-					gui.mainFrame.prePopup()
-					gui.messageBox(
-						# Translators: Reported when unable to process a file for recognition.
-						_("Error, the file could not be processed"),
-						# Translators: The title of an error message dialog.
-						_N("Error"),
-						wx.OK | wx.ICON_ERROR)
-					gui.mainFrame.postPopup()
-				wx.CallAfter(h)
+				if not aborted:
+					def h():
+						gui.mainFrame.prePopup()
+						gui.messageBox(
+							# Translators: Reported when unable to process a file for recognition.
+							_("Error, the file could not be processed"),
+							# Translators: The title of an error message dialog.
+							_N("Error"),
+							wx.OK | wx.ICON_ERROR)
+						gui.mainFrame.postPopup()
+					wx.CallAfter(h)
 		
 		conv.convert(source_file, on_convert_finish, on_convert_progress, self.progress_timeout)
 		return True

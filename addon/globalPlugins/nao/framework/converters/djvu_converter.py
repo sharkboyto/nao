@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-07
+#Last update 2022-01-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -26,11 +26,11 @@ class DjVuConverter(Converter):
 	def _command(self, type):
 		return "\"{}\" -skip -eachpage -format=tiff -quality=deflate \"{}\" \"{}-%06d.tiff\"".format(self._to_tiff_tool, self.source_file, os.path.join(self.temp_path, self.instance_id))
 
-	def _thread(self):
+	def _thread_proc(self, wait):
 		self._fetch_info()
 		if self._djvu_pages == False:
 			self._failed = True
-		super(DjVuConverter, self)._thread()
+		super(DjVuConverter, self)._thread_proc(wait)
 
 	def _fetch_info(self):
 		# The next two lines are to prevent the cmd from being displayed.

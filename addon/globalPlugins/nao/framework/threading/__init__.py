@@ -1,14 +1,87 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-14
+#Last update 2022-01-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import threading
 
+GLOBAL_HANDLER_PROGRAM_TERMINATE = "program_terminate"
+
+class GlobalHandler():
+	_handlers = {}
+	_handlers_lock = threading.RLock()
+
+	def __init__(self, name, handler=None):
+		import weakref
+		self.global_name = name
+		self.global_handler = None
+		self._self_weak = weakref.ref(self)
+		if handler:
+			self.register(handler)
+
+	def __del__(self):
+		self.unregister()
+
+	def register(self, handler):
+		GlobalHandler._handlers_lock.acquire()
+		self.global_handler = handler
+		if not self.global_name in GlobalHandler._handlers: GlobalHandler._handlers[self.global_name] = set()
+		GlobalHandler._handlers[self.global_name].add(self._self_weak)
+		GlobalHandler._handlers_lock.release()
+
+	def unregister(self):
+		GlobalHandler._handlers_lock.acquire()
+		self.global_handler = None
+		if self.global_name in GlobalHandler._handlers:
+			GlobalHandler._handlers[self.global_name].discard(self._self_weak)
+			if len(GlobalHandler._handlers[self.global_name]) == 0: del GlobalHandler._handlers[self.global_name]
+		GlobalHandler._handlers_lock.release()
+
+	def call_handler(self):
+		if self.global_handler: self.global_handler()
+
+	def call(name, remove_handlers=False):
+		if name:
+			GlobalHandler._handlers_lock.acquire()
+			if name in GlobalHandler._handlers:
+				handlers = GlobalHandler._handlers[name].copy()
+				if remove_handlers:
+					GlobalHandler._handlers[name].clear()
+					del GlobalHandler._handlers[name]
+			else:
+				handlers = None
+			GlobalHandler._handlers_lock.release()
+			if handlers:
+				for h in handlers:
+					h = h()
+					if h: h.call_handler()
+
+class GlobalEvent(threading.Event):
+	def __init__(self, name):
+		super(GlobalEvent, self).__init__()
+		self.global_handler = GlobalHandler(name, handler=self.set)
+
+	def set(self):
+		self.global_handler.unregister()
+		super(GlobalEvent, self).set()
+
+	def clear(self):
+		self.global_handler.register(self.set)
+		super(GlobalEvent, self).clear()
+
+def ProgramTerminateHandler(handler):
+	return GlobalHandler(GLOBAL_HANDLER_PROGRAM_TERMINATE, handler=handler)
+
+def ProgramTerminateEvent():
+	return GlobalEvent(GLOBAL_HANDLER_PROGRAM_TERMINATE)
+
+def ProgramTerminate():
+	GlobalHandler.call(GLOBAL_HANDLER_PROGRAM_TERMINATE, True)
+
 class AsyncResult:
 	def __init__(self):
-		self._terminate_event = threading.Event()
+		self._terminate_event = ProgramTerminateEvent()
 		self._terminated_event = threading.Event()
 		self._value = None
 
@@ -34,11 +107,19 @@ class AsyncWait:
 		self.async_result._terminated_event.set()
 
 class Thread(threading.Thread):
-	def __init__(self):
+	def __init__(self, target=None):
 		self._result = AsyncResult()
 		def h():
-			self.proc(AsyncWait(self._result))
-			self._result._terminated_event.set()
+			wait = AsyncWait(self._result)
+			try:
+				if target:
+					target(wait=wait)
+				else:
+					self.thread_proc(wait=wait)
+			except:
+				raise
+			finally:
+				self._result._terminated_event.set()
 		super(Thread, self).__init__(target=h)
 		self.setDaemon(True)
 
@@ -46,7 +127,7 @@ class Thread(threading.Thread):
 	def AsyncResult(self):
 		return self._result
 
-	def proc(self, wait):
+	def thread_proc(self, wait):
 		pass
 
 	def terminate(self):

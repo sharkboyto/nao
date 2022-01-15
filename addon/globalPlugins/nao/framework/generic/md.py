@@ -85,7 +85,7 @@ class MessageDigest:
 				super(T, self).__init__()
 				self.md = md
 
-			def proc(self, wait):
+			def thread_proc(self, wait):
 				result = {
 					'filename': filename,
 					'status': False,
