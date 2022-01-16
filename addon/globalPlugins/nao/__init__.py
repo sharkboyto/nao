@@ -24,7 +24,7 @@ language.initTranslation()
 
 ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
 UPDATES_URL = "https://nvda-nao.org/updates"
-OCR_RESULT_FILE_EXTENSION = "nao-document"
+OCR_DOCUMENT_FILE_EXTENSION = "nao-document"
 
 def BrowseAndRecognize():
 	gui.mainFrame.prePopup()
@@ -32,7 +32,7 @@ def BrowseAndRecognize():
 	with wx.FileDialog(gui.mainFrame, _N("file chooser"), style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dialog:
 		if file_dialog.ShowModal() != wx.ID_CANCEL:
 			filename = file_dialog.GetPath()
-			OCRHelper(ocr_result_file_extension=OCR_RESULT_FILE_EXTENSION).recognize_file(filename)
+			OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION).recognize_file(filename)
 	gui.mainFrame.postPopup()
 
 class RecognizableFileObject(ScriptableObject):
@@ -51,7 +51,7 @@ class RecognizableFileObject(ScriptableObject):
 		except:
 			filename = None
 		if filename:
-			OCRHelper(ocr_result_file_extension=OCR_RESULT_FILE_EXTENSION).recognize_file(filename)
+			OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION).recognize_file(filename)
 		else:
 			BrowseAndRecognize()
 

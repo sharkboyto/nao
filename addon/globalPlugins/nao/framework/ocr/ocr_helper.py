@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-15
+#Last update 2022-01-16
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -10,10 +10,12 @@ import wx
 from . ocr import OCR, OCRMultipageSourceFile
 from . ocr_service import OCRService
 from . ocr_progress import OCRProgressDialog
-from . ocr_result import OCRResult, OCRResultDialog
+from . ocr_document import OCRDocument
+from . ocr_document_dialog import OCRDocumentDialog
 from .. speech import speech
 from .. import language
-from .. generic.beepThread import BeepThread
+from .. generic.announce import Announce
+from .. generic.md import MessageDigest
 from .. converters.pdf_converter import PDFConverter
 from .. converters.webp_converter import WebpConverter
 from .. converters.djvu_converter import DjVuConverter
@@ -21,14 +23,14 @@ from .. converters.djvu_converter import DjVuConverter
 language.initTranslation()
 
 class OCRHelper:
-	def __init__(self, ocr_result_file_extension=None, pickle=None):
+	def __init__(self, ocr_document_file_extension=None, pickle=None):
 		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp", "djvu"]
-		self.ocr_result_file_extension = ocr_result_file_extension
+		self.ocr_document_file_extension = ocr_document_file_extension
 		self.pickle = pickle
-		self.beeper = BeepThread()
+		self.announce = Announce()
 		self.progress_timeout = 1
-		if ocr_result_file_extension:
-			self.supported_extensions.append(ocr_result_file_extension)
+		if ocr_document_file_extension:
+			self.supported_extensions.append(ocr_document_file_extension)
 
 	def recognize_screenshot():
 		def recognize_start():
@@ -50,17 +52,27 @@ class OCRHelper:
 			speech.message(_("File not supported"))
 			return False
 		
-		if self.ocr_result_file_extension and file_extension == self.ocr_result_file_extension:
-			result = OCRResult(source_file)
-			if result and isinstance(result, OCRResult):
-				OCRResultDialog(result=result, ocr_result_file_extension=self.ocr_result_file_extension, pickle=self.pickle)
+		if self.ocr_document_file_extension and file_extension == self.ocr_document_file_extension:
+			result = OCRDocument()
+			def err():
+				# Translators: Reported when the file format is not supported for recognition.
+				speech.queue_message(_("File not supported"))
+			def h(result):
+				self.announce.stop()
+				if result.Value and result.Value.document:
+					wx.CallAfter(OCRDocumentDialog, result=result.Value.document, ocr_document_file_extension=self.ocr_document_file_extension, pickle=self.pickle)
+				else:
+					err()
+			self.announce.start(use_text=True, first_text_after=0.5)
+			if result.async_load(source_file, on_finish=h):
 				return True
-			# Translators: Reported when the file format is not supported for recognition.
-			speech.message(_("File not supported"))
+			self.announce.stop()
+			err()
 			return False
 		
 		conv = None
 		ocr = OCR()
+		#md = MessageDigest(
 		progress = None
 		use_progress = False
 		on_convert_progress = None
@@ -97,18 +109,18 @@ class OCRHelper:
 		else:
 			# Translators: Reported when the recognition starts.
 			speech.message(_("Process started"))
-			self.beeper.start()
+			self.announce.start()
 			def on_recognize_start(source_file):
 				# Translators: Reporting when recognition (e.g. OCR) begins.
 				speech.queue_message(_N("Recognizing"))
 		
 		def on_recognize_finish(source_file, result, arg=None):
-			self.beeper.stop()
+			self.announce.stop()
 			if progress:
 				progress.Close()
 			if result and not isinstance(result, Exception):
 				speech.cancel()
-				OCRResultDialog(result=result, ocr_result_file_extension=self.ocr_result_file_extension, pickle=self.pickle)
+				OCRDocumentDialog(result=result, ocr_document_file_extension=self.ocr_document_file_extension, pickle=self.pickle)
 		
 		if not conv:
 			ocr.recognize_files(source_file, [source_file], on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
@@ -120,7 +132,7 @@ class OCRHelper:
 			else:
 				if progress:
 					progress.Close()
-				self.beeper.stop()
+				self.announce.stop()
 				if not aborted:
 					def h():
 						gui.mainFrame.prePopup()

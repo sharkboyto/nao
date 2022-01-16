@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-15
+#Last update 2022-01-16
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import threading
@@ -81,6 +81,7 @@ def ProgramTerminate():
 
 class AsyncResult:
 	StatusIdle = 'idle'
+	StatusStarting = 'starting'
 	StatusRunning = 'running'
 	StatusFinished = 'finished'
 	StatusCancelled = 'cancelled'
@@ -89,71 +90,112 @@ class AsyncResult:
 	def __init__(self):
 		self._terminate_event = ProgramTerminateEvent()
 		self._terminated_event = threading.Event()
-		self._value = None
 		self._status = AsyncResult.StatusIdle
+		self._value = None
 		self._exception = None
+		self._lock = threading.RLock()
 
 	def terminate(self):
+		self._lock.acquire()
+		self._status = AsyncResult.StatusCancelled
+		self._lock.release()
 		self._terminate_event.set()
 
 	def wait(self, timeout=None):
 		return self._terminated_event.wait(timeout=timeout)
 
 	@property
-	def Value(self):
-		return self._value
+	def Status(self):
+		self._lock.acquire()
+		ret = self._status
+		self._lock.release()
+		return ret
 
 	@property
-	def Status(self):
-		return self._status
+	def Value(self):
+		self._lock.acquire()
+		ret = self._value
+		self._lock.release()
+		return ret
 
 	@property
 	def Exception(self):
-		return self._exception
+		self._lock.acquire()
+		ret = self._exception
+		self._lock.release()
+		return ret
 
 class AsyncWait:
 	def __init__(self, async_result):
-		self.async_result = async_result
+		self._result = async_result
 
 	def must_terminate(self, timeout=0):
-		return self.async_result._terminate_event.wait(timeout=timeout)
+		return self._result._terminate_event.wait(timeout=timeout)
 
 	def set_value(self, value):
-		self.async_result._value = value
+		self._result._lock.acquire()
+		self._result._value = value
+		self._result._lock.release()
 
-	def set_status(self, status):
-		self.async_result._status = status
-
-	def set_exception(self, exception):
-		self.async_result._exception = exception
-
-	def terminated(self):
-		self.async_result._terminated_event.set()
+	def set_value_dict(self, value, class_name='Value'):
+		if value is not None:
+			from collections import namedtuple
+			self.set_value(namedtuple(class_name, value)(**value))
+		else:
+			self.set_value(None)
 
 class Thread(threading.Thread):
-	def __init__(self, target=None, on_finish=None):
+	def __init__(self, target=None, on_finish=None, name=None):
 		self._result = AsyncResult()
+		wait = AsyncWait(self._result)
 		def h():
-			wait = AsyncWait(self._result)
+			self._result._lock.acquire()
+			self._result._status = AsyncResult.StatusRunning
+			self._result._lock.release()
 			try:
 				if target:
 					target(wait=wait)
 				else:
 					self.thread_proc(wait=wait)
-			except:
+			except Exception as e:
+				self._result._lock.acquire()
+				self._result._exception = e
+				self._result._status = AsyncResult.StatusException
+				self._result._lock.release()
 				raise
 			finally:
-				wait.terminated()
+				self._result._lock.acquire()
+				if self._result._status == AsyncResult.StatusRunning:
+					if self._result._terminate_event.is_set():
+						self._result._status = AsyncResult.StatusCancelled
+					else:
+						self._result._status = AsyncResult.StatusFinished
+				self._result._lock.release()
 				if on_finish: on_finish(result=self._result)
-		super(Thread, self).__init__(target=h)
+				self._result._terminated_event.set()
+		super(Thread, self).__init__(target=h, name=name)
 		self.setDaemon(True)
 
 	@property
-	def AsyncResult(self):
-		return self._result
+	def Status(self):
+		return self._result.Status
 
 	def thread_proc(self, wait):
 		pass
+
+	def start(self):
+		self._result._lock.acquire()
+		if self._result._status == AsyncResult.StatusIdle: self._result._status = AsyncResult.StatusStarting
+		self._result._lock.release()
+		try:
+			super(Thread, self).start()
+		except Exception as e:
+			self._result._lock.acquire()
+			self._result._exception = e
+			self._result._status = AsyncResult.StatusException
+			self._result._lock.release()
+			raise
+		return self._result
 
 	def terminate(self):
 		self._result.terminate()
