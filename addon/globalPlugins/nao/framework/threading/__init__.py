@@ -80,10 +80,18 @@ def ProgramTerminate():
 	GlobalHandler.call(GLOBAL_HANDLER_PROGRAM_TERMINATE, True)
 
 class AsyncResult:
+	StatusIdle = 'idle'
+	StatusRunning = 'running'
+	StatusFinished = 'finished'
+	StatusCancelled = 'cancelled'
+	StatusException = 'exception'
+
 	def __init__(self):
 		self._terminate_event = ProgramTerminateEvent()
 		self._terminated_event = threading.Event()
 		self._value = None
+		self._status = AsyncResult.StatusIdle
+		self._exception = None
 
 	def terminate(self):
 		self._terminate_event.set()
@@ -95,6 +103,14 @@ class AsyncResult:
 	def Value(self):
 		return self._value
 
+	@property
+	def Status(self):
+		return self._status
+
+	@property
+	def Exception(self):
+		return self._exception
+
 class AsyncWait:
 	def __init__(self, async_result):
 		self.async_result = async_result
@@ -102,12 +118,20 @@ class AsyncWait:
 	def must_terminate(self, timeout=0):
 		return self.async_result._terminate_event.wait(timeout=timeout)
 
-	def terminated(self, value):
+	def set_value(self, value):
 		self.async_result._value = value
+
+	def set_status(self, status):
+		self.async_result._status = status
+
+	def set_exception(self, exception):
+		self.async_result._exception = exception
+
+	def terminated(self):
 		self.async_result._terminated_event.set()
 
 class Thread(threading.Thread):
-	def __init__(self, target=None):
+	def __init__(self, target=None, on_finish=None):
 		self._result = AsyncResult()
 		def h():
 			wait = AsyncWait(self._result)
@@ -119,7 +143,8 @@ class Thread(threading.Thread):
 			except:
 				raise
 			finally:
-				self._result._terminated_event.set()
+				wait.terminated()
+				if on_finish: on_finish(result=self._result)
 		super(Thread, self).__init__(target=h)
 		self.setDaemon(True)
 

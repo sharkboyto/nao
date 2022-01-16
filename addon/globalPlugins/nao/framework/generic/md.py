@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-14
+#Last update 2022-01-15
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -80,31 +80,25 @@ class MessageDigest:
 
 	def update_file_async(self, filename, callback=None):
 		from .. threading import Thread
-		class T(Thread):
-			def __init__(self, md):
-				super(T, self).__init__()
-				self.md = md
-
-			def thread_proc(self, wait):
-				result = {
-					'filename': filename,
-					'status': False,
-					'md': self.md
-				}
-				try:
-					with open(filename, 'rb') as f:
+		def thread_proc(wait):
+			result = {
+				'filename': filename,
+				'status': False,
+				'md': self
+			}
+			try:
+				with open(filename, 'rb') as f:
+					b = f.read(32768)
+					while b:
+						self.update_bytes(b)
+						if wait.must_terminate(): break
 						b = f.read(32768)
-						while b:
-							self.md.update_bytes(b)
-							if wait.must_terminate():
-								wait.terminated(value=result)
-								return
-							b = f.read(32768)
-					result['status'] = True
-				except Exception as e:
-					result['status'] = e
-				if callback: callback(result)
-				wait.terminated(value=result)
-		thread = T(self)
+					else:
+						result['status'] = True
+			except Exception as e:
+				result['status'] = e
+			finally:
+				wait.set_value(result)
+		thread = Thread(target=thread_proc, on_finish=callback)
 		thread.start()
 		return thread.AsyncResult
