@@ -29,9 +29,12 @@ class OCRService:
 	def is_uwp_ocr_available():
 		return winVersion.isUwpOcrAvailable()
 
+	def uwp_ocr_config_language():
+		return uwpOcr.getConfigLanguage()
+
 	class QueueItem:
 		def __init__(self, bitmap=None, pixels=None, width=None, height=None, language=None, on_recognize_result=None):
-			if not language: language = uwpOcr.getConfigLanguage()
+			if not language: language = OCRService.uwp_ocr_config_language()
 			if bitmap and (width is None or height is None): width, height = bitmap.Size.Get()
 			self.bitmap = bitmap
 			self.pixels = pixels
@@ -61,15 +64,15 @@ class OCRService:
 		self._pixels_size = [0, 0]
 		self._fake_recog = FakeRecog()
 
-	def push_bitmap(self, bitmap, on_recognize_result):
+	def push_bitmap(self, bitmap, on_recognize_result, language=None):
 		if bitmap and on_recognize_result:
-			self._push(OCRService.QueueItem(bitmap=bitmap, on_recognize_result=on_recognize_result))
+			self._push(OCRService.QueueItem(bitmap=bitmap, language=language, on_recognize_result=on_recognize_result))
 		elif on_recognize_result:
 			on_recognize_result(ValueError("Invalid bitmap"))
 
-	def push_pixels(self, pixels, width, height, on_recognize_result):
+	def push_pixels(self, pixels, width, height, on_recognize_result, language=None):
 		if pixels and on_recognize_result:
-			self._push(OCRService.QueueItem(pixels=pixels, width=width, height=height, on_recognize_result=on_recognize_result))
+			self._push(OCRService.QueueItem(pixels=pixels, width=width, height=height, language=language, on_recognize_result=on_recognize_result))
 
 	def _thread_start(self):
 		if not self._thread:
@@ -105,6 +108,15 @@ class OCRService:
 				return
 			event = ProgramTerminateEvent()
 			def h(result):
+				if not isinstance(result, Exception):
+					from collections import namedtuple
+					result = {
+						'data': result,
+						'language': item.language,
+						'width': item.width,
+						'height': item.height
+					}
+					result = namedtuple('OCRServiceResult', result)(**result)
 				item.on_recognize_result(result)
 				event.set()
 			try:

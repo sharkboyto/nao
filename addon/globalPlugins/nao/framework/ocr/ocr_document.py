@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-16
+#Last update 2022-01-17
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -9,6 +9,7 @@ import numbers
 import addonHandler
 from threading import Lock
 from collections import namedtuple
+from .ocr_source import OCRSource
 from .. threading import Thread
 
 class OCRDocument:
@@ -16,12 +17,11 @@ class OCRDocument:
 		'type': 'ocr_document',
 		'version': 1,
 		'generator': addonHandler.getCodeAddon().manifest["name"] + '-' + addonHandler.getCodeAddon().manifest["version"],
-		'source_file': None,
 		'length': 0,
 		'hash': None,
 	}	
 
-	def __new__(cls, filename=None, validator=None, source_file=None):
+	def __new__(cls, filename=None, validator=None, source=None):
 		ret = super(OCRDocument, cls).__new__(cls)
 		if filename:
 			try:
@@ -31,24 +31,29 @@ class OCRDocument:
 				ret = e
 		return ret
 
-	def __init__(self, filename=None, validator=None, source_file=None):
+	def __init__(self, filename=None, validator=None, source=None):
 		if not filename:
 			self.clear()
-			self.data['source_file'] = source_file
+			self._source = source
 
 	def clear(self):
 		self.data = OCRDocument.default_data.copy()
 		self.data['pages'] = []	#: pages/lines/words data structure
+		self._source = None
 		self._hash_result = None
 		self._hash_lock = Lock()
 		self._text = None
 
 	def append_page(self, result):
-		# result is a LinesWordsResult
-		page = { 'start': self.data['length'] }
+		page = {
+			'start': self.data['length'],
+			'width': result.width,
+			'height': result.height
+		}
 		length = 0
 		lines = []
-		for line_result in result.data:
+		# result.data is a LinesWordsResult
+		for line_result in result.data.data:
 			first_word = True
 			line = { 'start': length }
 			words = []
@@ -205,6 +210,7 @@ class OCRDocument:
 	def to_json(self, extra=None):
 		import json
 		data = extra.copy() if extra else {}
+		if self._source: data['source'] = self._source.dictionary()
 		data.update(self.data)
 		hash = self.Hash
 		if hash:
@@ -223,6 +229,9 @@ class OCRDocument:
 		if not 'pages' in data: return False
 		self.data.update(data)
 		if 'hash' in self.data: del self.data['hash']
+		if 'source' in self.data:
+			self._source = OCRSource.from_dictionary(self.data['source'])
+			del self.data['source']
 		ret = True
 		try:
 			self.Text
@@ -298,8 +307,12 @@ class OCRDocument:
 		return Thread(target=h, on_finish=on_finish, name="OCRDocumentHash").start()
 
 	@property
+	def Source(self):
+		return self._source
+
+	@property
 	def SourceFile(self):
-		return self.data['source_file']
+		return self._source.file if self._source else None
 
 	@property
 	def Json(self):

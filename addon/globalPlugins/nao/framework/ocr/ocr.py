@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-16
+#Last update 2022-01-17
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -13,6 +13,7 @@ from logHandler import log
 from contentRecog import recogUi
 from .ocr_service import OCRService
 from .ocr_document import OCRDocument
+from .ocr_source import UWPOCRSource
 from .. speech import speech
 from .. generic import screen
 from .. import language
@@ -71,6 +72,11 @@ class OCR:
 			on_start()
 		pixels, width, height = screen.take_snapshot_pixels()
 		def h(result):
+			if not isinstance(result, Exception):
+				try:
+					recogUi._recogOnResult(result.data)
+				except Exception as e:
+					result = e
 			if isinstance(result, Exception):
 				# Translators: Reporting when recognition (e.g. OCR) fails.
 				log.error(_N("Recognition failed") + ': ' + str(result))
@@ -80,9 +86,7 @@ class OCR:
 						on_finish(success=False)
 					else:
 						on_finish(success=False, arg=on_finish_arg)
-				return
-			recogUi._recogOnResult(result)
-			if on_finish:
+			elif on_finish:
 				if on_finish_arg is None:
 					on_finish(success=True)
 				else:
@@ -95,6 +99,7 @@ class OCR:
 
 	def clear(self):
 		self.service = None
+		self.language = None
 		self.source_file_list = []
 		self.source_count = 0
 		self.remaining = 0
@@ -120,7 +125,8 @@ class OCR:
 					on_finish(source_file=source_file, result=None, arg=on_finish_arg)
 			return
 		self.clear()
-		self.result = OCRDocument(source_file=source_file)
+		self.language = OCRService.uwp_ocr_config_language()
+		self.result = OCRDocument(source=UWPOCRSource(file=source_file, language=self.language))
 		self.source_file_list = []
 		self.source_count = 0
 		self.on_finish = on_finish
@@ -166,11 +172,16 @@ class OCR:
 			if bitmap:
 				if not self.service:
 					self.service = OCRService()
-				self.service.push_bitmap(bitmap, self._on_recognize_result)
+				self.service.push_bitmap(bitmap, self._on_recognize_result, language=self.language)
 				return True
 		return False
 
 	def _on_recognize_result(self, result):
+		if not isinstance(result, Exception):
+			try:
+				self.result.append_page(result)
+			except Exception as e:
+				result = e
 		# This might get called from a background thread, so any UI calls must be queued to the main thread.
 		if isinstance(result, Exception):
 			# Translators: Reporting when recognition (e.g. OCR) fails.
@@ -184,7 +195,6 @@ class OCR:
 			self.clear()
 			return
 		
-		self.result.append_page(result)
 		self.remaining = self.remaining - 1
 		if not self._recognize_next_page():
 			# No more pages
