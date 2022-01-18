@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-22
+#Last update 2022-01-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import gui
@@ -23,6 +23,7 @@ class OCRProgressDialog(wx.Dialog):
 		self._last_percent_value = 0
 		self._last_speech = 0
 		self._title = title
+		self._on_cancel = on_cancel
 		
 		super(OCRProgressDialog, self).__init__(gui.mainFrame, wx.ID_ANY, title)
 		
@@ -47,14 +48,15 @@ class OCRProgressDialog(wx.Dialog):
 			self._value_text = None
 			self._beep_timer.Stop()
 			self.Destroy()
-			if on_cancel:
-				on_cancel()
+			if self._on_cancel:
+				self._on_cancel()
+				self._on_cancel = None
 		
 		def on_cancel_button_key_down(evt):
 			key = evt.GetKeyCode()
 			if key == wx.WXK_RETURN or key == wx.WXK_NUMPAD_ENTER:
 				# ENTER
-				self.Close()
+				super(OCRProgressDialog, self).Close()
 			evt.skip()
 		
 		def on_activate(evt):
@@ -65,12 +67,12 @@ class OCRProgressDialog(wx.Dialog):
 			self.on_activate(not evt.IsIconized())
 			evt.Skip()
 		
-		if on_cancel:
+		if self._on_cancel:
 			# Translators: A cancel button on a message dialog.
 			button_cancel = wx.Button(self, label=_N("Cancel"), id=wx.ID_CLOSE)
 			mainSizer.Add(button_cancel, border=200, flag=wx.EXPAND | wx.LEFT | wx.RIGHT)
 			mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
-			button_cancel.Bind(wx.EVT_BUTTON, lambda evt: self.Close())
+			button_cancel.Bind(wx.EVT_BUTTON, lambda evt: super(OCRProgressDialog, self).Close())
 			self.Bind(wx.EVT_KEY_DOWN, on_cancel_button_key_down)
 			def on_focus(evt):
 				# keep focus on cancel button
@@ -89,8 +91,12 @@ class OCRProgressDialog(wx.Dialog):
 		
 		window.bring_wx_to_top(self)
 		
-		if on_cancel:
+		if self._on_cancel:
 			button_cancel.SetFocus()
+
+	def Close(self):
+		self._on_cancel = None
+		super(OCRProgressDialog, self).Close()
 
 	@property
 	def is_active(self):

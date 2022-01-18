@@ -114,7 +114,7 @@ class OCR:
 	def abort(self):
 		self.must_abort = True
 
-	def recognize_files(self, source_file, source_file_list, on_start=None, on_finish=None, on_finish_arg=None, on_progress=None, progress_timeout=0):
+	def recognize_files(self, source_file, source_file_list, file_hash_async_result=None, on_start=None, on_finish=None, on_finish_arg=None, on_progress=None, progress_timeout=0):
 		if not OCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.queue_message(_N("Windows OCR not available"))
@@ -126,7 +126,7 @@ class OCR:
 			return
 		self.clear()
 		self.language = OCRService.uwp_ocr_config_language()
-		self.document_composer = OCRDocumentComposer(source=UWPOCRSource(file=source_file, language=self.language))
+		self.document_composer = OCRDocumentComposer(source=UWPOCRSource(file=source_file, language=self.language, file_hash_async_result=file_hash_async_result))
 		self.source_file_list = []
 		self.source_count = 0
 		self.on_finish = on_finish

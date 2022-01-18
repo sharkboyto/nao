@@ -31,15 +31,26 @@ class OCRDocument:
 		return ret
 
 	def __init__(self, filename=None, validator=None):
+		self._clear_lock = Lock()
 		if not filename: self.clear()
 
+	def close(self):
+		if self._clear_lock.acquire(blocking=False):
+			if self._source:
+				self._source.clear()
+			if self._hash_result:
+				self._hash_result.terminate()
+				self._hash_result.wait()
+			self._clear_lock.release()
+			self.clear()
+
 	def clear(self):
+		self._source = None
+		self._hash_lock = Lock()
+		self._hash_result = None
+		self._text = None
 		self.data = OCRDocument.default_data.copy()
 		self.data['pages'] = []	#: pages/lines/words data structure
-		self._source = None
-		self._hash_result = None
-		self._hash_lock = Lock()
-		self._text = None
 
 	def page_at_position(self, pos):
 		ret = 0
@@ -98,6 +109,8 @@ class OCRDocument:
 					'status': False
 				}
 				try:
+					if os.path.isfile(filename):
+						os.remove(filename)
 					json = self.to_json(extra)
 					json_gz = None
 					if compress:
@@ -122,6 +135,8 @@ class OCRDocument:
 					raise
 				finally:
 					wait.set_value_dict(result)
+					self._clear_lock.release()
+			self._clear_lock.acquire()
 			return Thread(target=h, on_finish=on_finish, name="OCRDocumentSave").start()
 		return False
 

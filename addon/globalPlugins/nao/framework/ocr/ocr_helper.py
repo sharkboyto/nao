@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-16
+#Last update 2022-01-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -39,7 +39,7 @@ class OCRHelper:
 		OCR.recognize_screenshot(on_start=recognize_start)
 
 	def recognize_file(self, source_file):
-		if not source_file:
+		if not source_file or not os.path.isfile(source_file):
 			return False
 		if not OCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
@@ -63,7 +63,7 @@ class OCRHelper:
 					wx.CallAfter(OCRDocumentDialog, result=result.Value.document, ocr_document_file_extension=self.ocr_document_file_extension, pickle=self.pickle)
 				else:
 					err()
-			self.announce.start(use_text=True, first_text_after=0.5)
+			self.announce.start(use_text=True, first_text_after=0.1)
 			if result.async_load(source_file, on_finish=h):
 				return True
 			self.announce.stop()
@@ -72,7 +72,6 @@ class OCRHelper:
 		
 		conv = None
 		ocr = OCR()
-		#md = MessageDigest(
 		progress = None
 		use_progress = False
 		on_convert_progress = None
@@ -89,11 +88,14 @@ class OCRHelper:
 		elif OCRMultipageSourceFile.is_multipage_extension(file_extension):
 			use_progress = True
 		
+		source_file_async_hash = MessageDigest('sha256').update_file_async(source_file)
+		
 		if use_progress:
 			def on_cancel():
 				if conv:
 					conv.abort()
 				ocr.abort()
+				source_file_async_hash.terminate()
 			# Translators: Reporting when recognition (e.g. OCR) begins.
 			progress = OCRProgressDialog(title=_N("Recognizing") + ' ' + os.path.basename(source_file), on_cancel=on_cancel)
 			if conv:
@@ -123,12 +125,12 @@ class OCRHelper:
 				OCRDocumentDialog(result=result, ocr_document_file_extension=self.ocr_document_file_extension, pickle=self.pickle)
 		
 		if not conv:
-			ocr.recognize_files(source_file, [source_file], on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
+			ocr.recognize_files(source_file, [source_file], file_hash_async_result=source_file_async_hash, on_start=on_recognize_start, on_finish=on_recognize_finish, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
 			return True
 		
 		def on_convert_finish(success, aborted, converter):
 			if success:
-				ocr.recognize_files(converter.source_file, converter.results, on_start=on_recognize_start, on_finish=on_recognize_finish, on_finish_arg=conv, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
+				ocr.recognize_files(converter.source_file, converter.results, file_hash_async_result=source_file_async_hash, on_start=on_recognize_start, on_finish=on_recognize_finish, on_finish_arg=conv, on_progress=on_recognize_progress, progress_timeout=self.progress_timeout)
 			else:
 				if progress:
 					progress.Close()
