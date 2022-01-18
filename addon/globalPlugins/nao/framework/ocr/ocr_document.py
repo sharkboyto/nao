@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-17
+#Last update 2022-01-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -14,14 +14,13 @@ from .. threading import Thread
 
 class OCRDocument:
 	default_data = {
-		'type': 'ocr_document',
+		'type': 'text_document',
 		'version': 1,
 		'generator': addonHandler.getCodeAddon().manifest["name"] + '-' + addonHandler.getCodeAddon().manifest["version"],
-		'length': 0,
-		'hash': None,
+		'length': 0
 	}	
 
-	def __new__(cls, filename=None, validator=None, source=None):
+	def __new__(cls, filename=None, validator=None):
 		ret = super(OCRDocument, cls).__new__(cls)
 		if filename:
 			try:
@@ -31,10 +30,8 @@ class OCRDocument:
 				ret = e
 		return ret
 
-	def __init__(self, filename=None, validator=None, source=None):
-		if not filename:
-			self.clear()
-			self._source = source
+	def __init__(self, filename=None, validator=None):
+		if not filename: self.clear()
 
 	def clear(self):
 		self.data = OCRDocument.default_data.copy()
@@ -43,41 +40,6 @@ class OCRDocument:
 		self._hash_result = None
 		self._hash_lock = Lock()
 		self._text = None
-
-	def append_page(self, result):
-		page = {
-			'start': self.data['length'],
-			'width': result.width,
-			'height': result.height
-		}
-		length = 0
-		lines = []
-		# result.data is a LinesWordsResult
-		for line_result in result.data.data:
-			first_word = True
-			line = { 'start': length }
-			words = []
-			for word in line_result:
-				if first_word:
-					first_word = False
-				else:
-					# Separate with a space.
-					length += 1
-				word['offset'] = length
-				words.append(word)
-				length += len(word["text"])
-			# End with new line.
-			length += 1
-			line['end'] = length
-			line['words'] = words
-			lines.append(line)
-		if length == 0:
-			# Empty page, end with new line.
-			length = 1
-		self.data['length'] += length
-		page['end'] = self.data['length']
-		page['lines'] = lines
-		self.Pages.append(page)
 
 	def page_at_position(self, pos):
 		ret = 0
@@ -213,10 +175,7 @@ class OCRDocument:
 		if self._source: data['source'] = self._source.dictionary()
 		data.update(self.data)
 		hash = self.Hash
-		if hash:
-			data['hash'] = hash.hex()
-		elif 'hash' in data:
-			del data['hash']
+		if hash: data['hash'] = hash.hex()
 		return json.dumps(data)
 
 	def from_json(self, json, validator=None):
@@ -239,12 +198,7 @@ class OCRDocument:
 			ret = False
 			self.clear()
 			raise
-		if ret:
-			self._hash_lock.acquire()
-			def h(result):
-				self._hash_result = result
-				self._hash_lock.release()
-			self.async_hash(h)
+		if ret: self.async_hash()
 		return ret
 
 	def get_page(self, page):
@@ -288,23 +242,48 @@ class OCRDocument:
 				text += "\n"
 		return text
 
-	def async_hash(self, on_finish=None):
+	def async_hash(self, use_lock=True):
+		if use_lock: self._hash_lock.acquire()
 		def h(wait):
 			from .. generic.md import MessageDigest
 			md = MessageDigest('sha256')
 			if md:
+				md.update_string(self.data['type'])
+				md.update_long(self.data['version'])
+				if self._source: self._source.hash(md)
 				md.update_long(self.PagesCount, self.TextLength)
 				for page in self.Pages:
 					if wait.must_terminate(): break
-					md.update_long(page['start'], page['end'], len(page['lines']))
-					for line in page['lines']:
-						md.update_long(line['start'], line['end'], len(line['words']))
-						for word in line['words']:
-							md.update_long(word['x'], word['y'], word['width'], word['height'], word['offset'])
-							md.update_string(word['text'])
+					md.update_long(
+						page['start'] if 'start' in page else 0,
+						page['end'] if 'end' in page else 0,
+						page['width'] if 'width' in page else 0,
+						page['height'] if 'height' in page else 0,
+						len(page['lines']) if 'lines' in page else 0
+					)
+					if 'lines' in page:
+						for line in page['lines']:
+							md.update_long(
+								line['start'] if 'start' in line else 0,
+								line['end'] if 'end' in line else 0,
+								len(line['words']) if 'words' in line else 0
+							)
+							if 'words' in line:
+								for word in line['words']:
+									md.update_long(
+										word['x'] if 'x' in word else 0,
+										word['y'] if 'y' in word else 0,
+										word['width'] if 'width' in word else 0,
+										word['height'] if 'height' in word else 0,
+										word['offset'] if 'offset' in word else 0
+									)
+									md.update_string(word['text'] if 'text' in word else None)
 				else:
 					wait.set_value(md.digest())
-		return Thread(target=h, on_finish=on_finish, name="OCRDocumentHash").start()
+		def fh(result):
+			if use_lock: self._hash_lock.release()
+		self._hash_result = Thread(target=h, on_finish=fh, name="OCRDocumentHash").start()
+		return self._hash_result
 
 	@property
 	def Source(self):
@@ -349,8 +328,54 @@ class OCRDocument:
 	def Hash(self):
 		self._hash_lock.acquire()
 		if self._hash_result is None:
-			self._hash_result = self.async_hash()
-			self._hash_result.wait()
+			self.async_hash(use_lock=False).wait()
 		ret = self._hash_result.Value
 		self._hash_lock.release()
 		return ret
+
+class OCRDocumentComposer:
+	def __init__(self, source):
+		self._doc = OCRDocument()
+		self._doc._source = source
+
+	@property
+	def Document(self):
+		return self._doc
+
+	def append_page(self, result):
+		page = {
+			'start': self._doc.data['length'],
+			'width': result.width,
+			'height': result.height
+		}
+		length = 0
+		lines = []
+		# result.data is a LinesWordsResult
+		for line_result in result.data.data:
+			first_word = True
+			line = { 'start': length }
+			words = []
+			for word in line_result:
+				if first_word:
+					first_word = False
+				else:
+					# Separate with a space.
+					length += 1
+				word['offset'] = length
+				words.append(word)
+				length += len(word["text"])
+			# End with new line.
+			length += 1
+			line['end'] = length
+			line['words'] = words
+			lines.append(line)
+		if length == 0:
+			# Empty page, end with new line.
+			length = 1
+		self._doc.data['length'] += length
+		page['end'] = self._doc.data['length']
+		page['lines'] = lines
+		self._doc.Pages.append(page)
+
+	def end(self):
+		self._doc.async_hash()

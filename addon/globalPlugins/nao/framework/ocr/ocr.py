@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-17
+#Last update 2022-01-18
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -12,7 +12,7 @@ import queueHandler
 from logHandler import log
 from contentRecog import recogUi
 from .ocr_service import OCRService
-from .ocr_document import OCRDocument
+from .ocr_document import OCRDocumentComposer
 from .ocr_source import UWPOCRSource
 from .. speech import speech
 from .. generic import screen
@@ -103,7 +103,7 @@ class OCR:
 		self.source_file_list = []
 		self.source_count = 0
 		self.remaining = 0
-		self.result = None
+		self.document_composer = None
 		self.on_finish = None
 		self.on_finish_arg = None
 		self.on_progress = None
@@ -126,7 +126,7 @@ class OCR:
 			return
 		self.clear()
 		self.language = OCRService.uwp_ocr_config_language()
-		self.result = OCRDocument(source=UWPOCRSource(file=source_file, language=self.language))
+		self.document_composer = OCRDocumentComposer(source=UWPOCRSource(file=source_file, language=self.language))
 		self.source_file_list = []
 		self.source_count = 0
 		self.on_finish = on_finish
@@ -179,7 +179,7 @@ class OCR:
 	def _on_recognize_result(self, result):
 		if not isinstance(result, Exception):
 			try:
-				self.result.append_page(result)
+				self.document_composer.append_page(result)
 			except Exception as e:
 				result = e
 		# This might get called from a background thread, so any UI calls must be queued to the main thread.
@@ -189,9 +189,9 @@ class OCR:
 			speech.queue_message(_N("Recognition failed"))
 			if self.on_finish:
 				if self.on_finish_arg is None:
-					self.on_finish(source_file=self.result.SourceFile, result=result)
+					self.on_finish(source_file=self.document_composer.Document.SourceFile, result=result)
 				else:
-					self.on_finish(source_file=self.result.SourceFile, result=result, arg=self.on_finish_arg)
+					self.on_finish(source_file=self.document_composer.Document.SourceFile, result=result, arg=self.on_finish_arg)
 			self.clear()
 			return
 		
@@ -202,13 +202,14 @@ class OCR:
 				if self.on_finish:
 					if self.must_abort:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.result.SourceFile, result=None)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=None)
 						else:
-							self.on_finish(source_file=self.result.SourceFile, result=None, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=None, arg=self.on_finish_arg)
 					else:
+						self.document_composer.end()
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.result.SourceFile, result=self.result)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=self.document_composer.Document)
 						else:
-							self.on_finish(source_file=self.result.SourceFile, result=self.result, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=self.document_composer.Document, arg=self.on_finish_arg)
 				self.clear()
 			queueHandler.queueFunction(queueHandler.eventQueue, h)
