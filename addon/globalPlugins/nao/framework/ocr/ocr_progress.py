@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-18
+#Last update 2022-01-26
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import gui
@@ -31,20 +31,18 @@ class OCRProgressDialog(wx.Dialog):
 		
 		mainSizer = wx.BoxSizer(wx.VERTICAL)
 		
-		self._gauge = None #wx.Gauge(self)
-		
 		self._value_text = wx.StaticText(self, style=wx.ALIGN_CENTRE_HORIZONTAL)
 		self._value_text.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.NORMAL, wx.BOLD))
 		
-		#mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
-		#mainSizer.Add(self._gauge, border=20, flag=wx.EXPAND | wx.LEFT | wx.RIGHT)
 		mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
 		mainSizer.Add(self._value_text, border=200, flag=wx.EXPAND | wx.LEFT | wx.RIGHT)
 		mainSizer.AddSpacer(gui.guiHelper.SPACE_BETWEEN_VERTICAL_DIALOG_ITEMS)
 		
+		# Translators: Indicate to the user to wait.
+		self._value_text.SetLabel(_N("Please wait"))
+		
 		def on_close(evt):
 			self._active = False
-			self._gauge = None
 			self._value_text = None
 			self._beep_timer.Stop()
 			self.Destroy()
@@ -125,11 +123,6 @@ class OCRProgressDialog(wx.Dialog):
 		else:
 			# Translators: Spoken to indicate progress of a processing that is the number of processed items of a total of items to be processed.
 			self._last_string_value = _N("{number} of {total}").format(number=current, total=total)
-		if self._gauge:
-			def h():
-				self._gauge.SetRange(total)
-				self._gauge.SetValue(current)
-			queueHandler.queueFunction(queueHandler.eventQueue, h)
 		self._on_tick()
 
 	def _on_tick(self):

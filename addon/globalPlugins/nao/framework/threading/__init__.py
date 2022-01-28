@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-18
+#Last update 2022-01-25
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import threading
@@ -60,15 +60,27 @@ class GlobalHandler():
 class GlobalEvent(threading.Event):
 	def __init__(self, name):
 		super(GlobalEvent, self).__init__()
-		self.global_handler = GlobalHandler(name, handler=self.set)
+		self.global_event = threading.Event()
+		self.global_handler = GlobalHandler(name, handler=self.global_set)
 
-	def set(self):
+	def global_set(self):
 		self.global_handler.unregister()
-		super(GlobalEvent, self).set()
+		self.global_event.set()
+		self.set()
 
-	def clear(self):
-		self.global_handler.register(self.set)
+	def global_clear(self):
+		self.global_event.clear()
 		super(GlobalEvent, self).clear()
+		self.global_handler.register(self.set)
+
+	def is_set(self):
+		return super(GlobalEvent, self).is_set() or self.is_global_set()
+
+	def is_global_set(self):
+		return self.global_event.is_set()
+
+	def global_wait(timeout=None):
+		return self.global_event.wait(timeout=timeout)
 
 def ProgramTerminateHandler(handler):
 	return GlobalHandler(GLOBAL_HANDLER_PROGRAM_TERMINATE, handler=handler)
@@ -203,3 +215,37 @@ class Thread(threading.Thread):
 
 	def wait(self, timeout=None):
 		return self._result.wait(timeout=timeout)
+
+def AsyncCall(function, *args, async_call_params=None, **kwargs):
+	if function:
+		name = 'AsyncCall'
+		try:
+			name += '<' + function.__qualname__ + '>'
+		except:
+			pass
+		on_finish = None
+		provide_wait = False
+		after = 0
+		if async_call_params:
+			if 'name' in async_call_params: name = async_call_params['name']
+			if 'on_finish' in async_call_params: on_finish = async_call_params['on_finish']
+			if 'after' in async_call_params: after = async_call_params['after']
+		if not 'async_wait' in kwargs:
+			try:
+				import inspect
+				signature = inspect.signature(function)
+				if signature and 'async_wait' in signature.parameters:
+					provide_wait = list(signature.parameters.keys())[0] == 'async_wait'
+					if not provide_wait: raise NameError("name 'async_wait' must be the first parameter")
+			except NameError:
+				raise
+			except:
+				pass
+		def h(wait):
+			if after <= 0 or not wait.must_terminate(after):
+				if provide_wait:
+					function(wait, *args, **kwargs)
+				else:
+					wait.set_value(function(*args, **kwargs))
+		return Thread(target=h, name=name, on_finish=on_finish).start()
+	return None

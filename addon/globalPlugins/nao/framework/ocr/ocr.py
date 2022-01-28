@@ -1,21 +1,19 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-18
+#Last update 2022-01-26
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
 import wx
+import gui
 import time
-import os
 import queueHandler
-from logHandler import log
 from contentRecog import recogUi
-from .ocr_service import OCRService
-from .ocr_document import OCRDocumentComposer
-from .ocr_source import UWPOCRSource
+from .uwp_ocr_service import UwpOCRService
 from .. speech import speech
 from .. generic import screen
+from .. storage import storage_utils
 from .. import language
 
 language.initTranslation()
@@ -24,10 +22,10 @@ class OCRMultipageSourceFile:
 	MULTIPAGE_FORMATS = ["gif", "tif", "tiff"]
 
 	def is_multipage_format(filename):
-		return OCRMultipageSourceFile.is_multipage_extension(OCR.get_file_extension(filename))
+		return OCRMultipageSourceFile.is_multipage_extension(storage_utils.file_extension(filename))
 
 	def is_multipage_extension(file_extension):
-		return file_extension and (file_extension in OCRMultipageSourceFile.MULTIPAGE_FORMATS)
+		return file_extension and (file_extension.lower() in OCRMultipageSourceFile.MULTIPAGE_FORMATS)
 
 	def __new__(cls, filename):
 		if OCRMultipageSourceFile.is_multipage_format(filename):
@@ -47,20 +45,13 @@ class OCRMultipageSourceFile:
 		return None
 
 class OCR:
-	def get_file_extension(filename):
-		if not filename: return None
-		file_extension = os.path.splitext(filename)[1].lower()
-		if file_extension and file_extension.startswith('.'):
-			file_extension = file_extension[1:]
-		return file_extension
-
 	def recognize_screenshot(on_start=None, on_finish=None, on_finish_arg=None):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
 			speech.message(_N("Already in a content recognition result"))
 			return False
-		if not OCRService.is_uwp_ocr_available():
+		if not UwpOCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
 			speech.message(_N("Windows OCR not available"))
 			return False
@@ -79,8 +70,9 @@ class OCR:
 					result = e
 			if isinstance(result, Exception):
 				# Translators: Reporting when recognition (e.g. OCR) fails.
-				log.error(_N("Recognition failed") + ': ' + str(result))
-				speech.queue_message(_N("Recognition failed"))
+				message = _N("Recognition failed")
+				# Translators: The title of an error message dialog.
+				wx.CallAfter(gui.messageBox, message + ': ' + str(result), _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
 				if on_finish:
 					if on_finish_arg is None:
 						on_finish(success=False)
@@ -91,7 +83,7 @@ class OCR:
 					on_finish(success=True)
 				else:
 					on_finish(success=True, arg=on_finish_arg)
-		OCRService().push_pixels(pixels, width, height, h)
+		UwpOCRService().push_pixels(pixels, width, height, h)
 		return True
 
 	def __init__(self):
@@ -114,19 +106,21 @@ class OCR:
 	def abort(self):
 		self.must_abort = True
 
-	def recognize_files(self, source_file, source_file_list, file_hash_async_result=None, on_start=None, on_finish=None, on_finish_arg=None, on_progress=None, progress_timeout=0):
-		if not OCRService.is_uwp_ocr_available():
+	def recognize_files(self, source_file, source_file_list, document_composer, language=None, on_start=None, on_finish=None, on_finish_arg=None, on_progress=None, progress_timeout=0):
+		if not UwpOCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
-			speech.queue_message(_N("Windows OCR not available"))
+			message = _N("Windows OCR not available")
+			# Translators: The title of an error message dialog.
+			wx.CallAfter(gui.messageBox, message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
 			if on_finish:
 				if on_finish_arg is None:
-					on_finish(source_file=source_file, result=None)
+					on_finish(source_file=source_file, document=None)
 				else:
-					on_finish(source_file=source_file, result=None, arg=on_finish_arg)
+					on_finish(source_file=source_file, document=None, arg=on_finish_arg)
 			return
 		self.clear()
-		self.language = OCRService.uwp_ocr_config_language()
-		self.document_composer = OCRDocumentComposer(source=UWPOCRSource(file=source_file, language=self.language, file_hash_async_result=file_hash_async_result))
+		self.language = language
+		self.document_composer = document_composer
 		self.source_file_list = []
 		self.source_count = 0
 		self.on_finish = on_finish
@@ -148,9 +142,9 @@ class OCR:
 		if not self._recognize_next_page():
 			if on_finish:
 				if on_finish_arg is None:
-					on_finish(source_file=source_file, result=None)
+					on_finish(source_file=source_file, document=None)
 				else:
-					on_finish(source_file=source_file, result=None, arg=on_finish_arg)
+					on_finish(source_file=source_file, document=None, arg=on_finish_arg)
 			self.clear()
 
 	def _recognize_next_page(self):
@@ -171,7 +165,7 @@ class OCR:
 				self.source_file_list.pop(0)
 			if bitmap:
 				if not self.service:
-					self.service = OCRService()
+					self.service = UwpOCRService()
 				self.service.push_bitmap(bitmap, self._on_recognize_result, language=self.language)
 				return True
 		return False
@@ -185,13 +179,14 @@ class OCR:
 		# This might get called from a background thread, so any UI calls must be queued to the main thread.
 		if isinstance(result, Exception):
 			# Translators: Reporting when recognition (e.g. OCR) fails.
-			log.error(_N("Recognition failed") + ': ' + str(result))
-			speech.queue_message(_N("Recognition failed"))
+			message = _N("Recognition failed")
+			# Translators: The title of an error message dialog.
+			wx.CallAfter(gui.messageBox, message + ': ' + str(result), _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
 			if self.on_finish:
 				if self.on_finish_arg is None:
-					self.on_finish(source_file=self.document_composer.Document.SourceFile, result=result)
+					self.on_finish(source_file=self.document_composer.Document.SourceFile, document=result)
 				else:
-					self.on_finish(source_file=self.document_composer.Document.SourceFile, result=result, arg=self.on_finish_arg)
+					self.on_finish(source_file=self.document_composer.Document.SourceFile, document=result, arg=self.on_finish_arg)
 			self.clear()
 			return
 		
@@ -202,14 +197,14 @@ class OCR:
 				if self.on_finish:
 					if self.must_abort:
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=None)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, document=None)
 						else:
-							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=None, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, document=None, arg=self.on_finish_arg)
 					else:
 						self.document_composer.end()
 						if self.on_finish_arg is None:
-							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=self.document_composer.Document)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, document=self.document_composer.Document)
 						else:
-							self.on_finish(source_file=self.document_composer.Document.SourceFile, result=self.document_composer.Document, arg=self.on_finish_arg)
+							self.on_finish(source_file=self.document_composer.Document.SourceFile, document=self.document_composer.Document, arg=self.on_finish_arg)
 				self.clear()
 			queueHandler.queueFunction(queueHandler.eventQueue, h)

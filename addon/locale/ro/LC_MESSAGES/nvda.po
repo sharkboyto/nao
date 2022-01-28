@@ -9,17 +9,17 @@ msgstr ""
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2021-12-23 17:10+0100\n"
 "PO-Revision-Date: 2022-01-27 19:30+0100\n"
-"Last-Translator: Simone Dal Maso <simone.dalmaso@gmail.com>\n"
-"Language-Team: NVDA community <simone.dalmaso@gmail.com>\n"
-"Language: it\n"
+"Last-Translator: Florian Ionașcu <florianionascu@hotmail.com>\n"
+"Language-Team: The NVDA Romanian community <florianionascu@hotmail.com>\n"
+"Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #. Translators: The text of the donate dialog
-#: addon\installTasks.py:31 addon\globalPlugins\nao\donate.py:31
+#: addon\installTasks.py:30 addon\globalPlugins\nao\donate.py:31
 #, python-brace-format
 msgid ""
 "{name} - free add-on for NVDA.\n"
@@ -28,26 +28,26 @@ msgid ""
 "Do you want to make a donation now? For transaction you will be redirected "
 "to the website of the developer."
 msgstr ""
-"{name} - add-on gratuito per NVDA.\n"
-"Puoi fare una donazione al nostro team per aiutare ulteriori sviluppi di questo "
-"add-on.\n"
-"Vuoi fare una donazione adesso? Verrai rediretto "
-"sul sito web dello sviluppatore."
+"{name} - supliment gratuit pentru NVDA.\n"
+"Puteți face o donație echipei noastre pentru a ajuta mai mult dezvoltarea "
+"acestuia.\n"
+"Doriți să o faceți acum? Veți fi redirecționat pe site-ul dezvoltatorului "
+"pentru această tranzacție."
 
 #. Translators: Message presented in input help mode.
 #: addon\globalPlugins\nao\__init__.py:41
 msgid "Recognizes the content of the selected image or PDF file"
-msgstr "Riconosce il contenuto dell'immagine o del PDF selezionato"
+msgstr "Extrage textul dintr-o imagine sau dintr-un fișier PDF selectat"
 
 #. Translators: Message presented in input help mode.
 #: addon\globalPlugins\nao\__init__.py:80
 msgid "Take a full screen shot and recognize it"
-msgstr "Acquisisce e riconosce uno screen shot"
+msgstr "Realizează o captură de ecran și extrage textul din ea"
 
 #. Translators: The label of a menu item to clear the cache
 #: addon\globalPlugins\nao\systray_menu.py:43
 msgid "Clear cache"
-msgstr "Svuota cache"
+msgstr "Goliți memoria cache"
 
 #. Translators: The title of the update dialog
 #: addon\globalPlugins\nao\framework\generic\updates.py:27
@@ -55,46 +55,46 @@ msgstr "Svuota cache"
 #: addon\globalPlugins\nao\framework\generic\updates.py:383
 #, python-brace-format
 msgid "{name} Update"
-msgstr "Aggiornamenti {name}"
+msgstr "O actualizare la suplimentul {name}"
 
 #. Translators: The message of the update dialog
 #: addon\globalPlugins\nao\framework\generic\updates.py:34
 msgid "is available"
-msgstr "è disponibile"
+msgstr "este disponibilă"
 
 #. Translators: The message of the update dialog
 #: addon\globalPlugins\nao\framework\generic\updates.py:36
 msgid "Do you want to download and install it?"
-msgstr "Vuoi scaricarlo e installarlo?"
+msgstr "Doriți să o descărcați și să instalați?"
 
 #. Translators: The title of the dialog used to move to a different page
 #: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:21
 msgid "Move to"
-msgstr "Vai a"
+msgstr "Mută la"
 
 #. Translators: Dialog text presented when NVDA cannot save a document file.
 #: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:338
 #: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:345
 #, python-format
 msgid "Error saving file: %s"
-msgstr "Errore nel salvataggio del file %s"
+msgstr "Eroare la salvarea fișierului %s"
 
 #. Translators: Reported when unable to process a file for recognition.
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:70
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:268
 msgid "Error, the file could not be processed"
-msgstr "Errore, non è stato possibile elaborare il file"
+msgstr "Eroare, fișierul nu a putut fi procesat"
 
 #. Translators: Reported when the file format is not supported for recognition.
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:95
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:133
 msgid "File not supported"
-msgstr "File non supportato"
+msgstr "Fișier nesuportat"
 
 #. Translators: Reported when the recognition starts.
 #: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:213
 msgid "Process started"
-msgstr "Processo avviato"
+msgstr "Proces inițiat"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
@@ -110,8 +110,8 @@ msgid ""
 "Nao (NVDA Advanced OCR) is an addon that improves the standard OCR "
 "capabilities that NVDA provides on modern Windows versions."
 msgstr ""
-"Nao (NVDA Advanced OCR) è un addon che migliora le capacità di OCR "
-"standard fornite da NVDA nelle versioni moderne di Windows."
+"Nao (NVDA Advanced OCR) este un supliment care îmbunătățește abilitățile "
+"standard ale OCR cu care NVDA vine la pachet pe versiunile moderne de Windows."
 
 #~ msgid "Internal conversion error"
-#~ msgstr "Errore di conversione interno"
+#~ msgstr "Eroare de conversie internă"

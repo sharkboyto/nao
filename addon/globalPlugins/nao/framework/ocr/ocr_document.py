@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-18
+#Last update 2022-01-28
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -10,7 +10,7 @@ import addonHandler
 from threading import Lock
 from collections import namedtuple
 from .ocr_source import OCRSource
-from .. threading import Thread
+from .. threading import Thread, AsyncCall
 
 class OCRDocument:
 	default_data = {
@@ -51,6 +51,7 @@ class OCRDocument:
 		self._text = None
 		self.data = OCRDocument.default_data.copy()
 		self.data['pages'] = []	#: pages/lines/words data structure
+		self.metadata = None
 
 	def page_at_position(self, pos):
 		ret = 0
@@ -92,8 +93,8 @@ class OCRDocument:
 			return self.Pages[page - 1]['start'], self.Pages[page - 1]['end']
 		return 0
 
-	def save(self, filename, extra=None, compress=True):
-		res = self.async_save(filename, extra=extra, compress=compress)
+	def save(self, filename, compress=True):
+		res = self.async_save(filename, compress=compress)
 		if res:
 			res.wait()
 			if res.Exception:
@@ -101,7 +102,7 @@ class OCRDocument:
 			return res.Value.status
 		return False
 
-	def async_save(self, filename, on_finish=None, extra=None, compress=True):
+	def async_save(self, filename, on_finish=None, compress=True):
 		if filename:
 			def h(wait):
 				result = {
@@ -111,7 +112,7 @@ class OCRDocument:
 				try:
 					if os.path.isfile(filename):
 						os.remove(filename)
-					json = self.to_json(extra)
+					json = self.to_json()
 					json_gz = None
 					if compress:
 						try:
@@ -184,13 +185,32 @@ class OCRDocument:
 			return Thread(target=h, on_finish=on_finish, name="OCRDocumentLoad").start()
 		return False
 
-	def to_json(self, extra=None):
+	def async_save_to_cache(self, file_cache, on_finish=None, compress=True, cache_metadata=None):
+		if self.Source:
+			if not cache_metadata: cache_metadata = {}
+			def h():
+				key = self.Source.Hash
+				if key:
+					cache_metadata.update({
+						'document_source': self.Source.dictionary()
+					})
+					from tempfile import TemporaryDirectory
+					from .. storage.file_cache import FileCache
+					with TemporaryDirectory() as tmp:
+						tmp = os.path.join(tmp, key)
+						self.save(tmp, compress=compress)
+						file_cache.add(FileCache.Source(tmp, key=key, metadata=cache_metadata)).wait()
+			return AsyncCall(h, async_call_params={'on_finish': on_finish})
+		return None
+
+	def to_json(self):
 		import json
-		data = extra.copy() if extra else {}
+		data = {}
+		if self.metadata: data['metadata'] = self.metadata
 		if self._source: data['source'] = self._source.dictionary()
 		data.update(self.data)
 		hash = self.Hash
-		if hash: data['hash'] = hash.hex()
+		if hash: data['hash'] = hash
 		return json.dumps(data)
 
 	def from_json(self, json, validator=None):
@@ -206,6 +226,9 @@ class OCRDocument:
 		if 'source' in self.data:
 			self._source = OCRSource.from_dictionary(self.data['source'])
 			del self.data['source']
+		if 'metadata' in self.data:
+			self.metadata = self.data['metadata']
+			del self.data['metadata']
 		ret = True
 		try:
 			self.Text
@@ -263,9 +286,9 @@ class OCRDocument:
 			from .. generic.md import MessageDigest
 			md = MessageDigest('sha256')
 			if md:
-				md.update_string(self.data['type'])
+				md.update_string(self.data['type'], self.data['generator'] if 'generator' in self.data else None)
 				md.update_long(self.data['version'])
-				if self._source: self._source.hash(md)
+				if self._source: self._source.hash_update(md)
 				md.update_long(self.PagesCount, self.TextLength)
 				for page in self.Pages:
 					if wait.must_terminate(): break
@@ -294,7 +317,7 @@ class OCRDocument:
 									)
 									md.update_string(word['text'] if 'text' in word else None)
 				else:
-					wait.set_value(md.digest())
+					wait.set_value(md.digest().hex())
 		def fh(result):
 			if use_lock: self._hash_lock.release()
 		self._hash_result = Thread(target=h, on_finish=fh, name="OCRDocumentHash").start()
@@ -306,7 +329,7 @@ class OCRDocument:
 
 	@property
 	def SourceFile(self):
-		return self._source.file if self._source else None
+		return self._source.original_file if self._source else None
 
 	@property
 	def Json(self):
@@ -349,8 +372,16 @@ class OCRDocument:
 		return ret
 
 class OCRDocumentComposer:
-	def __init__(self, source):
+	def __init__(self, source=None):
 		self._doc = OCRDocument()
+		if source: self.Source = source
+
+	@property
+	def Source(self):
+		return self._doc.Source
+
+	@Source.setter
+	def Source(self, source):
 		self._doc._source = source
 
 	@property

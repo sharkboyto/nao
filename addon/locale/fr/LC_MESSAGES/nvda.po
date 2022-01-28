@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the 'nao' package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 'nao' '2022.1.1'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-12-22 14:27+0100\n"
-"PO-Revision-Date: 2022-01-04 13:43+0100\n"
+"PO-Revision-Date: 2022-01-27 19:30+0100\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,58 +35,66 @@ msgstr ""
 "redirigé vers le site Web du développeur."
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:31
+#: addon\globalPlugins\nao\__init__.py:41
 msgid "Recognizes the content of the selected image or PDF file"
 msgstr "Reconnaît le contenu de l'image ou du fichier PDF sélectionné"
 
 #. Translators: Message presented in input help mode.
-#: addon\globalPlugins\nao\__init__.py:60
+#: addon\globalPlugins\nao\__init__.py:80
 msgid "Take a full screen shot and recognize it"
 msgstr "Prend une capture de tout l'écran et en fait la reconnaissance"
 
+#. Translators: The label of a menu item to clear the cache
+#: addon\globalPlugins\nao\systray_menu.py:43
+msgid "Clear cache"
+msgstr "Vider le cache"
+
 #. Translators: The title of the update dialog
-#: addon\globalPlugins\nao\framework\generic\updates.py:37
-#: addon\globalPlugins\nao\framework\generic\updates.py:356
-#: addon\globalPlugins\nao\framework\generic\updates.py:369
+#: addon\globalPlugins\nao\framework\generic\updates.py:27
+#: addon\globalPlugins\nao\framework\generic\updates.py:370
+#: addon\globalPlugins\nao\framework\generic\updates.py:383
 #, python-brace-format
 msgid "{name} Update"
 msgstr "Mise à jour de {name}"
 
 #. Translators: The message of the update dialog
-#: addon\globalPlugins\nao\framework\generic\updates.py:44
+#: addon\globalPlugins\nao\framework\generic\updates.py:34
 msgid "is available"
 msgstr "est disponible"
 
 #. Translators: The message of the update dialog
-#: addon\globalPlugins\nao\framework\generic\updates.py:46
+#: addon\globalPlugins\nao\framework\generic\updates.py:36
 msgid "Do you want to download and install it?"
 msgstr "Voulez-vous la télécharger et l'installer?"
 
+#. Translators: The title of the dialog used to move to a different page
+#: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:21
+msgid "Move to"
+msgstr "Aller à"
+
+#. Translators: Dialog text presented when NVDA cannot save a document file.
+#: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:338
+#: addon\globalPlugins\nao\framework\ocr\ocr_document_dialog.py:345
+#, python-format
+msgid "Error saving file: %s"
+msgstr "Erreur lors de l'enregistrement du fichier: %s"
+
+#. Translators: Reported when unable to process a file for recognition.
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:70
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:268
+msgid "Error, the file could not be processed"
+msgstr "Erreur, le fichier n'a pas pu être traité"
+
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:44
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:95
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:133
 msgid "File not supported"
 msgstr "Fichier non pris en charge"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:84
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:213
 msgid "Process started"
 msgstr "Processus démarré"
-
-#. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:110
-msgid "Error, the file could not be processed"
-msgstr "Erreur, le fichier n'a pas pu être traité"
-
-#. Translators: The title of the dialog used to move to a different page
-#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:292
-msgid "Move to"
-msgstr "Aller à"
-
-#. Translators: Dialog text presented when NVDA cannot save a result file.
-#: addon\globalPlugins\nao\framework\ocr\ocr_result.py:176
-#, python-format
-msgid "Error saving file: %s"
-msgstr "Erreur lors de l'enregistrement du fichier: %s"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on
