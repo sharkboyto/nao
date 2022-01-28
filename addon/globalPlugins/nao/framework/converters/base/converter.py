@@ -1,34 +1,35 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-07
+#Last update 2022-01-25
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
-import threading
-import subprocess
-import time
 
 class Converter:
-	def __init__(self, temp_sub_path, clear_on_destruct=True):
+	def __init__(self, temp_sub_path):
+		import time
 		self._instance_id = str(round(time.time() * 1000))
-		self._clear_on_destruct = clear_on_destruct
-
 		self._addon_path = os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
-		self._temp_path = os.path.join(self._addon_path, temp_sub_path)
-		
+		self._tmp_directory = None
+		self._temp_sub_path = temp_sub_path
+		self._temp_path = os.path.join(self._addon_path, self._temp_sub_path)
 		self._source_file = None
 		self._on_finish = None
 		self._on_progress = None
 		self._progress_timeout = 1
+		self._thread = None
 
 	def __del__(self):
-		if self._clear_on_destruct:
-			self.clear()
+		self.clear()
 
 	@property
 	def instance_id(self):
 		return self._instance_id
+
+	@property
+	def version(self):
+		return None
 
 	@property
 	def source_file(self):
@@ -53,7 +54,9 @@ class Converter:
 		return ret
 
 	def clear(self):
-		if os.path.isdir(self._temp_path):
+		if self._tmp_directory:
+			self._tmp_directory = None
+		elif os.path.isdir(self._temp_path):
 			for f in self.results:
 				try:
 					os.remove(f)
@@ -77,62 +80,85 @@ class Converter:
 				pass
 
 	def abort(self):
-		self._thread = None
+		if self._thread:
+			self._thread.terminate()
+			self._thread = None
 
-	def _convert(self, source_file, type, on_finish=None, on_progress=None, progress_timeout=1):
+	def _convert(self, source_file, file_type, on_finish=None, on_progress=None, progress_timeout=1):
+		from ... threading import Thread
 		self._failed = False
+		self._aborted = False
 		self._source_file = source_file
-		self._type = type
+		self._type = file_type
 		self._on_finish = on_finish
 		self._on_progress = on_progress
 		self._progress_timeout = progress_timeout
-		self._thread = threading.Thread(target = self._thread)
-		self._thread.setDaemon(True)
+		self._thread = Thread(target=self._thread_proc, name=type(self).__name__)
 		self._thread.start()
 
-	def _thread(self):
+	def _thread_proc(self, wait):
 		self.clear()
-		if not self._failed:
-			if not os.path.isdir(self._temp_path):
-				os.mkdir(self._temp_path)
+		process = None
+		if not self._failed and not self._aborted:
+			if not self._tmp_directory:
+				try:
+					from tempfile import TemporaryDirectory
+					self._tmp_directory = TemporaryDirectory()
+					self._temp_path = self._tmp_directory.name
+				except:
+					self._tmp_directory = None
+					self._temp_path = os.path.join(self._addon_path, self._temp_sub_path)
+				
+				if not self._tmp_directory:
+					if not os.path.isdir(self._temp_path):
+						os.mkdir(self._temp_path)
 			
 			if self._on_progress:
 				self._on_progress(self, 0, self.count)
 			
-			# The next two lines are to prevent the cmd from being displayed.
-			si = subprocess.STARTUPINFO()
-			si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			
-			try:
-				p = subprocess.Popen(self._command(self._type), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, startupinfo=si)
-			except:
-				p = None
-				self._failed = True
-			
-			if p:
-				while self._thread:
-					try:
-						p.wait(timeout=self._progress_timeout)
-						break
-					except subprocess.TimeoutExpired:
-						if self._thread and self._on_progress:
-							self._on_progress(self, len(self.results), self.count)
+			if wait.must_terminate():
+				self._aborted = True
+			else:
+				import subprocess
+				# The next two lines are to prevent the cmd from being displayed.
+				si = subprocess.STARTUPINFO()
+				si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 				
-				if self._thread:
-					if self._on_progress:
-						self._on_progress(self, len(self.results), self.count)
-					if self._on_finish:
-						self._on_finish(success=(p.returncode == 0), converter=self)
-				else:
-					p.kill()
+				try:
+					process = subprocess.Popen(self._command(self._type), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, startupinfo=si)
+				except:
+					process = None
+					self._failed = True
+				
+				if process:
+					while not wait.must_terminate():
+						try:
+							process.wait(timeout=self._progress_timeout)
+							break
+						except subprocess.TimeoutExpired:
+							if not wait.must_terminate() and self._on_progress:
+								self._on_progress(self, len(self.results), self.count)
+					
+					if not wait.must_terminate():
+						if self._on_progress:
+							self._on_progress(self, len(self.results), self.count)
+						if self._on_finish:
+							self._on_finish(success=(process.returncode == 0), aborted=False, converter=self)
+					else:
+						self._aborted = True
+						process.kill()
+						process.wait(timeout=5)
+						#def h():
+						#	process.wait(timeout=5)
+						#	self.clear()
+						#from ... threading import AsyncCall
+						#AsyncCall(h)
 		
-		if self._failed:
-			if self._on_finish:
-				self._on_finish(success=False, converter=self)
+		if (self._failed or self._aborted) and self._on_finish:
+			self._on_finish(success=False, aborted=self._aborted, converter=self)
 		self._type = None
 		self._on_finish = None
 		self._on_progress = None
-		if not self._thread:
+		if self._failed or self._aborted or wait.must_terminate():
 			self.clear()
-		else:
-			self._thread = None
+		self._thread = None

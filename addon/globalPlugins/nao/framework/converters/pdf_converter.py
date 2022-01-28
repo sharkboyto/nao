@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-07
+#Last update 2022-01-25
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -9,15 +9,19 @@ import subprocess
 from .base.converter import Converter
 
 class PDFConverter(Converter):
-	def __init__(self, clear_on_destruct=True):
-		super(PDFConverter, self).__init__("tmp_pdf", clear_on_destruct)
+	def __init__(self):
+		super(PDFConverter, self).__init__("tmp_pdf")
 		self._to_png_tool = os.path.join(self._addon_path, "tools", "pdftopng.exe")
 		self._info_tool = os.path.join(self._addon_path, "tools", "pdfinfo.exe")
 		self._pdf_pages = False
 
 	def convert(self, pdf_file, on_finish=None, on_progress=None, progress_timeout=1):
 		self._pdf_pages = False
-		self._convert(pdf_file, "png", on_finish, on_progress, progress_timeout)
+		self._convert(pdf_file, "png", on_finish=on_finish, on_progress=on_progress, progress_timeout=progress_timeout)
+
+	@property
+	def version(self):
+		return "pdftopng 4.03"
 
 	@property
 	def count(self):
@@ -26,11 +30,11 @@ class PDFConverter(Converter):
 	def _command(self, type):
 		return "\"{}\" \"{}\" \"{}\"".format(self._to_png_tool, self.source_file, os.path.join(self.temp_path, self.instance_id))
 
-	def _thread(self):
+	def _thread_proc(self, wait):
 		self._fetch_info()
 		if self._pdf_pages == False:
 			self._failed = True
-		super(PDFConverter, self)._thread()
+		super(PDFConverter, self)._thread_proc(wait)
 
 	def _fetch_info(self):
 		# The next two lines are to prevent the cmd from being displayed.
