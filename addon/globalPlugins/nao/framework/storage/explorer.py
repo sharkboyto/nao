@@ -75,7 +75,7 @@ def get_selected_file_explorer(obj=None):
 		if desktop:
 			desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
 			file_path = desktop_path + '\\' + api.getDesktopObject().objectWithFocus().name
-			if not os.path.isfile(file_path) and not os.path.isdir(file_path): file_path = False
+			#if not os.path.isfile(file_path) and not os.path.isdir(file_path): file_path = False
 	return file_path
 
 def get_selected_file_total_commander(obj=None):
