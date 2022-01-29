@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-13
+#Last update 2022-01-29
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -75,7 +75,7 @@ def get_selected_file_explorer(obj=None):
 		if desktop:
 			desktop_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
 			file_path = desktop_path + '\\' + api.getDesktopObject().objectWithFocus().name
-			if not os.path.isfile(file_path): file_path = False
+			if not os.path.isfile(file_path) and not os.path.isdir(file_path): file_path = False
 	return file_path
 
 def get_selected_file_total_commander(obj=None):

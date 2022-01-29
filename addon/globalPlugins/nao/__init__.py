@@ -1,13 +1,11 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-28
+#Last update 2022-01-29
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import globalPluginHandler
 import addonHandler
-import wx
-import gui
 from scriptHandler import script
 from baseObject import ScriptableObject
 
@@ -24,13 +22,15 @@ UPDATES_URL = "https://nvda-nao.org/updates"
 OCR_DOCUMENT_FILE_EXTENSION = "nao-document"
 
 def BrowseAndRecognize():
-	gui.mainFrame.prePopup()
-	# Translators: The title of a select file dialog
-	with wx.FileDialog(gui.mainFrame, _N("file chooser"), style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dialog:
-		if file_dialog.ShowModal() != wx.ID_CANCEL:
-			filename = file_dialog.GetPath()
-			OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
-	gui.mainFrame.postPopup()
+	import gui
+	import wx
+	def h():
+		# Translators: The title of a select file dialog
+		with wx.FileDialog(gui.mainFrame, _N("file chooser"), style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as file_dialog:
+			if file_dialog.ShowModal() != wx.ID_CANCEL:
+				filename = file_dialog.GetPath()
+				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
+	wx.CallAfter(h)
 
 class RecognizableFileObject(ScriptableObject):
 	# Allow the bound gestures to be edited through the Input Gestures dialog (see L{gui.prePopup})
