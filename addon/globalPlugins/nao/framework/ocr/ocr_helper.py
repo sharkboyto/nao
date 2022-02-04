@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-28
+#Last update 2022-02-04
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
@@ -54,10 +54,11 @@ class OCRHelper:
 		OCRHelper._log("Recognizing screenshot")
 		OCR.recognize_screenshot(on_start=recognize_start)
 
-	def __init__(self, ocr_document_file_extension=None, ocr_document_file_cache=None):
+	def __init__(self, ocr_document_file_extension=None, ocr_document_file_cache=None, speak_errors=True):
 		self.supported_extensions = ["pdf", "bmp", "pnm", "pbm", "pgm", "png", "jpg", "jp2", "gif", "tif", "jfif", "jpeg", "tiff", "spix", "webp", "djvu"]
 		self.ocr_document_file_extension = ocr_document_file_extension
 		self.ocr_document_file_cache = ocr_document_file_cache
+		self.speak_errors = speak_errors
 		if ocr_document_file_extension: self.supported_extensions.append(ocr_document_file_extension.lower())
 
 	def recognize_file(self, source_file):
@@ -67,7 +68,8 @@ class OCRHelper:
 		from .. generic.announce import Announce
 		
 		def cant_process(source_file):
-			speech.queue_message(_("Error, the file could not be processed"))
+			# Translators: Reported when unable to process a file for recognition.
+			OCRHelper._error_message_box(_("Error, the file could not be processed"), False)
 			if source_file:
 				OCRHelper._log("Unable to process file %s", source_file)
 			else:
@@ -92,13 +94,13 @@ class OCRHelper:
 			file_extension = storage_utils.file_extension(source_file, to_lower=True)
 			if not file_extension or not (file_extension in self.supported_extensions):
 				# Translators: Reported when the file format is not supported for recognition.
-				speech.message(_("File not supported"))
+				OCRHelper._error_message_box(_("File not supported"), self.speak_errors)
 				OCRHelper._log("File not supported %s", original_source_file)
 				return False
 		
 		if not UwpOCRService.is_uwp_ocr_available():
 			# Translators: Reported when Windows OCR is not available.
-			speech.message(_N("Windows OCR not available"))
+			OCRHelper._error_message_box(_N("Windows OCR not available"), self.speak_errors)
 			OCRHelper._log("Windows OCR not available")
 			return False
 		
@@ -130,7 +132,7 @@ class OCRHelper:
 			announce = Announce()
 			def err():
 				# Translators: Reported when the file format is not supported for recognition.
-				speech.queue_message(_("File not supported"))
+				OCRHelper._error_message_box(_("File not supported"), self.speak_errors)
 				OCRHelper._log("File not supported %s", original_source_file)
 			def h(result):
 				announce.stop()
@@ -260,17 +262,8 @@ class OCRHelper:
 						OCRHelper._log("Conversion of %s aborted", self.original_source_file)
 					else:
 						OCRHelper._log("Error during conversion of %s", self.original_source_file)
-						def h():
-							import gui
-							gui.mainFrame.prePopup()
-							gui.messageBox(
-								# Translators: Reported when unable to process a file for recognition.
-								_("Error, the file could not be processed"),
-								# Translators: The title of an error message dialog.
-								_N("Error"),
-								wx.OK | wx.ICON_ERROR)
-							gui.mainFrame.postPopup()
-						wx.CallAfter(h)
+						# Translators: Reported when unable to process a file for recognition.
+						OCRHelper._error_message_box(_("Error, the file could not be processed"), False)
 
 			def on_recognize_start(self, source_file):
 				if not self.use_progress:
@@ -344,3 +337,19 @@ class OCRHelper:
 		ctrl = Control(source_file=source_file, original_source_file=original_source_file, compressed_folder=compressed_folder, ocr_document_file_extension=self.ocr_document_file_extension, ocr_document_file_cache=self.ocr_document_file_cache)
 		ctrl.convert_and_recognize()
 		return True
+
+	def _error_message_box(msg, speak_errors):
+		if msg:
+			if speak_errors:
+				speech.queue_message(msg)
+			else:
+				def h():
+					import gui
+					gui.mainFrame.prePopup()
+					gui.messageBox(
+						msg,
+						# Translators: The title of an error message dialog.
+						OCRHelper.LOG_NAME + ' - ' + _N("Error"),
+						wx.OK | wx.ICON_ERROR)
+					gui.mainFrame.postPopup()
+				wx.CallAfter(h)
