@@ -19,11 +19,14 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
 ## Features and commands
 * NVDA + Shift + R: recognize any sorts of images and pdf from file system;
   * PgUp / PgDown: move the cursor between real pages of a multipages document.
+  * Ctrl + S: save the document in nao-document format. You can open it again with NVDA + Shift + R.
   * P: report page number related to the cursor position, in a multipage document.
-  * l: report line number related to the cursor position, in a multipage document.
-  * c: copy all text to the clipboard.
-  * s: Save a copy of the document in text format.
-  * f: find text and read some words before and after the string.
+  * L: report line number at the cursor position, related to the current page.
+  * Shift + L: report line number at the cursor position, related to the whole document.
+  * G: go directly on a certain page.
+  * C: copy all text to the clipboard.
+  * S: save a copy of the document in text format.
+  * F: find text and read some words before and after the string.
 * NVDA + Shift + Ctrl + R: take a full screen shot and recognize it.
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
 
@@ -41,6 +44,20 @@ If you think our work is good and improve your life, a <a href="https://nvda-nao
 Do you want to report a bug, suggest new features, translate the addon in your language? We have the email for you! Just write to support@nvda-nao.org and we will be happy to help you.
 
 ## History
+### 2022.1.2
+* nao-document file format save and load capability.
+* A documents cache can store the recognitions to speedup next time opening. If a file is found in the cache it is not recognized again but the cached version is opened instead (recognitions parameters must match).
+* Store the last reading position of a document in the cache metadata.
+* Auto purge for documents cache.
+* Manual cache clear in tools menu.
+* A file can be now recognized directly from a windows explorer "compressed folder".
+* Better invalid files check.
+* Better Windows Explorer compatibility using different file selection alternatives: first try with Shell.Application in NVDA, then try Shell.Application in PowerShell then fallback to manual browse.
+* OCR engine keeps the language setting during the whole recognition process even if it is changed during a multi-page recognition.
+* OCR queue to recognize from multiple sources.
+* Hotkey PgDown at the last page of a document goes to the end of the document reporting the line number.
+* Windows temporary folder is used for file converters tools instead the plugin folder (better performance on NVDA portable).
+* Romanian translation and update of the simplified chinese translation.
 ### 2022.1.1
 * Support for DjVu file format.
 * Support for multipage tiff files.

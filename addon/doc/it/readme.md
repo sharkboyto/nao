@@ -19,13 +19,16 @@ Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager 
 ## Funzionalità e comandi
 * NVDA + Shift + R: riconosce qualsiasi tipo di immagine e pdf dal file system;
   * PgUp / PgDown: sposta il cursore tra le pagine reali di un documento multipagina.
-  * p: legge il numero di pagina relativo alla posizione del cursore, in un documento multipagina.
-  * l: legge il numero di riga relativo alla posizione del cursore, in un documento multipagina.
-  * c: copia l'intero documento negli appunti.
-  * s: Salva una copia del documento in formato testo.
-  * f: trova il testo e legge alcune parole prima e dopo la stringa.
+  * Ctrl + S: salva il documento in formato nao-document. Puoi aprirlo di nuovo con NVDA + Shift + R.
+  * P: legge il numero di pagina relativo alla posizione del cursore, in un documento multipagina.
+  * L: legge il numero di riga alla posizione del cursore, relativo alla pagina corrente.
+  * Shift + L: legge il numero di riga alla posizione del cursore, relativo all'intero documento.
+  * G: va direttamente su una pagina specifica.
+  * C: copia l'intero documento negli appunti.
+  * S: Salva una copia del documento in formato testo.
+  * F: trova il testo e legge alcune parole prima e dopo la stringa.
 * NVDA + Shift + Ctrl + R: Effettua lo screenshot dell'intera videata e la riconosce.
-* Si tenga presente che è possibile utilizzare i comandi standard di NVDA per esplorare la finestra e portare il focus su un elemento. Ad esempio ci si può spostare con i tasti freccia e premere invio in un pulsante per attivarlo. Inoltre si può anche portare il mouse in quella posizione premendo la combinazione NVDA+barra del tastierino numerico e quindi fare clic con i tasti sinistro/destro.
+  * Si tenga presente che è possibile utilizzare i comandi standard di NVDA per esplorare la finestra e portare il focus su un elemento. Ad esempio ci si può spostare con i tasti freccia e premere invio in un pulsante per attivarlo. Inoltre si può anche portare il mouse in quella posizione premendo la combinazione NVDA+barra del tastierino numerico e quindi fare clic con i tasti sinistro/destro.
 
 Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione. La cosa importante da tenere a mente è che questi gesti non sono globali; essi appariranno soltanto se ci si trova in un ambiente in cui Nao può funzionare: desktop, Esplora file, Total Commander o Xplorer.
 
@@ -41,6 +44,20 @@ Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
+### 2022.1.2
+* Salvataggio e caricamento di file formato nao-document.
+* Una cache documenti conserva i riconoscimenti per velocizzarne l'apertura successivamente. Se un file viene trovato in cache non viene rieseguito il riconoscimento ma viene aperta la copia in cache (i parametri di riconoscimento devono essere uguali).
+* Memorizza l'ultima posizione di lettura di un documento nei metadati della cache.
+* Pulizia automatica della cache documenti.
+* Cancellazione manuale della cache dal menù strumenti.
+* Un file può essere adesso riconosciuto direttamente da una "cartella compressa" di esplora risorse.
+* Migliore verifica di eventuali file invalidi.
+* Migliorata compatibilità con esplora risorse utilizzando diverse alternative per la selezione del file: prova prima con Shell.Application in NVDA, quindi prova con Shell.Application in PowerShell ed infine visualizza una finestra di dialog di selezione file.
+* Il motore OCR mantiene l'impostazione della lingua durante l'intero processo di riconoscimento anche se viene cambiata durante un riconoscimento multi pagina.
+* Coda OCR per riconoscimento da sorgenti multiple.
+* La hotkey PgDown nell'ultima pagina di un documento salta alla fine del documento comunicando il numero di linea.
+* Utilizzo della cartella temporanea di Windows invece della cartella del plugin per gli strumenti di conversione file (miglioramento di prestazioni su NVDA portable).
+* Traduzione in lingua rumena e aggiornamento della traduzione del cinese semplificato.
 ### 2022.1.1
 * Supporto file formato DjVu.
 * Supporto file tiff multipagina.

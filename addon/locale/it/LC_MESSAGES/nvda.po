@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2022.1.1'\n"
+"Project-Id-Version: 'nao' '2022.1.2'\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2021-12-23 17:10+0100\n"
-"PO-Revision-Date: 2022-01-27 19:30+0100\n"
+"PO-Revision-Date: 2022-02-20 11:00+0100\n"
 "Last-Translator: Simone Dal Maso <simone.dalmaso@gmail.com>\n"
 "Language-Team: NVDA community <simone.dalmaso@gmail.com>\n"
 "Language: it\n"
@@ -80,19 +80,19 @@ msgid "Error saving file: %s"
 msgstr "Errore nel salvataggio del file %s"
 
 #. Translators: Reported when unable to process a file for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:70
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:268
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:72
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:266
 msgid "Error, the file could not be processed"
 msgstr "Errore, non è stato possibile elaborare il file"
 
 #. Translators: Reported when the file format is not supported for recognition.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:95
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:133
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:97
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:135
 msgid "File not supported"
 msgstr "File non supportato"
 
 #. Translators: Reported when the recognition starts.
-#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:213
+#: addon\globalPlugins\nao\framework\ocr\ocr_helper.py:215
 msgid "Process started"
 msgstr "Processo avviato"
 
