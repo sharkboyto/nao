@@ -1,26 +1,16 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-31
+#Last update 2022-01-27
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
-import json
 import threading
-import weakref
 import time
 import os
 import wx
 import gui
-import winsound
-import globalVars
-import tempfile
 import stat
 import addonHandler
-import queueHandler
-from gui import addonGui
-
-from . import version
-from . import window
 from .http import json_post
 from .. import language
 
@@ -74,7 +64,10 @@ class UpdatesConfirmDialog(wx.Dialog):
 		self.Center(wx.BOTH|wx.Center)
 
 	def Ask(on_accept, on_cancel, version='', title=None, message=None):
+		import queueHandler
 		def h():
+			import winsound
+			from . import window
 			gui.mainFrame.prePopup()
 			dialog = UpdatesConfirmDialog(gui.mainFrame, on_accept, on_cancel, version=version, title=title, message=message)
 			winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
@@ -109,6 +102,15 @@ class UpdatesCheckAndDownloadStatus:
 	def Installed(self):
 		return self._installed
 
+PICKLE_UPDATES_DEFAULT_ROOT_NAME = "updates"
+
+def pickle_updates_default_data():
+	return {
+		"last_check": 0,
+		"last_status": UpdatesCheckAndDownloadStatus.FAIL,
+		"since": time.time()
+	}
+
 class Updates:
 	_instances = {}
 	_instances_lock = threading.Lock()
@@ -129,6 +131,7 @@ class Updates:
 	def __init__(self, url):
 		Updates._instances_lock.acquire()
 		if url not in Updates._instances or Updates._instances[url]() is None:
+			import weakref
 			Updates._instances[url] = weakref.ref(self)
 			self._request_data = None
 			self._url = url
@@ -136,21 +139,23 @@ class Updates:
 			self._progressDialog = None
 		Updates._instances_lock.release()
 
-	def _get_request_data(self, pickle):
+	def _get_request_data(self, pickle, pickle_updates_root_name):
 		if not self._request_data:
+			from . import version
 			self._request_data = version.composed_version()
 			self._request_data["addon"]["update_version"] = 1
 			if pickle:
-				self._request_data["addon"]["since"] = pickle.cdata["updates"]["since"]
+				self._request_data["addon"]["since"] = pickle.cdata[pickle_updates_root_name]["since"]
 		return self._request_data
 
-	def check(self, cb, pickle=None):
+	def check(self, cb, pickle=None, pickle_updates_root_name=PICKLE_UPDATES_DEFAULT_ROOT_NAME):
 		def _check_proc():
-			cb_data = self._get_request_data(pickle)
+			cb_data = self._get_request_data(pickle, pickle_updates_root_name)
 			response = json_post(self._url, cb_data)
 			status = UpdatesCheckAndDownloadStatus.FAIL
 			if response:
 				try:
+					import json
 					response = json.load(response)
 					if response and "status" in response:
 						status = response["status"]
@@ -161,8 +166,8 @@ class Updates:
 					status = UpdatesCheckAndDownloadStatus.FAIL
 			if pickle:
 				data = pickle.start_write()
-				data["updates"]["last_check"] = time.time()
-				data["updates"]["last_status"] = status
+				data[pickle_updates_root_name]["last_check"] = time.time()
+				data[pickle_updates_root_name]["last_status"] = status
 				pickle.commit_write()
 			self._thread = None
 			if cb: wx.CallAfter(cb, self, status, cb_data)
@@ -214,6 +219,7 @@ class Updates:
 						last_version = data["update"]["last_version"]
 					
 					def do_update():
+						import tempfile
 						self._progressDialog = gui.IndeterminateProgressDialog(gui.mainFrame,
 							# Translators: The title of the dialog displayed while downloading an update.
 							_N("Downloading Update"),
@@ -289,6 +295,7 @@ class Updates:
 			if cb: cb(updates, UpdatesCheckAndDownloadStatus(status=UpdatesCheckAndDownloadStatus.BUSY))
 
 	def install(self, addonPath, cb=None):
+		from gui import addonGui
 		def h():
 			ret = addonGui.installAddon(gui.mainFrame, addonPath)
 			if cb: cb(ret)
@@ -297,16 +304,22 @@ class Updates:
 		wx.CallLater(100, h)
 
 class AutoUpdates:
-	def __init__(self, url, pickle):
+	def __init__(self, url, pickle, pickle_updates_root_name=PICKLE_UPDATES_DEFAULT_ROOT_NAME):
+		from .. threading import ProgramTerminateHandler
 		self._url = url
 		self._pickle = pickle
+		self._pickle_updates_root_name = pickle_updates_root_name
 		self._timer = wx.PyTimer(self._check_remaining_time)
 		wx.CallAfter(self._timer.Start, 10000, True)
+		self._terminate_handler = ProgramTerminateHandler(self.terminate)
 
 	def __del__(self):
 		self.terminate()
 
 	def terminate(self):
+		if self._terminate_handler:
+			self._terminate_handler.unregister()
+			self._terminate_handler = None
 		if self._timer and self._timer.IsRunning():
 			self._timer.Stop()
 		self._timer = None
@@ -314,6 +327,7 @@ class AutoUpdates:
 		self._pickle = None
 
 	def _check_remaining_time(self):
+		import globalVars
 		if self._timer and self._timer.IsRunning():
 			self._timer.Stop()
 			self._timer = None
@@ -321,7 +335,7 @@ class AutoUpdates:
 			self._timer = wx.PyTimer(self._check_remaining_time)
 			wx.CallAfter(self._timer.Start, 10000, True)
 		else:
-			data = self._pickle.cdata["updates"]
+			data = self._pickle.cdata[self._pickle_updates_root_name]
 			secsSinceLast = max(time.time() - data["last_check"], 0)
 			if data["last_status"] == UpdatesCheckAndDownloadStatus.OK or data["last_status"] == UpdatesCheckAndDownloadStatus.UPGRADE:
 				secsTillNext = CHECK_INTERVAL - int(min(secsSinceLast, CHECK_INTERVAL))

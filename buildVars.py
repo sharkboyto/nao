@@ -25,7 +25,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description": _("""Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions."""),
 	# version
-	"addon_version": "2022.1.1",
+	"addon_version": "2022.1.2",
 	# Author(s)
 	"addon_author": "Alessandro Albano<ale.albano1980@gmail.com>, Davide De Carne<davide.dec@gmail.com> and Simone Dal Maso<simone.dalmaso@gmail.com>",
 	# URL for the add-on documentation support
@@ -54,12 +54,15 @@ pythonSources = [
 	"addon/*.py",
 	"addon/globalPlugins/nao/*.py",
 	"addon/globalPlugins/nao/framework/*.py",
+	"addon/globalPlugins/nao/framework/collections/*.py",
 	"addon/globalPlugins/nao/framework/converters/*.py",
 	"addon/globalPlugins/nao/framework/converters/base/*.py",
 	"addon/globalPlugins/nao/framework/generic/*.py",
 	"addon/globalPlugins/nao/framework/language/*.py",
 	"addon/globalPlugins/nao/framework/ocr/*.py",
-	"addon/globalPlugins/nao/framework/speech/*.py"
+	"addon/globalPlugins/nao/framework/speech/*.py",
+	"addon/globalPlugins/nao/framework/storage/*.py",
+	"addon/globalPlugins/nao/framework/threading/*.py"
 ]
 
 # Files that contain strings for translation. Usually your python sources

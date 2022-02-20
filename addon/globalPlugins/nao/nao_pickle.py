@@ -1,28 +1,43 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2021-12-29
+#Last update 2022-01-28
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
-import time
-from .framework.generic.pickle import Pickle
+import os
+import globalVars
+from .framework.storage.pickle import Pickle as PickleLib
 
-class NaoPickle(Pickle):
-	def __new__(cls):
-		return super(NaoPickle, cls).__new__(cls, "nao")
+class NaoPickle:
+	class Pickle(PickleLib):
+		def __singleton_init__(self, path, name):
+			super(NaoPickle.Pickle, self).__singleton_init__(path, name)
+			if not self.file_exists:
+				#check for the old version
+				prev = os.path.join(globalVars.appArgs.configPath, "nao.pickle")
+				try:
+					if os.path.isfile(prev):
+						self._makedirs()
+						import shutil
+						shutil.move(prev, self.file_name)
+				except:
+					pass
+				if not self.file_exists:
+					self.start_write()
+					self.commit_write()
 
-	def __init__(self):
-		super(NaoPickle, self).__init__("nao")
-		if not self.pickle_file_exists:
-			self.start_write()
-			self.commit_write()
-
-	@property
-	def default_data(self):
-		return {
-			"updates": {
-				"last_check": 0,
-				"last_status": "fail",
-				"since": time.time()
+		@property
+		def default_data(self):
+			from .framework.generic.updates import PICKLE_UPDATES_DEFAULT_ROOT_NAME, pickle_updates_default_data
+			ret = {
+				"cache": {
+					"documents": {
+						"last_purge": 0
+					}
+				}
 			}
-		}
+			ret[PICKLE_UPDATES_DEFAULT_ROOT_NAME] = pickle_updates_default_data()
+			return ret
+
+	def __new__(cls):
+		return NaoPickle.Pickle(os.path.join(globalVars.appArgs.configPath, "nao"), "nao.pickle")
