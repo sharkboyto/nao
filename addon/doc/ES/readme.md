@@ -14,13 +14,16 @@ NAO también es capaz de manejar documentos PDF de varias páginas, por lo que s
 ## Requisitos del sistema
 El complemento solo funciona en sistemas Windows 10 y Windows 11, ya que tienen capacidades de OCR integradas.
 Nao es compatible con la versión 2019.3 de NVDA, por lo tanto, no funcionará en versiones anteriores del lector de pantalla
-Ten en cuenta que NAO funciona con el explorador de Windows, en el escritorio, o con el gestor de archivos Total Commander; no uses otro software como 7-zip o WinRar, ya que no se soportan.
+Ten en cuenta que NAO funciona con el explorador de Windows, en el escritorio, o con el gestor de archivos Total Commander o EL administrador de archivos xplorer²; no uses otro software como 7-zip o WinRar, ya que no se soportan.
 
 ## Funciones y comandos
 * NVDA + Shift + R: reconoce cualquier tipo de imagen y pdf desde el sistema de archivos;
   * Avance / Retroceso de página: mueve el cursor entre las páginas reales de un documento de varias páginas.
+  * Ctrl + S: guarda el documento en formato nao-document. Puedes abrirlo de nuevo con NVDA + Shift + R.
   * P: lee el número de página relativo a la posición del cursor, en un documento de varias páginas.
-  * l: Lee el número de línea relativo con la posición del cursor, en un documento de varias páginas.
+  * l: Lee el número de línea en la posición del cursor, en relación a la página actual.
+  * Shift + L: lee el número de línea en la posición del cursor, en relación a todo el documento.
+  * G: ir directamente a una página determinada.
   * c: copia todo el texto al portapapeles.
   * s: guarda una copia del documento en un formato de texto.
   * f: busca texto y lee algunas palabras antes y después de la cadena.
@@ -41,6 +44,29 @@ Si cree que nuestro trabajo es bueno y mejora su vida, a <a href="https://nvda-n
 ¿Quieres informar de un error, sugerir nuevas funciones, traducir el complemento a tu idioma? ¡Tenemos el correo electrónico para ti! Simplemente escribe a support@nvda-nao.org y estaremos encantados de ayudarte.
 
 ## Historial
+### 2022.1.2
+* capacidad de guardar y cargar formato de archivo de documento nao.
+* Un caché de documentos puede almacenar los reconocimientos para acelerar la próxima vez que se abra. Si se encuentra un archivo en la memoria caché, no se vuelve a reconocer, pero en su lugar se abre la versión almacenada en la memoria caché (los parámetros de reconocimiento deben coincidir).
+* Almacena la última posición de lectura de un documento en los metadatos de caché.
+* Purga automática para caché de documentos.
+* Borrar caché de forma manual en el menú herramientas.
+* Ahora se puede reconocer un archivo directamente desde una "carpeta comprimida" del explorador de Windows.
+* Mejor comprobación de archivos inválidos.
+* Mejor compatibilidad con Windows Explorer usando diferentes alternativas de selección de archivos: primero intenta con Shell.Application en NVDA, luego intenta con Shell.Application en PowerShell y luego recurre a la navegación manual.
+* El motor OCR mantiene la configuración de idioma durante todo el proceso de reconocimiento, incluso si se cambia durante un reconocimiento de varias páginas.
+* Cola de OCR para reconocer desde múltiples fuentes.
+* La combinación de teclas avance página en la última página de un documento va al final del documento, informando el número de línea.
+* La carpeta temporal de Windows se usa para las herramientas de conversión de archivos en lugar de la carpeta de complementos (mejor rendimiento en un portable de NVDA).
+* Traducción al rumano y actualizada la traducción al chino simplificado.
+### 2022.1.1
+* Soporte para formato de archivo DjVu.
+* Soporte para archivos tiff de varias páginas.
+* Corrección de errores de codificación de PDF para sistemas operativos en idioma chino.
+* Actualización manual del complemento en el menú NVDA - Herramientas.
+* Compatibilidad a partir de NVDA 2019.3.
+### 2022.1
+* actualización automática del complemento.
+* Actualizadas traducciones al español y francés.
 ### 2021.2
 * El OCR de pdf e imágenes se presentan en una nueva ventana de texto, con algunas teclas de acceso rápido para operaciones simples.
 * Soporte para el administrador de archivos Xplorer.
