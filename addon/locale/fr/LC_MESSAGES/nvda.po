@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 'nao' '2022.1.1'\n"
+"Project-Id-Version: 'nao' '2022.1.3'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2021-12-22 14:27+0100\n"
 "PO-Revision-Date: 2022-01-27 19:30+0100\n"
