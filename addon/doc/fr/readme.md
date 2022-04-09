@@ -19,11 +19,14 @@ Veuillez noter que Nao fonctionne avec l'explorateur Windows, sur le bureau ou a
 ## Fonctionnalités et commandes
 * NVDA + Shift + R : reconnaît toutes sortes d'images et de pdf à partir du système de fichiers ;
   * PgPréc / PgSuiv: déplace le curseur entre les pages réelles d'un document multipages.
+  * Ctrl + S : enregistre le document au format nao-document. Vous pouvez l'ouvrir à nouveau avec NVDA + Maj + R.
   * P : annonce le numéro de page à la position du curseur, dans un document multipage.
-  * l : annonce le numéro de ligne à la position du curseur, dans un document multipage.
-  * c : copie tout le texte dans le presse-papiers.
-  * s : enregistre une copie du document au format texte.
-  * f : recherche du texte et lit quelques mots avant et après la chaîne recherchée.
+  * L : annonce le numéro de ligne à la position du curseur, compté sur la page courante.
+  * Maj + L : annonce le numéro de ligne à la position du curseur, compté sur l'ensemble du document.
+  * G : va directement sur une page déterminée.
+  * C : copie tout le texte dans le presse-papiers.
+  * S : enregistre une copie du document au format texte.
+  * F : recherche du texte et lit quelques mots avant et après la chaîne trouvée.
 * NVDA + Maj + Ctrl + R : Prend une capture de la totalité de l'écran et la reconnaît.
   * Veuillez noter que vous pouvez utiliser les commandes NVDA standard pour explorer la fenêtre et mettre le focus sur un élément. Par exemple, vous pouvez vous déplacer avec les touches fléchées et appuyer sur Entrée sur un bouton pour l'activer. Vous pouvez également amener la souris à votre position avec NVDA + PavNum/, puis cliquer avec les touches gauche/droite.
 
@@ -41,6 +44,29 @@ Si vous pensez que notre travail est bon et qu'il améliore votre vie, <a href="
 Vous souhaitez signaler un bug, proposer de nouvelles fonctionnalités, traduire l'extension dans votre langue ? Nous avons l'adresse e-mail qu'il vous faut ! Écrivez simplement à support@nvda-nao.org (a priori en anglais ou italien) et nous serons heureux de vous aider.
 
 ## Historique
+### 2022.1.2
+* capacité de sauvegarde et de chargement du format de fichier nao-document.
+* Un cache des documents peut stocker les reconnaissances pour accélérer la prochaine ouverture. Si un fichier est trouvé dans le cache, il n'est pas reconnu à nouveau mais la version mise en cache est ouverte à la place (les paramètres de reconnaissance doivent correspondre).
+* Enregistre la dernière position de lecture d'un document dans les métadonnées du cache.
+* Purge automatique du cache des documents.
+* Effacement manuel du cache dans le menu Outils.
+* Un fichier peut désormais être reconnu directement depuis un "dossier compressé" de l'explorateur Windows.
+* Meilleure vérification des fichiers invalides.
+* Meilleure compatibilité avec l'explorateur Windows en utilisant différentes alternatives de sélection de fichiers : d'abord essai avec Shell.Application dans NVDA, puis essai de Shell.Application dans PowerShell, puis à défaut passage à la navigation manuelle.
+* Le moteur OCR conserve le paramètre de langue pendant tout le processus de reconnaissance, même s'il est modifié pendant une reconnaissance de plusieurs pages.
+* File d'attente OCR pour reconnaître à partir de plusieurs sources.
+* Le raccourci clavier PgSuiv à la dernière page d'un document va à la fin du document en indiquant le numéro de ligne.
+* Le dossier temporaire de Windows est utilisé pour les outils de conversion de fichiers à la place du dossier du plugin (meilleures performances sur NVDA portable).
+* Traduction roumaine et mise à jour de la traduction chinoise simplifiée.
+### 2022.1.1
+* Prise en charge du format de fichier DjVu.
+* Prise en charge des fichiers tiff multipages.
+* Correction d'un bug d'encodage PDF pour les systèmes d'exploitation en langue chinoise. sélectionné
+* Mise à jour manuelle de l'extension dans le menu NVDA - Outils.
+* Compatibilité à partir de NVDA 2019.3.
+### 2022.1
+* Mise à jour automatique de l'extension.
+* Traductions espagnole et française mises à jour.
 ### 2021.2
 * L'OCR de pdf et des images sont présentés dans une nouvelle fenêtre de texte, avec quelques raccourcis clavier pour des opérations simples.
 * Prise en charge du gestionnaire de fichiers Xplorer.
