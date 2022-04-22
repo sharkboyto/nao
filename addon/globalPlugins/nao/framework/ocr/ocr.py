@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-26
+#Last update 2022-04-22
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -45,7 +45,7 @@ class OCRMultipageSourceFile:
 		return None
 
 class OCR:
-	def recognize_screenshot(on_start=None, on_finish=None, on_finish_arg=None):
+	def recognize_screenshot(on_start=None, on_finish=None, on_finish_arg=None, current_window=False):
 		if isinstance(api.getFocusObject(), recogUi.RecogResultNVDAObject):
 			# Translators: Reported when content recognition (e.g. OCR) is attempted,
 			# but the user is already reading a content recognition result.
@@ -59,9 +59,20 @@ class OCR:
 			# Translators: Reported when screen curtain is enabled.
 			speech.message(_N("Please disable screen curtain before using Windows OCR."))
 			return False
-		if on_start:
-			on_start()
-		pixels, width, height = screen.take_snapshot_pixels()
+		def failed():
+			# Translators: Reporting when recognition (e.g. OCR) fails.
+			message = _N("Recognition failed")
+			# Translators: The title of an error message dialog.
+			wx.CallAfter(gui.messageBox, message + ': ' + str(result), _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
+			if on_finish:
+				if on_finish_arg is None:
+					on_finish(success=False)
+				else:
+					on_finish(success=False, arg=on_finish_arg)
+		pixels, x, y, width, height = screen.take_snapshot_pixels(current_window=current_window)
+		if not pixels:
+			failed()
+			return False
 		def h(result):
 			if not isinstance(result, Exception):
 				try:
@@ -69,21 +80,15 @@ class OCR:
 				except Exception as e:
 					result = e
 			if isinstance(result, Exception):
-				# Translators: Reporting when recognition (e.g. OCR) fails.
-				message = _N("Recognition failed")
-				# Translators: The title of an error message dialog.
-				wx.CallAfter(gui.messageBox, message + ': ' + str(result), _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
-				if on_finish:
-					if on_finish_arg is None:
-						on_finish(success=False)
-					else:
-						on_finish(success=False, arg=on_finish_arg)
+				failed()
 			elif on_finish:
 				if on_finish_arg is None:
 					on_finish(success=True)
 				else:
 					on_finish(success=True, arg=on_finish_arg)
-		UwpOCRService().push_pixels(pixels, width, height, h)
+		if on_start:
+			on_start()
+		UwpOCRService().push_pixels(pixels, width, height, h, x=x, y=y)
 		return True
 
 	def __init__(self):

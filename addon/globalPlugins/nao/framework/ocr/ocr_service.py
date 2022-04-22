@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-01-20
+#Last update 2022-04-22
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import winGDI
@@ -29,11 +29,13 @@ class OCRService(SingletonClass):
 		return uwpOcr.getConfigLanguage()
 
 	class QueueItem:
-		def __init__(self, bitmap=None, pixels=None, width=None, height=None, language=None, on_recognize_result=None):
+		def __init__(self, bitmap=None, pixels=None, x=0, y=0, width=None, height=None, language=None, on_recognize_result=None):
 			if not language: language = OCRService.uwp_ocr_config_language()
 			if bitmap and (width is None or height is None): width, height = bitmap.Size.Get()
 			self.bitmap = bitmap
 			self.pixels = pixels
+			self.x = x
+			self.y = y
 			self.width = width
 			self.height = height
 			self.language = language
@@ -103,15 +105,15 @@ class OCRService(SingletonClass):
 	def recognize(self, item):
 		raise NotImplementedError()
 
-	def push_bitmap(self, bitmap, on_recognize_result, language=None):
+	def push_bitmap(self, bitmap, on_recognize_result, x=0, y=0, language=None):
 		if bitmap and on_recognize_result:
-			self.push_item(OCRService.QueueItem(bitmap=bitmap, language=language, on_recognize_result=on_recognize_result))
+			self.push_item(OCRService.QueueItem(bitmap=bitmap, x=x, y=y, language=language, on_recognize_result=on_recognize_result))
 		elif on_recognize_result:
 			on_recognize_result(ValueError("Invalid bitmap"))
 
-	def push_pixels(self, pixels, width, height, on_recognize_result, language=None):
+	def push_pixels(self, pixels, width, height, on_recognize_result, x=0, y=0, language=None):
 		if pixels and on_recognize_result:
-			self.push_item(OCRService.QueueItem(pixels=pixels, width=width, height=height, language=language, on_recognize_result=on_recognize_result))
+			self.push_item(OCRService.QueueItem(pixels=pixels, x=x, y=y, width=width, height=height, language=language, on_recognize_result=on_recognize_result))
 
 	def push_item(self, item):
 		if item:
