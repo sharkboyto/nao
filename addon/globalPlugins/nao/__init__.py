@@ -57,14 +57,15 @@ class RecognizableFileObject(ScriptableObject):
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
-		from .nao_pickle import NaoPickle
-		from .systray_menu import SysTrayMenu
-		from .framework.generic.updates import AutoUpdates, ManualUpdatesCheck
 		super(GlobalPlugin, self).__init__()
-		self._systray = SysTrayMenu()
-		self._systray.create(on_updates_check=lambda: ManualUpdatesCheck(UPDATES_URL, pickle=NaoPickle()), on_select_file=BrowseAndRecognize)
-		self._auto_updates = AutoUpdates(url=UPDATES_URL, pickle=NaoPickle())
-		self._scheduled_cache_purge = NaoDocumentCache.schedule_purge()
+		if not globalVars.appArgs.secure:
+			from .nao_pickle import NaoPickle
+			from .systray_menu import SysTrayMenu
+			from .framework.generic.updates import AutoUpdates, ManualUpdatesCheck
+			self._systray = SysTrayMenu()
+			self._systray.create(on_updates_check=lambda: ManualUpdatesCheck(UPDATES_URL, pickle=NaoPickle()), on_select_file=BrowseAndRecognize)
+			self._auto_updates = AutoUpdates(url=UPDATES_URL, pickle=NaoPickle())
+			self._scheduled_cache_purge = NaoDocumentCache.schedule_purge()
 
 	def terminate(self):
 		ProgramTerminate()
