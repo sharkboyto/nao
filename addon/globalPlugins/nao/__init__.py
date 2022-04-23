@@ -1,9 +1,10 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-04-22
+#Last update 2022-04-23
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
+import globalVars
 import globalPluginHandler
 import addonHandler
 from scriptHandler import script
@@ -30,7 +31,8 @@ def BrowseAndRecognize():
 			if file_dialog.ShowModal() != wx.ID_CANCEL:
 				filename = file_dialog.GetPath()
 				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache(), speak_errors=False).recognize_file(filename)
-	wx.CallAfter(h)
+	if not globalVars.appArgs.secure:
+		wx.CallAfter(h)
 
 class RecognizableFileObject(ScriptableObject):
 	# Allow the bound gestures to be edited through the Input Gestures dialog (see L{gui.prePopup})
@@ -43,14 +45,15 @@ class RecognizableFileObject(ScriptableObject):
 		category=ADDON_SUMMARY
 	)
 	def script_recognize_file(self, gesture):
-		try:
-			filename = explorer.get_selected_file()
-		except:
-			filename = None
-		if filename:
-			OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
-		else:
-			BrowseAndRecognize()
+		if not globalVars.appArgs.secure:
+			try:
+				filename = explorer.get_selected_file()
+			except:
+				filename = None
+			if filename:
+				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
+			else:
+				BrowseAndRecognize()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
