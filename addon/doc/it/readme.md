@@ -29,6 +29,7 @@ Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager 
   * F: trova il testo e legge alcune parole prima e dopo la stringa.
 * NVDA + Shift + Ctrl + R: Effettua lo screenshot dell'intera videata e la riconosce.
   * Si tenga presente che è possibile utilizzare i comandi standard di NVDA per esplorare la finestra e portare il focus su un elemento. Ad esempio ci si può spostare con i tasti freccia e premere invio in un pulsante per attivarlo. Inoltre si può anche portare il mouse in quella posizione premendo la combinazione NVDA+barra del tastierino numerico e quindi fare clic con i tasti sinistro/destro.
+* NVDA + Shift + Ctrl + W: Effettua lo screenshot della finestra corrente e la riconosce (stesse funzionalità di navigazione dello screenshot dell'intera videata).
 
 Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla finestra di dialogo Tasti e gesti di immissione di NVDA. Aprire il menu NVDA, andare su preferenze e da quel sottomenu selezionare la finestra di dialogo tasti e gesti di immissione. La cosa importante da tenere a mente è che questi gesti non sono globali; essi appariranno soltanto se ci si trova in un ambiente in cui Nao può funzionare: desktop, Esplora file, Total Commander o Xplorer.
 
@@ -44,6 +45,19 @@ Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
+### 2023.1.1
+* Ripristinata compatibilità con NVDA versione 2023.3
+* Nuova hotkey NVDA + Ctrl + Shift + W effettua lo screenshot della finestra corrente e la riconosce
+* Fix di sicurezza su Secure Screens
+* Rimosso menu strumenti NAO su Secure Screens
+* Rimossa cache documenti su Secure Screens
+* Aggiunti link al sito web NAO e al repository Git nel menu strumenti NAO
+### 2023.1
+* Compatibilità NVDA versione 2023.1
+### 2022.1.3
+* Compatibilità NVDA versione 2022.1
+* Traduzione in Cinese Semplificato e Francese aggiornate
+* Documentazione in spagnolo aggiornata
 ### 2022.1.2
 * Salvataggio e caricamento di file formato nao-document.
 * Una cache documenti conserva i riconoscimenti per velocizzarne l'apertura successivamente. Se un file viene trovato in cache non viene rieseguito il riconoscimento ma viene aperta la copia in cache (i parametri di riconoscimento devono essere uguali).

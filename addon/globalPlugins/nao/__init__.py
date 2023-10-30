@@ -58,7 +58,10 @@ class RecognizableFileObject(ScriptableObject):
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
 		super(GlobalPlugin, self).__init__()
-		if not globalVars.appArgs.secure:
+		if globalVars.appArgs.secure:
+			# Clear the unuseful document cache in secure screen
+			NaoDocumentCache.clear()
+		else:
 			from .nao_pickle import NaoPickle
 			from .systray_menu import SysTrayMenu
 			from .framework.generic.updates import AutoUpdates, ManualUpdatesCheck

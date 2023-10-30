@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-04-22
+#Last update 2023-10-30
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -59,11 +59,13 @@ class OCR:
 			# Translators: Reported when screen curtain is enabled.
 			speech.message(_N("Please disable screen curtain before using Windows OCR."))
 			return False
-		def failed():
+		def failed(exception=None):
 			# Translators: Reporting when recognition (e.g. OCR) fails.
 			message = _N("Recognition failed")
+			if exception:
+				message += ': ' + str(exception)
 			# Translators: The title of an error message dialog.
-			wx.CallAfter(gui.messageBox, message + ': ' + str(result), _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
+			wx.CallAfter(gui.messageBox, message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
 			if on_finish:
 				if on_finish_arg is None:
 					on_finish(success=False)
@@ -76,11 +78,13 @@ class OCR:
 		def h(result):
 			if not isinstance(result, Exception):
 				try:
-					recogUi._recogOnResult(result.data)
+					resObj = recogUi.RecogResultNVDAObject(result=result.data)
+					# This method queues an event to the main thread.
+					resObj.setFocus()
 				except Exception as e:
 					result = e
 			if isinstance(result, Exception):
-				failed()
+				failed(result)
 			elif on_finish:
 				if on_finish_arg is None:
 					on_finish(success=True)

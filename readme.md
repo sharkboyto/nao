@@ -29,6 +29,7 @@ Note that Nao works with Windows Explorer, on desktop, with Total Commander or x
   * F: find text and read some words before and after the string.
 * NVDA + Shift + Ctrl + R: take a full screen shot and recognize it.
   * Please note that you can use standard NVDA commands to explore window and bring focus to an element. For example you can move with arrow keys and press enter in a button to activate it. You can also bring the mouse to your position with NVDA-numpad slash and then click with left/right keys.
+* NVDA + Shift + Ctrl + W: take a screen shot of the current window and recognize it (same navigation features of the full screen shot function).
 
 Note that you can customize shortcuts of Nao simply from the input gestures dialog of NVDA. Open NVDA menu, go to preferences, and from that submenu select input gestures dialog. Remember that this feature is not global, but it works only where Nao can make an ocr. So gestures will appear only if you are in the desktop, or in file explorer, Total Commander or Xplorer.
 
@@ -44,6 +45,19 @@ If you think our work is good and improve your life, a <a href="https://nvda-nao
 Do you want to report a bug, suggest new features, translate the addon in your language? We have the email for you! Just write to support@nvda-nao.org and we will be happy to help you.
 
 ## History
+### 2023.1.1
+* Compatibility with NVDA version 2023.3 restored
+* New NVDA + Ctrl + Shift + W hotkey take a screen shot of the current window and recognize it
+* Security Fix on Secure Screens
+* NAO tools menu removed on Secure Screens
+* Documents cache removed on Secure Screens
+* NAO website and Git repository links added on NAO tools menu
+### 2023.1
+* NVDA version 2023.1 compatibility
+### 2022.1.3
+* NVDA version 2022.1 compatibility
+* Simplified Chinese and French translations updated
+* Spanish documentation updated
 ### 2022.1.2
 * nao-document file format save and load capability.
 * A documents cache can store the recognitions to speedup next time opening. If a file is found in the cache it is not recognized again but the cached version is opened instead (recognitions parameters must match).
