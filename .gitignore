@@ -8,3 +8,7 @@ addon/doc/en/
 *.py[co]
 *.nvda-addon
 .sconsign.dblite
+*.exe
+*.code-workspace
+*.env
+addon/settings.json
