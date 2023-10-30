@@ -48,6 +48,7 @@ Do you want to report a bug, suggest new features, translate the addon in your l
 ### 2023.1.1
 * Compatibility with NVDA version 2023.3 restored
 * New NVDA + Ctrl + Shift + W hotkey take a screen shot of the current window and recognize it
+* Added Brazilian Portuguese translations
 * Security Fix on Secure Screens
 * NAO tools menu removed on Secure Screens
 * Documents cache removed on Secure Screens

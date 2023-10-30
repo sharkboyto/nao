@@ -18,17 +18,17 @@ Note que o Nao funciona apenas quando usado com o Windows Explorer, na área de 
 
 ## Funcionalidades e comandos
 * NVDA + Shift + R: reconhece qualquer tipo de imagem ou pdf a partir do sistema de arquivos;
-  * PgUp / PgDown: move o cursor entre páginas reais de um documento de múltiplas páginas.
-  * Ctrl + S: Salva o documento no formato nao-document-format.
-  * P: Informa o número da página atual relativa ao cursor em um documento de múltiplas páginas.
-  * L: informa a linha atual com relação à página corrente.
-  * Shift + L: informa a linha atual com relação ao documento inteiro.
-  * G: Vai diretamente a uma página.
-  * C: copia todo o texto para a área de transferência.
-  * S: salva uma cópia do documento no formato texto.
-  * F: localiza texto e lê algumas palavras antes e depois do resultado.
+  * PgUp / PgDown: move o cursor entre páginas reais de um documento de múltiplas páginas.
+  * Ctrl + S: Salva o documento no formato nao-document-format.
+  * P: Informa o número da página atual relativa ao cursor em um documento de múltiplas páginas.
+  * L: informa a linha atual com relação à página corrente.
+  * Shift + L: informa a linha atual com relação ao documento inteiro.
+  * G: Vai diretamente a uma página.
+  * C: copia todo o texto para a área de transferência.
+  * S: salva uma cópia do documento no formato texto.
+  * F: localiza texto e lê algumas palavras antes e depois do resultado.
 * NVDA + Shift + Ctrl + R: realiza a captura completa da tela e reconhece o conteúdo.
-  * Note que é possível usar comandos padrão do NVDA para explorar a janela e mover o foco para um elemento. Por exemplo, você pode usar as setas para se mover até um botão e pressionar enter para ativá-lo. Você também pode mover o cursor do mouse até a posição atual com tecla NVDA-barra do teclado numérico e clicar com o botão esquerdo ou direito.
+  * Note que é possível usar comandos padrão do NVDA para explorar a janela e mover o foco para um elemento. Por exemplo, você pode usar as setas para se mover até um botão e pressionar enter para ativá-lo. Você também pode mover o cursor do mouse até a posição atual com tecla NVDA-barra do teclado numérico e clicar com o botão esquerdo ou direito.
 
 Note que você pode alterar as teclas de atalho do Nao usando o diálogo de definição de comandos do NVDA. Acesse o menu do NVDA, vá até preferências e no sub menu selecione definir comandos. Lembre-se de que essas funcionalidades não são globais, elas só funcionarão em aplicativos de onde é possível realizar OCR. Assim, esses gestos aparecerão apenas se você estiver na área de trabalho, no explorador de arquivos, no Total Commander ou no Xplorer.
 

@@ -48,6 +48,7 @@ Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua
 ### 2023.1.1
 * Ripristinata compatibilità con NVDA versione 2023.3
 * Nuova hotkey NVDA + Ctrl + Shift + W effettua lo screenshot della finestra corrente e la riconosce
+* Aggiunta traduzione in Portoghese Brasiliano
 * Fix di sicurezza su Secure Screens
 * Rimosso menu strumenti NAO su Secure Screens
 * Rimossa cache documenti su Secure Screens
