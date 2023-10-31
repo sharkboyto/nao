@@ -1,7 +1,7 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2023-10-30
+#Last update 2023-10-31
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import api
@@ -63,7 +63,7 @@ class OCR:
 			# Translators: Reporting when recognition (e.g. OCR) fails.
 			message = _N("Recognition failed")
 			if exception:
-				message += ': ' + str(exception)
+				if str(exception): message += ': ' + str(exception)
 				from logHandler import log
 				log.exception(msg=message, exc_info=True)
 			# Translators: The title of an error message dialog.
