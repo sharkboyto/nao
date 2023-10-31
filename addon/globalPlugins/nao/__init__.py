@@ -1,9 +1,10 @@
 #Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
 #This file is covered by the GNU General Public License.
 #See the file COPYING for more details.
-#Last update 2022-02-04
+#Last update 2022-04-23
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
+import globalVars
 import globalPluginHandler
 import addonHandler
 from scriptHandler import script
@@ -30,7 +31,8 @@ def BrowseAndRecognize():
 			if file_dialog.ShowModal() != wx.ID_CANCEL:
 				filename = file_dialog.GetPath()
 				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache(), speak_errors=False).recognize_file(filename)
-	wx.CallAfter(h)
+	if not globalVars.appArgs.secure:
+		wx.CallAfter(h)
 
 class RecognizableFileObject(ScriptableObject):
 	# Allow the bound gestures to be edited through the Input Gestures dialog (see L{gui.prePopup})
@@ -43,25 +45,30 @@ class RecognizableFileObject(ScriptableObject):
 		category=ADDON_SUMMARY
 	)
 	def script_recognize_file(self, gesture):
-		try:
-			filename = explorer.get_selected_file()
-		except:
-			filename = None
-		if filename:
-			OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
-		else:
-			BrowseAndRecognize()
+		if not globalVars.appArgs.secure:
+			try:
+				filename = explorer.get_selected_file()
+			except:
+				filename = None
+			if filename:
+				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
+			else:
+				BrowseAndRecognize()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
-		from .nao_pickle import NaoPickle
-		from .systray_menu import SysTrayMenu
-		from .framework.generic.updates import AutoUpdates, ManualUpdatesCheck
 		super(GlobalPlugin, self).__init__()
-		self._systray = SysTrayMenu()
-		self._systray.create(on_updates_check=lambda: ManualUpdatesCheck(UPDATES_URL, pickle=NaoPickle()), on_select_file=BrowseAndRecognize)
-		self._auto_updates = AutoUpdates(url=UPDATES_URL, pickle=NaoPickle())
-		self._scheduled_cache_purge = NaoDocumentCache.schedule_purge()
+		if globalVars.appArgs.secure:
+			# Clear the unuseful document cache in secure screen
+			NaoDocumentCache.clear()
+		else:
+			from .nao_pickle import NaoPickle
+			from .systray_menu import SysTrayMenu
+			from .framework.generic.updates import AutoUpdates, ManualUpdatesCheck
+			self._systray = SysTrayMenu()
+			self._systray.create(on_updates_check=lambda: ManualUpdatesCheck(UPDATES_URL, pickle=NaoPickle()), on_select_file=BrowseAndRecognize)
+			self._auto_updates = AutoUpdates(url=UPDATES_URL, pickle=NaoPickle())
+			self._scheduled_cache_purge = NaoDocumentCache.schedule_purge()
 
 	def terminate(self):
 		ProgramTerminate()
@@ -83,3 +90,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_recognize_screenshot(self, gesture):
 		OCRHelper.recognize_screenshot()
+
+	@script(
+		# Translators: Message presented in input help mode.
+		description=_("Take a screen shot of the current window and recognize it"),
+		gesture="kb:NVDA+shift+control+W",
+		category=ADDON_SUMMARY
+	)
+	def script_recognize_current_window(self, gesture):
+		OCRHelper.recognize_screenshot(current_window=True)
