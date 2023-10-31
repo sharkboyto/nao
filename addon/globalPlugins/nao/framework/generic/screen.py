@@ -26,7 +26,7 @@ def get_current_window_rect():
 		return get_window_rect(obj.windowHandle)
 	return None
 
-def take_snapshot_pixels(x=0, y=0, width=None, height=None, current_window=False):
+def take_snapshot_pixels(x=0, y=0, width=None, height=None, current_window=False, only_positive_coordinates=False):
 	import screenBitmap
 	if current_window:
 		rect = get_current_window_rect()
@@ -38,6 +38,13 @@ def take_snapshot_pixels(x=0, y=0, width=None, height=None, current_window=False
 		height = rect.height
 	else:
 		if width is None or height is None: width, height = get_size()
+	if only_positive_coordinates:
+		if x < 0:
+			width += x
+			x = 0
+		if y < 0:
+			height += y
+			y = 0
 	sb = screenBitmap.ScreenBitmap(width, height)
 	return [sb.captureImage(x, y, width, height), x, y, width, height]
 

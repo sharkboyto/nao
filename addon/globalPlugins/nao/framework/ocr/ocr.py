@@ -64,6 +64,8 @@ class OCR:
 			message = _N("Recognition failed")
 			if exception:
 				message += ': ' + str(exception)
+				from logHandler import log
+				log.exception(msg=message, exc_info=True)
 			# Translators: The title of an error message dialog.
 			wx.CallAfter(gui.messageBox, message, _N("Error"), style=wx.OK | wx.ICON_ERROR, parent=gui.mainFrame)
 			if on_finish:
@@ -71,7 +73,7 @@ class OCR:
 					on_finish(success=False)
 				else:
 					on_finish(success=False, arg=on_finish_arg)
-		pixels, x, y, width, height = screen.take_snapshot_pixels(current_window=current_window)
+		pixels, x, y, width, height = screen.take_snapshot_pixels(current_window=current_window, only_positive_coordinates=True)
 		if not pixels:
 			failed()
 			return False
