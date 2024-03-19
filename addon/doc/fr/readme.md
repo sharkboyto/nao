@@ -27,8 +27,9 @@ Veuillez noter que Nao fonctionne avec l'explorateur Windows, sur le bureau ou a
   * C : copie tout le texte dans le presse-papiers.
   * S : enregistre une copie du document au format texte.
   * F : recherche du texte et lit quelques mots avant et après la chaîne trouvée.
-* NVDA + Maj + Ctrl + R : Prend une capture de la totalité de l'écran et la reconnaît.
+* NVDA + Maj + Ctrl + R : prend une capture de la totalité de l'écran et effectue une reconnaissance.
   * Veuillez noter que vous pouvez utiliser les commandes NVDA standard pour explorer la fenêtre et mettre le focus sur un élément. Par exemple, vous pouvez vous déplacer avec les touches fléchées et appuyer sur Entrée sur un bouton pour l'activer. Vous pouvez également amener la souris à votre position avec NVDA + PavNum/, puis cliquer avec les touches gauche/droite.
+* NVDA + Maj + Ctrl + W : prend une capture d'écran de la fenêtre courante et effectue une reconnaissance (mêmes fonctionnalités de navigation que la fonction de capture de la totalité de l'écran).
 
 Veuillez noter que vous pouvez personnaliser les raccourcis de Nao simplement à partir de la boîte de dialogue des gestes de commande de NVDA. Ouvrez le menu NVDA, allez dans les préférences, et à partir de ce sous-menu, sélectionnez la boîte de dialogue des gestes de commande. N'oubliez pas que cette fonctionnalité n'est pas globale, mais qu'elle ne fonctionne que là où Nao peut faire une reconnaissance de caractères. Ainsi, les gestes n'apparaîtront que si vous êtes sur le bureau, ou dans l'explorateur de fichiers, Total Commander ou Xplorer.
 
@@ -44,6 +45,20 @@ Si vous pensez que notre travail est bon et qu'il améliore votre vie, <a href="
 Vous souhaitez signaler un bug, proposer de nouvelles fonctionnalités, traduire l'extension dans votre langue ? Nous avons l'adresse e-mail qu'il vous faut ! Écrivez simplement à support@nvda-nao.org (a priori en anglais ou italien) et nous serons heureux de vous aider.
 
 ## Historique
+### 2023.1.1
+* Compatibilité avec NVDA version 2023.3 restaurée
++* Un nouveau raccourci clavier NVDA + Ctrl + Maj + W prend une capture d'écran de la fenêtre courante et en effectue la reconnaissance
+* Ajout de la traductions en portugais brésilien
+* Correctif de sécurité sur les écrans sécurisés
+* Menu d'outils NAO supprimé sur les écrans sécurisés
+* Cache des documents supprimé sur les écrans sécurisés
+* Liens vers le site Web NAO et le référentiel Git ajoutés au menu des outils NAO
++### 2023.1
+* Compatibilité avec NVDA version 2023.1
+### 2022.1.3
+* Compatibilité avec NVDA version 2022.1
+* Traductions en chinois simpplifié et en français mises à jour
+* Documentation espagnole mise à jour
 ### 2022.1.2
 * capacité de sauvegarde et de chargement du format de fichier nao-document.
 * Un cache des documents peut stocker les reconnaissances pour accélérer la prochaine ouverture. Si un fichier est trouvé dans le cache, il n'est pas reconnu à nouveau mais la version mise en cache est ouverte à la place (les paramètres de reconnaissance doivent correspondre).
