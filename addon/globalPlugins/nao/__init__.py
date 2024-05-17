@@ -9,6 +9,7 @@ import globalPluginHandler
 import addonHandler
 from scriptHandler import script
 from baseObject import ScriptableObject
+import globalVars
 
 from .nao_document_cache import NaoDocumentCache
 from .framework.ocr.ocr_helper import OCRHelper
@@ -55,6 +56,12 @@ class RecognizableFileObject(ScriptableObject):
 			else:
 				BrowseAndRecognize()
 
+def disableInSecure(cls):
+	if globalVars.appArgs.secure:
+		return globalPluginHandler.GlobalPlugin
+	return cls
+
+@disableInSecure
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def __init__(self):
 		super(GlobalPlugin, self).__init__()
