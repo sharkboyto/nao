@@ -9,6 +9,7 @@ import globalPluginHandler
 import addonHandler
 from scriptHandler import script
 from baseObject import ScriptableObject
+from logHandler import log
 
 from .nao_document_cache import NaoDocumentCache
 from .framework.ocr.ocr_helper import OCRHelper
@@ -47,11 +48,13 @@ class RecognizableFileObject(ScriptableObject):
 	def script_recognize_file(self, gesture):
 		if not globalVars.appArgs.secure:
 			try:
-				filename = explorer.get_selected_file()
+				filename, temp_path = explorer.get_selected_file()
 			except:
+				log.debugWarning(f"Cannot detect current file name.", exc_info=True)
 				filename = None
+				temp_path = None
 			if filename:
-				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename)
+				OCRHelper(ocr_document_file_extension=OCR_DOCUMENT_FILE_EXTENSION, ocr_document_file_cache=NaoDocumentCache()).recognize_file(filename, temp_path=temp_path)
 			else:
 				BrowseAndRecognize()
 
@@ -80,6 +83,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			elif explorer.is_totalcommander(obj):
 				clsList.insert(0, RecognizableFileObject)
 			elif explorer.is_xplorer2(obj):
+				clsList.insert(0, RecognizableFileObject)
+			elif explorer.is_outlook(obj):
 				clsList.insert(0, RecognizableFileObject)
 
 	@script(
