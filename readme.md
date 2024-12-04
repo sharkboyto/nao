@@ -5,7 +5,7 @@
 * NVDA compatibility: 2019.3 and beyond
 
 Nao (NVDA Advanced OCR) is an addon that improves the standard OCR capabilities that NVDA provides on modern Windows versions.
-While NVDA standard command uses Windows OCR to recognize the screen, NAO is able to make the OCR on files saved on your hard drive or USB devices. 
+While NVDA standard command uses Windows OCR to recognize the screen, NAO is able to make the OCR on files saved on your hard drive or USB devices or attached to e-mails. 
 Use NVDA-Shift-R to recognize any sorts of images and pdf! 
 Simply put the focus / cursor on the file you desire, don't open it, but hit NVDA-Shift-r. 
 The document will be recognized and a simple text window will appear, allowing you to read the entire content, save it, find text or copy content to clipboard.
@@ -15,9 +15,10 @@ Nao is able to handle also multipage pdf, so if you have a not accessible docume
 The addon works on Windows 10 and Windows 11 systems, since they have OCR capabilities builtin. 
 Nao is compatible from NVDA version 2019.3, so don't use older versions of the screen reader.
 Note that Nao works with Windows Explorer, on desktop, with Total Commander or xplorer² filemanager; don't use other software like 7zip or Winrar, since they are not supported.
+For e-mail attachments, it also works with Microsoft Outlook 2016 or beyond.
 
 ## Features and commands
-* NVDA + Shift + R: recognize any sorts of images and pdf from file system;
+* NVDA + Shift + R: recognize any sorts of images and pdf from file system or attached to an e-mail;
   * PgUp / PgDown: move the cursor between real pages of a multipages document.
   * Ctrl + S: save the document in nao-document format. You can open it again with NVDA + Shift + R.
   * P: report page number related to the cursor position, in a multipage document.
