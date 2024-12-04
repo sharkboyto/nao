@@ -45,6 +45,14 @@ If you think our work is good and improve your life, a <a href="https://nvda-nao
 Do you want to report a bug, suggest new features, translate the addon in your language? We have the email for you! Just write to support@nvda-nao.org and we will be happy to help you.
 
 ## History
+### 2025.1
+* NVDA version 2025.1 compatibility
+* Implement OCR recognition on the selected attachment of an opened Outlook message, from outlook 2016 and beyond
+* Added finnish translation
+
+### 2024.1
+* NVDA version 2024.1 compatibility
+
 ### 2023.1.1
 * Compatibility with NVDA version 2023.3 restored
 * New NVDA + Ctrl + Shift + W hotkey take a screen shot of the current window and recognize it
