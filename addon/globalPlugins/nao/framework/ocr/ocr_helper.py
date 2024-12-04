@@ -5,6 +5,7 @@
 #Copyright (C) 2021 Alessandro Albano, Davide De Carne and Simone Dal Maso
 
 import os
+import shutil
 import wx
 import addonHandler
 from logHandler import log
@@ -66,7 +67,7 @@ class OCRHelper:
 		self.speak_errors = speak_errors
 		if ocr_document_file_extension: self.supported_extensions.append(ocr_document_file_extension.lower())
 
-	def recognize_file(self, source_file):
+	def recognize_file(self, source_file, temp_path=None):
 		from .uwp_ocr_service import UwpOCRService
 		from .ocr_document import OCRDocument
 		from .ocr_document_dialog import OCRDocumentDialog
@@ -169,7 +170,7 @@ class OCRHelper:
 		
 		OCRHelper._log("Recognizing %s", original_source_file)
 		class Control:
-			def __init__(self, source_file, original_source_file, compressed_folder, ocr_document_file_extension, ocr_document_file_cache):
+			def __init__(self, source_file, original_source_file, compressed_folder, ocr_document_file_extension, ocr_document_file_cache, temp_path):
 				from .ocr import OCR, OCRMultipageSourceFile
 				from .ocr_source import UWPOCRSource
 				from .ocr_document import OCRDocumentComposer
@@ -180,6 +181,7 @@ class OCRHelper:
 				self.compressed_folder = compressed_folder
 				self.ocr_document_file_extension = ocr_document_file_extension
 				self.ocr_document_file_cache = ocr_document_file_cache
+				self.temp_path = temp_path
 				self.lock = Lock()
 				self.announce = Announce()
 				self.converter = None
@@ -303,6 +305,11 @@ class OCRHelper:
 							# Translators: The title of the document used to present the result of content recognition.
 							OCRDocumentDialog(document=document, title=_N("Result"), ocr_document_file_extension=self.ocr_document_file_extension, ocr_document_file_cache=self.ocr_document_file_cache)
 						self.lock.release()
+				try:
+					if temp_path:
+						shutil.rmtree(temp_path)
+				except FileNotFoundError:
+					pass
 
 			def on_source_file_hash_finish(self, source, status):
 				if self.ocr_document_file_cache:
@@ -339,7 +346,7 @@ class OCRHelper:
 						OCRHelper._log("Failed obtaining file hash for %s", self.original_source_file)
 				if self.wait_event: self.wait_event.set()
 		
-		ctrl = Control(source_file=source_file, original_source_file=original_source_file, compressed_folder=compressed_folder, ocr_document_file_extension=self.ocr_document_file_extension, ocr_document_file_cache=self.ocr_document_file_cache)
+		ctrl = Control(source_file=source_file, original_source_file=original_source_file, compressed_folder=compressed_folder, ocr_document_file_extension=self.ocr_document_file_extension, ocr_document_file_cache=self.ocr_document_file_cache, temp_path=temp_path)
 		ctrl.convert_and_recognize()
 		return True
 

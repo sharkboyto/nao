@@ -10,6 +10,7 @@ import os
 from comtypes.client import CreateObject as COMCreate
 from .xplorer2Helper import Xplorer2Helper
 from .totalCommanderHelper import TotalCommanderHelper
+from .outlookHelper import OutlookHelper
 
 _shell = None
 
@@ -23,6 +24,9 @@ def is_totalcommander(obj=None):
 
 def is_xplorer2(obj=None):
 	return Xplorer2Helper.is_xplorer2(obj)
+
+def is_outlook(obj=None):
+	return OutlookHelper.is_outlook(obj)
 
 def get_selected_files_explorer_ps():
 	import subprocess
@@ -92,10 +96,19 @@ def get_selected_file_xplorer2(obj=None):
 		return xplorer2.currentFileWithPath()
 	return False
 
+def get_selected_file_outlook(obj=None):
+	# We check if we are in Outlook
+	outlook = OutlookHelper(obj)
+	if outlook.is_valid():
+		return outlook.currentFileWithPath()
+	return False
+
 def get_selected_file(obj=None):
 	file_path = False
+	temp_path = None
 	if obj is None: obj = api.getForegroundObject()
 	file_path = get_selected_file_explorer(obj)
 	if not file_path: file_path = get_selected_file_total_commander(obj)
 	if not file_path: file_path = get_selected_file_xplorer2(obj)
-	return file_path
+	if not file_path: file_path, temp_path = get_selected_file_outlook(obj)
+	return file_path, temp_path
