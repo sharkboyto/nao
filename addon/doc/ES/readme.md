@@ -5,7 +5,7 @@
 * Compatibilidad con NVDA: 2019.3 y posterior
 
 NAO (NVDA Advanced OCR) es un complemento que mejora las funciones estándar de OCR proporcionadas por NVDA en versiones modernas de Windows.
-Mientras que la orden estándar de NVDA usa el OCR de Windows para reconocer la pantalla, NAO es capaz de aplicar el OCR en archivos guardados en tu disco duro o dispositivo USB.
+Mientras que la orden estándar de NVDA usa el OCR de Windows para reconocer la pantalla, NAO es capaz de aplicar el OCR en archivos guardados en tu disco duro o dispositivo USB or attachment for Outlook2016.
 ¡Usa NVDA+shift+r para reconocer cualquier tipo de imagen o PDF!
 Simplemente posiciona el cursor sobre el archivo que desees, y sin abrirlo, pulsa NVDA+shift+r
 Se reconocerá el documento y aparecerá un cuadro de texto simple que te permitirá leer todo el contenido.
@@ -15,6 +15,7 @@ NAO también es capaz de manejar documentos PDF de varias páginas, por lo que s
 El complemento solo funciona en sistemas Windows 10 y Windows 11, ya que tienen capacidades de OCR integradas.
 Nao es compatible con la versión 2019.3 de NVDA, por lo tanto, no funcionará en versiones anteriores del lector de pantalla
 Ten en cuenta que NAO funciona con el explorador de Windows, en el escritorio, o con el gestor de archivos Total Commander o EL administrador de archivos xplorer²; no uses otro software como 7-zip o WinRar, ya que no se soportan.
+Para archivos adjuntos de correo electrónico, también funciona con Microsoft Outlook 2016 o posterior.
 
 ## Funciones y comandos
 * NVDA + Shift + R: reconoce cualquier tipo de imagen y pdf desde el sistema de archivos;
@@ -34,7 +35,13 @@ Ten en cuenta que puedes personalizar los accesos directos de Nao simplemente de
 
 También puedes cancelar un proceso largo de OCR simplemente presionando "Cancelar" desde la ventana de la barra de progreso; esta ventana también brinda información sobre el estado del OCR, actualizando la información cada 5 segundos. Puede configurar cómo recibir información de la barra de progreso con el comando estándar de NVDA-u.
 
-Puedes encontrar un submenú llamado Nao, bajo el menú de herramientas de NVDA. Por el momento, solo contiene un elemento que te permite hacer una donación, ¡pero lo mejoraremos con nuevas funciones!
+Puedes encontrar un submenú llamado Nao, bajo el menú de herramientas de NVDA. Contiene los siguientes elementos:
+* Seleccionar archivo: le permite seleccionar un archivo para procesar sin usar una tecla rápida.
+* Haz una donación: se explica por sí mismo, si te apetece ¡estaremos muy contentos!
+* Sitio web de Nao: te lleva a la página de inicio de Nao.
+* Git: te lleva al código fuente donde puedes verificarlo, confirmar o abrir un problema.
+* Buscar actualizaciones: consulta al servidor por una nueva versión de Nao.
+* Vaciar caché: si tiene problemas con el complemento, recibe mensajes de error o lo encuentra lento, borre su caché para resolver el problema. 
 
 ## Apoyo y donaciones
 Nao es absolutamente gratuito. De todos modos, recuerda que este complemento se realiza durante el tiempo libre de los desarrolladores.
@@ -44,7 +51,26 @@ Si cree que nuestro trabajo es bueno y mejora su vida, a <a href="https://nvda-n
 ¿Quieres informar de un error, sugerir nuevas funciones, traducir el complemento a tu idioma? ¡Tenemos el correo electrónico para ti! Simplemente escribe a support@nvda-nao.org y estaremos encantados de ayudarte.
 
 ## Historial
-### 2022.1.2
+### 2025.1
+* Compatibilidad con NVDA versión 2025.1
+* Implementar el reconocimiento OCR en el archivo adjunto seleccionado de un mensaje de Outlook abierto, desde Outlook 2016 y posteriores
+* Traducción finlandesa agregada
+### 2024.1
+* Compatibilidad con NVDA versión 2024.1
+### 2023.1.1
+* Compatibilidad con NVDA versión 2023.3 restaurada
+* Nuevas teclas de acceso rápido NVDA + Ctrl + Shift + W toman una captura de pantalla de la ventana actual y la reconocen
+* Se agregaron traducciones al portugués brasileño.
+* Corrección de seguridad en pantallas seguras
+* Menú de herramientas NAO eliminado en pantallas seguras
+* Caché de documentos eliminado en pantallas seguras
+* Se agregaron enlaces al sitio web de NAO y al repositorio Git en el menú de herramientas de NAO
+### 2023.1
+* Compatibilidad con NVDA versión 2023.1
+### 2022.1.3
+* Compatibilidad con NVDA versión 2022.1
+* Traducciones simplificadas al chino y francés actualizadas
+*Documentación en español actualizada.### 2022.1.2
 * capacidad de guardar y cargar formato de archivo de documento nao.
 * Un caché de documentos puede almacenar los reconocimientos para acelerar la próxima vez que se abra. Si se encuentra un archivo en la memoria caché, no se vuelve a reconocer, pero en su lugar se abre la versión almacenada en la memoria caché (los parámetros de reconocimiento deben coincidir).
 * Almacena la última posición de lectura de un documento en los metadatos de caché.

@@ -5,16 +5,18 @@
 * Compatível com NVDA: 2019.3 em diante
 
 Nao (reconhecimento óptico de caracteres avançado para NVDA) é um complemento que melhora a funcionalidade padrão de reconhecimento óptico de caracteres oferecida pelo NVDA em versões modernas do Windows.
-Enquanto o o comando padrão do NVDA usa os recursos de OCR do Windows para efetuar o reconhecimento da tela, o NAO é capaz de efetuar reconhecimento em arquivos salvos no disco rígido ou em dispositivos USB.
+Enquanto o o comando padrão do NVDA usa os recursos de OCR do Windows para efetuar o reconhecimento da tela, o NAO é capaz de efetuar reconhecimento em arquivos salvos no disco rígido ou em dispositivos USB, ou em anexos do Microsoft Outlook.
 Use tecla NVDA-Shift-R para efetuar reconhecimento em qualquer tipo de imagem ou pdf!
 Simplesmente coloque o cursor sobre o arquivo desejado, sem abri-lo, e pressione tecla NVDA-Shift-R.
 O arquivo será reconhecido e uma janela simples de texto aparecerá, na qual você poderá ler todo o conteúdo reconhecido, efetuar buscas por texto específico, copiar para a área de transferência e salvá-lo.
 O Nao também é capaz de lidar com PDFs contendo múltiplas páginas, então se você tiver um documento inacessível não se preocupe, o OCR do Windows será capaz de fazer o reconhecimento total.
+Para anexos de e-mail, também funciona com o Microsoft Outlook 2016 ou posterior.
 
 ## Requisitos de sistema
 Este complemento funciona nos Windows 10 e 11, já que esses sistemas oferecem serviço nativo de reconhecimento ótico de caracteres.
 O Nao requer uma versão do NVDA igual ou superior a 2019.3, então não tente utilizá-lo com versões mais antigas do leitor de telas.
 Note que o Nao funciona apenas quando usado com o Windows Explorer, na área de trabalho, com o Total Commander ou com o xplorer² filemanager. Não tente utilizá-lo com aplicativos como o 7zip ou Winrar, já que esses programas não são suportados.
+Para anexos de e-mail, também funciona com o Microsoft Outlook 2016 ou posterior.
 
 ## Funcionalidades e comandos
 * NVDA + Shift + R: reconhece qualquer tipo de imagem ou pdf a partir do sistema de arquivos;
@@ -34,7 +36,13 @@ Note que você pode alterar as teclas de atalho do Nao usando o diálogo de defi
 
 Você também pode abortar um processo de OCR apenas pressionando "Cancelar" na janela com a barra de progresso.
 
-Também é possível encontrar um sub menu chamado Nao dentro do menu de ferramentas do NVDA. No momento, ele apenas oferece acesso a um diálogo de onde é possível fazer uma doação, mas nós vamos melhorá-lo com novas funcionalidades!
+Também é possível encontrar um sub menu chamado Nao dentro do menu de ferramentas do NVDA. Ele contém os seguintes itens:
+* Selecionar arquivo: permite selecionar um arquivo para processamento sem usar uma tecla de atalho.
+* Faça uma doação: é autoexplicativo, se tiver vontade ficaremos muito felizes!
+* Site do Nao: leva você à página inicial do Nao.
+* Git: leva você ao código-fonte – onde você pode verificá-lo, fazer commit ou abrir um issue.
+* Verificar atualizações: consulta o servidor em busca de uma nova versão do Nao.
+* Cache vazio: Se você encontrar problemas com o complemento, receber mensagens de erro ou achar que ele está lento, limpe o cache para resolver o problema.
 
 ## Suporte e doações
 Nao é totalmente gratuito. Entretanto, lembre-se de que este complemento é feito durante o tempo livre de seus desenvolvedores.
@@ -44,6 +52,26 @@ Se você entender que nosso trabalho é bom e melhora sua vida, <a href="https:/
 Quer reportar um bug, sugerir novas funcionalidades, traduzir o complemento para o seu idioma? Temos um e-mail para você! Apenas escreva para support@nvda-nao.org e nós estaremos felizes em ajudá-lo.
 
 ## Histórico
+### 2025.1
+* Compatibilidade com NVDA versão 2025.1
+* Implementar o reconhecimento OCR no anexo selecionado de uma mensagem aberta do Outlook, do Outlook 2016 e posteriores
+* Adicionada tradução para finlandês
+### 2024.1
+* Compatibilidade com NVDA versão 2024.1
+### 2023.1.1
+* Compatibilidade com NVDA versão 2023.3 restaurada
+* Nova tecla de atalho NVDA + Ctrl + Shift + W tira uma captura de tela da janela atual e a reconhece
+* Adicionadas traduções para o português brasileiro
+* Correção de segurança em telas seguras
+* Menu de ferramentas NAO removido em telas seguras
+* Cache de documentos removido em telas seguras
+* Links do site do NAO e do repositório Git adicionados ao menu de ferramentas do NAO
+### 2023.1
+* Compatibilidade com NVDA versão 2023.1
+### 2022.1.3
+* Compatibilidade com NVDA versão 2022.1
+* Traduções simplificadas para chinês e francês atualizadas
+* Documentação em espanhol atualizada
 ### 2022.1.2
 * Salvar e carregar arquivos no formato de arquivo nao-document file format.
 * Um cache de documentos reconhecidos anteriormente torna o processo de reconhecimento mais rápido. Se um arquivo for detectado  no cache, a versão cacheada é usada em vez de um novo reconhecimento ocorrer.

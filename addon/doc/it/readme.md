@@ -5,7 +5,7 @@
 * Compatibilità NVDA: 2019.3 e successive
 
 Nao (NVDA Advanced OCR) è un addon che migliora le capacità OCR standard fornite da NVDA nelle versioni moderne di Windows.
-Mentre il comando standard NVDA utilizza l'OCR di Windows per riconoscere lo schermo, NAO è in grado di eseguire l'OCR sui file salvati sul disco rigido o sui dispositivi USB.
+Mentre il comando standard NVDA utilizza l'OCR di Windows per riconoscere lo schermo, NAO è in grado di eseguire l'OCR sui file salvati sul disco rigido o sui dispositivi USB o allegati alle email di Outlook.
 Usa NVDA-Shift-R per riconoscere qualsiasi tipo di immagine e pdf!
 Porta semplicemente il focus / cursore sul file che desideri, non aprirlo, ma premi NVDA-Shift-r.
 Il documento verrà riconosciuto e apparirà una semplice casella di testo, che consentirà di leggere l'intero contenuto, salvarlo, copiarlo negli appunti o cercare del testo.
@@ -15,6 +15,7 @@ Nao è in grado di gestire anche pdf multipagina, quindi se hai un documento non
 L'addon lavora soltanto sui sistemi Windows 10 e Windows 11, poiché dispongono di funzionalità OCR integrate.
 Nao è compatibile dalla versione NVDA 2019.3, quindi non utilizzare versioni precedenti dello screen reader.
 Si noti che Nao funziona con Windows Explorer, sul desktop, con il file manager Total Commander o Xplorer; non utilizzare altri software come 7zip o Winrar, poiché non sono supportati.
+Per quanto riguarda gli allegati via email, funziona con versioni di Outlook uguali o superiori alla 2016.
 
 ## Funzionalità e comandi
 * NVDA + Shift + R: riconosce qualsiasi tipo di immagine e pdf dal file system;
@@ -35,7 +36,13 @@ Inoltre, si possono personalizzare le scorciatoie di Nao semplicemente dalla fin
 
 È possibile anche interrompere un processo di Ocr molto lungo semplicemente premendo "Annulla" dalla finestra della barra di avanzamento; questa finestra fornisce anche informazioni sullo stato dell'OCR, aggiornando l'utente ogni 5 secondi. È possibile configurare la modalità con cui si desidera ricevere messaggi informativi sulla barra di avanzamento con il comando standard NVDA-u.
 
-È stato aggiunto un sottomenu chiamato "Nao" al menu strumenti di NVDA. Per adesso consente di effettuare una donazione al progetto, ma verrà arricchito in futuro con nuove funzionalità!
+È stato aggiunto un sottomenu chiamato "Nao" al menu strumenti di NVDA. Contiene le seguenti voci:
+* Seleziona file: consente di selezionare un file per l'elaborazione senza utilizzare una scorciatoia.
+* Fai una donazione: è ovvio, se ne hai voglia saremo molto felici!
+* Sito Web Nao: porta alla home page di Nao.
+* Git: porta al codice sorgente dove potrai analizzarlo, effettuare commit o aprire issue.
+* Controlla aggiornamenti: interroga il server per una nuova versione di Nao.
+* Svuota cache: se riscontri problemi con il componente aggiuntivo, ricevi messaggi di errore o lo trovi lento, svuota la cache per risolvere il problema.
 
 ## Supporto e donazioni
 Nao è completamente gratuito. Ad ogni modo, è bene non dimenticare che questo addon viene realizzato durante il tempo libero degli sviluppatori.
@@ -45,6 +52,12 @@ Se pensi che il nostro lavoro sia buono e migliori la tua vita, a <a href="https
 Vuoi segnalare un bug, suggerire nuove funzionalità, tradurre l'addon nella tua lingua? Abbiamo l'e-mail per te! Scrivi a support@nvda-nao.org e saremo felici di aiutarti.
 
 ## Cronologia
+### 2025.1
+* Compatibilità con NVDA versione 2025.1
+* A partire da Outlook 2016 e versioni successive, Implementa il riconoscimento OCR di un allegato di un messaggio selezionato.
+* Aggiunta la traduzione finlandese
+### 2024.1
+* Compatibilità con NVDA 2024.1
 ### 2023.1.1
 * Ripristinata compatibilità con NVDA versione 2023.3
 * Nuova hotkey NVDA + Ctrl + Shift + W effettua lo screenshot della finestra corrente e la riconosce

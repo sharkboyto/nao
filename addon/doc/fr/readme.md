@@ -5,7 +5,7 @@
 * Compatibilité NVDA : 2019.3 et ultérieure
 
 Nao (NVDA Advanced OCR) est une extension qui améliore les capacités OCR standard fournies par NVDA sur les versions modernes de Windows.
-Alors que la commande standard de NVDA utilise l'OCR Windows pour reconnaître l'écran, NAO est capable d'effectuer l'OCR sur les fichiers enregistrés sur votre disque dur ou vos périphériques USB. 
+Alors que la commande standard de NVDA utilise l'OCR Windows pour reconnaître l'écran, NAO est capable d'effectuer l'OCR sur les fichiers enregistrés sur votre disque dur ou vos périphériques USB, ou dans les pièces jointes Microsoft Outlook.
 Utilisez NVDA-Shift-R pour reconnaître toutes sortes d'images et de PDF ! 
 Placez simplement le focus/curseur sur le fichier que vous désirez, ne l'ouvrez pas, mais appuyez sur NVDA-Shift-r. 
 Le document sera reconnu et une simple fenêtre de texte apparaîtra, vous permettant de lire tout le contenu, de l'enregistrer, de rechercher du texte ou de copier du contenu dans le presse-papiers.
@@ -15,6 +15,7 @@ Nao est capable de gérer également des pdf multipages, donc si vous avez un do
 L'extension fonctionne sur les systèmes Windows 10 et Windows 11, car ils ont des capacités OCR intégrées. 
 Nao est compatible à partir de la version 2019.3 de NVDA, donc n'utilisez pas une version plus ancienne du lecteur d'écran.
 Veuillez noter que Nao fonctionne avec l'explorateur Windows, sur le bureau ou avec les gestionnaires de fichiers Total Commander ou xplorer² ; n'utilisez pas d'autres logiciels comme 7zip ou Winrar , car ils ne sont pas pris en charge.
+Pour les pièces jointes aux e-mails, il fonctionne également avec Microsoft Outlook 2016 ou version ultérieure.
 
 ## Fonctionnalités et commandes
 * NVDA + Shift + R : reconnaît toutes sortes d'images et de pdf à partir du système de fichiers ;
@@ -35,7 +36,13 @@ Veuillez noter que vous pouvez personnaliser les raccourcis de Nao simplement à
 
 Vous pouvez également interrompre un long processus OCR en appuyant simplement sur « Annuler » dans la fenêtre de la barre de progression ; cette fenêtre vous donne également des informations sur l'état de l'OCR, en mettant à jour les informations toutes les 5 secondes. Vous pouvez configurer comment recevoir les informations de la barre de progression avec la commande NVDA-u standard.
 
-Vous trouverez un sous-menu nommé Nao, sous le menu NVDA - Outils. Pour le moment, il ne contient qu'un élément qui vous permet de faire un don, mais nous allons améliorer cela avec de nouvelles fonctionnalités !
+Vous trouverez un sous-menu nommé Nao, sous le menu NVDA - Outils. Il contient les éléments suivants :
+* Sélectionner un fichier : vous permet de sélectionner un fichier à traiter sans utiliser de raccourci.
+* Faites un don : c'est explicite, si le cœur vous en dit nous en serons très heureux !
+* Site Web Nao : vous amène à la page d'accueil de Nao.
+* Git : vous amène au code sourceò où vous pouvez le vérifier, effectuer un commit ou ouvrir un ticket.
+* Vérifier les mises à jour : interroge le serveur pour une nouvelle version de Nao.
+* Cache vide : si vous rencontrez des problèmes avec le module complémentaire, recevez des messages d'erreur ou trouvez-le lent, videz votre cache pour résoudre le problème.
 
 ## Soutien et dons
 Nao est absolument gratuit. Cependant, n'oubliez pas que cette extension est faite durant le temps libre des développeurs.
@@ -45,6 +52,12 @@ Si vous pensez que notre travail est bon et qu'il améliore votre vie, <a href="
 Vous souhaitez signaler un bug, proposer de nouvelles fonctionnalités, traduire l'extension dans votre langue ? Nous avons l'adresse e-mail qu'il vous faut ! Écrivez simplement à support@nvda-nao.org (a priori en anglais ou italien) et nous serons heureux de vous aider.
 
 ## Historique
+### 2025.1
+* Compatibilité NVDA version 2025.1
+* Implémenter la reconnaissance OCR sur la pièce jointe sélectionnée d'un message Outlook ouvert, à partir d'Outlook 2016 et au-delà
+* Ajout de la traduction finlandaise
+### 2024.1
+* Compatibilité NVDA version 2024.1
 ### 2023.1.1
 * Compatibilité avec NVDA version 2023.3 restaurée
 +* Un nouveau raccourci clavier NVDA + Ctrl + Maj + W prend une capture d'écran de la fenêtre courante et en effectue la reconnaissance

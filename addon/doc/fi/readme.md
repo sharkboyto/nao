@@ -5,7 +5,7 @@
 * Yhteensopivuus: NVDA 2019.3 ja uudemmat
 
 NAO (NVDA Advanced OCR) on lisäosa, joka parantaa tavanomaisia tekstintunnistustoimintoja, joita NVDA tarjoaa uusissa Windows-versioissa.
-NVDA:n vakiokomento käyttää Windowsin tekstintunnistustoimintoa näytön tunnistamiseen, mutta NAO voi suorittaa tekstintunnistuksen kiintolevylle tai USB-laitteille tallennetuille tiedostoille.
+NVDA:n vakiokomento käyttää Windowsin tekstintunnistustoimintoa näytön tunnistamiseen, mutta NAO voi suorittaa tekstintunnistuksen kiintolevylle tai USB-laitteille tallennetuille tiedostoille, tai Microsoft Outlook -liitteistä.
 Tunnista kuva- ja PDF-tiedostoja NVDA+Vaihto+R-komentoa käyttäen.
 Siirrä kohdistus haluamasi tiedoston kohdalle ja paina NVDA+Vaihto+R.
 Kun tiedoston tunnistus on suoritettu, näkyviin tulee yksinkertainen teksti-ikkuna, joka mahdollistaa koko sisällön lukemisen, tallentamisen, tekstin etsimisen tai sisällön kopioimisen leikepöydälle.
@@ -15,6 +15,7 @@ NAO voi  käsitellä myös monisivuisia PDF-tiedostoja, joten jos sinulla on saa
 Lisäosa toimii Windows 10- ja Windows 11 -järjestelmissä, koska niissä on sisäänrakennettu tekstintunnistusominaisuus.
 NAO on yhteensopiva NVDA 2019.3:n ja sitä uudempien kanssa, joten älä käytä vanhempia versioita.
 Huom: NAO toimii Windowsin resurssienhallinnassa, työpöydällä, Total Commanderissa tai xplorer²-tiedostonhallinnassa. Älä käytä muita ohjelmistoja kuten 7-Zipiä tai WinRARia, koska niitä ei tueta.
+Sähköpostin liitetiedostoissa se toimii myös Microsoft Outlook 2016:n tai uudemman kanssa.
 
 ## Ominaisuudet ja komennot
 * NVDA+Vaihto+R: tunnista kaikenlaiset kuva- ja PDF-tiedostot.
@@ -35,7 +36,14 @@ Huom: Voit mukauttaa NAO:n näppäinkomentoja helposti NVDA:n Näppäinkomennot-
 
 Voit myös keskeyttää kauan kestävän tekstintunnistusprosessin painamalla Peruuta-painiketta tunnistuksen etenemisen ikkunassa. Tämä ikkuna antaa tietoa tekstintunnistuksen tilasta päivittäen tiedot 5 sekunnin välein. Voit määrittää edistymispalkin tilan ilmoittamista tavalliseen tapaan NVDA+U-näppäinkomennolla.
 
-NVDA-valikon Työkalut-alivalikosta löytyy NAO-kohta. Tällä hetkellä se sisältää vain kohdan, joka mahdollistaa lahjoituksen tekemisen, mutta lisäämme siihen uusia ominaisuuksia tulevaisuudessa.
+NVDA-valikon Työkalut-alivalikosta löytyy NAO-kohta. Se sisältää seuraavat kohteet:
+* Valitse tiedosto: voit valita tiedoston käsiteltäväksi ilman pikanäppäintä.
+* Tee lahjoitus: se on itsestään selvää, jos siltä tuntuu, olemme erittäin iloisia!
+* Naon verkkosivusto: tuo sinut Naon kotisivulle.
+* Git: vie sinut lähdekoodiinò, jossa voit tarkistaa sen, sitoutua tai avata ongelman.
+* Tarkista päivitykset: kysyy palvelimelta uutta Naon versiota.
+* Tyhjennä välimuisti: Jos kohtaat ongelmia lisäosan kanssa, saat virheilmoituksia tai huomaat sen olevan hidas, tyhjennä välimuisti ongelman ratkaisemiseksi.
+
 
 ## Tuki ja lahjoitukset
 NAO on täysin ilmainen. Muista kuitenkin, että se on tehty kehittäjien vapaa-ajalla.
@@ -45,7 +53,12 @@ Arvostaisimme mitä tahansa tukea, jota voit meille antaa.
 Haluatko ilmoittaa bugista, ehdottaa uusia ominaisuuksia tai kääntää lisäosan omalle kielellesi? Meillä on sähköpostiosoite sinua varten. Kirjoita osoitteeseen support@nvda-nao.org, niin autamme mielellämme.
 
 ## Versiohistoria
-
+### 2025.1
+* Yhteensopiva NVDA-version 2025.1 kanssa
+* Ota OCR-tunnistus käyttöön valitulle avatun Outlook-viestin liitteelle, Outlook 2016:sta ja sen jälkeen
+* Lisätty suomenkielinen käännös
+### 2024.1
+* NVDA version 2024.1 yhteensopivuus
 ### 2023.1.1
 * Palautettu NVDA 2023.3:n yhteensopivuus
 * Uusi NVDA+Ctrl+Vaihto+W-näppäinkomento ottaa kuvakaappauksen senhetkisestä ikkunasta ja tunnistaa sen
