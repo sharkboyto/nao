@@ -41,7 +41,7 @@ NVDA-valikon Työkalut-alivalikosta löytyy NAO-kohta. Se sisältää seuraavat 
 * Lahjoita: Lahjoita NAO-lisäosan tekijöille.
 * NAO:n verkkosivu: Avaa NAO:n kotisivun.
 * Git: Avaa NAO:n lähdekoodivaraston Gitin sivustolla, jossa voit tarkastella sitä, tehdä muutoksia tai avata aiheen.
-* Tarkista päivitykset: Tarkistaa palvelimelta uuden NAO:n version saatavuuden.
+* Tarkista päivitys: Tarkistaa palvelimelta uuden NAO:n version saatavuuden.
 * Tyhjennä välimuisti: Jos kohtaat ongelmia lisäosan kanssa, saat virheilmoituksia tai huomaat sen olevan hidas, tyhjennä välimuisti ongelman ratkaisemiseksi.
 
 
