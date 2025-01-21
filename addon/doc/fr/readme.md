@@ -37,6 +37,7 @@ Veuillez noter que vous pouvez personnaliser les raccourcis de Nao simplement à
 Vous pouvez également interrompre un long processus OCR en appuyant simplement sur « Annuler » dans la fenêtre de la barre de progression ; cette fenêtre vous donne également des informations sur l'état de l'OCR, en mettant à jour les informations toutes les 5 secondes. Vous pouvez configurer comment recevoir les informations de la barre de progression avec la commande NVDA-u standard.
 
 Vous trouverez un sous-menu nommé Nao, sous le menu NVDA - Outils. Il contient les éléments suivants :
+
 * Sélectionner un fichier : vous permet de sélectionner un fichier à traiter sans utiliser de raccourci.
 * Faites un don : c'est explicite, si le cœur vous en dit nous en serons très heureux !
 * Site Web Nao : vous amène à la page d'accueil de Nao.
