@@ -7,9 +7,12 @@
 import os
 import tempfile
 import api
+from comtypes import COMError
 from logHandler import log
 
 CONTROL_ID_ATTACHMENTS = 4306
+
+ATTACH_FLAG_RENDERED_IN_BODY = 0x00000004
 
 class OutlookHelper:
 	def is_outlook(obj=None):
@@ -90,12 +93,34 @@ class OutlookHelper:
 		raise LookupError("Attachment not found")
 
 	@staticmethod
-	def isAttachmentNotInList(attachment):
-		isHidden = attachment.PropertyAccessor.GetProperty(
-			"http://schemas.microsoft.com/mapi/proptag/0x7FFE000B"
-		)
+	def isAttachmentNotInList_superseded(attachment):
+		"""Returns True if the attachment is not in list (to filter it out).
+		For this, test if the attachment is marked as hidden.
+		"""
+		try:
+			isHidden = attachment.PropertyAccessor.GetProperty(
+				"http://schemas.microsoft.com/mapi/proptag/0x7FFE000B"
+			)
+		except COMError:
+			return False
 		if isHidden:
 			log.debug(f"{attachment.FileName} is hidden")
+			return True
+		return False
+
+	@staticmethod
+	def isAttachmentNotInList(attachment):
+		"""Returns True if the attachment is not in list (to filter it out).
+		For this, test if the attachment is rendered in body.
+		"""
+
+		try:
+			attachFlags = attachment.PropertyAccessor.GetProperty(
+				"http://schemas.microsoft.com/mapi/proptag/0x37140003"
+			)
+		except COMError:
+					return False
+		if attachFlags & ATTACH_FLAG_RENDERED_IN_BODY:
 			return True
 		return False
 
